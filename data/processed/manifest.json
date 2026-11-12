@@ -1,0 +1,86 @@
+{
+  "dataset": "FMA-small, pre-publication release (2017-05-09)",
+  "source_url": "https://os.unil.cloud.switch.ch/fma/fma_metadata.zip",
+  "source_sha1": "f0df49ffe5f2a6008d7dc83c6915b31835dfe733",
+  "source_checksum_verified": true,
+  "license": "CC BY 4.0; Defferrard et al. (2017)",
+  "source_small_tracks": 8000,
+  "retained_tracks": 8000,
+  "feature_count": 518,
+  "storage_dtype": "float32",
+  "nonfinite_values_replaced_with_nan": 0,
+  "removed_all_missing_track_ids": [],
+  "rows_needing_partial_imputation": 0,
+  "genres": [
+    "Electronic",
+    "Experimental",
+    "Folk",
+    "Hip-Hop",
+    "Instrumental",
+    "International",
+    "Pop",
+    "Rock"
+  ],
+  "feature_family_sizes": {
+    "mfcc": 140,
+    "chroma_cqt": 84,
+    "chroma_cens": 84,
+    "chroma_stft": 84,
+    "spectral_contrast": 49,
+    "tonnetz": 42,
+    "rmse": 7,
+    "spectral_centroid": 7,
+    "spectral_bandwidth": 7,
+    "spectral_rolloff": 7,
+    "zcr": 7
+  },
+  "split_audit": {
+    "counts": {
+      "training": 6400,
+      "validation": 800,
+      "test": 800
+    },
+    "genre_by_split": {
+      "test": {
+        "Electronic": 100,
+        "Experimental": 100,
+        "Folk": 100,
+        "Hip-Hop": 100,
+        "Instrumental": 100,
+        "International": 100,
+        "Pop": 100,
+        "Rock": 100
+      },
+      "training": {
+        "Electronic": 800,
+        "Experimental": 800,
+        "Folk": 800,
+        "Hip-Hop": 800,
+        "Instrumental": 800,
+        "International": 800,
+        "Pop": 800,
+        "Rock": 800
+      },
+      "validation": {
+        "Electronic": 100,
+        "Experimental": 100,
+        "Folk": 100,
+        "Hip-Hop": 100,
+        "Instrumental": 100,
+        "International": 100,
+        "Pop": 100,
+        "Rock": 100
+      }
+    },
+    "artist_overlap_counts": {
+      "training__validation": 0,
+      "training__test": 0,
+      "validation__test": 0
+    },
+    "missing_artist_ids": 0
+  },
+  "processed_sha256": {
+    "features.npz": "4436d7b93891a9c25e2ef03328b85d22a2eaa203bd2f92c20f4613fd64433cbf",
+    "tracks.csv": "750c7f0ef7ec3004444087e18200828cf3b44906a6704d3979d8674a9001ed11"
+  }
+}

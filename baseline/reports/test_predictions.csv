@@ -1,0 +1,801 @@
+track_id,actual,artist_id,artist,title,decision_tree,knn,svm,ann,dummy
+182,Rock,64,Ariel Pink's Haunted Graffiti,Jules Lost His Jewels,Rock,Pop,Pop,Pop,Electronic
+704,International,140,Fósforo,Mano De Dios,International,International,International,International,Electronic
+705,International,140,Fósforo,Tio Cocodrilo,Pop,Rock,Hip-Hop,Hip-Hop,Electronic
+706,International,140,Fósforo,Esto Es Califas,Hip-Hop,Hip-Hop,Hip-Hop,Pop,Electronic
+707,International,140,Fósforo,Cochabamba,Pop,Rock,Pop,International,Electronic
+708,International,140,Fósforo,Desconocido,Pop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+709,International,140,Fósforo,Cumbia De Obama,International,International,Hip-Hop,Hip-Hop,Electronic
+890,Folk,168,Ilyas Ahmed,Softly Tomorrow,Experimental,Pop,Instrumental,Experimental,Electronic
+892,Folk,168,Ilyas Ahmed,Phantom Sky,Instrumental,Rock,Instrumental,International,Electronic
+1066,Experimental,10,Lucky Dragons,Helicopter de Cristal,Experimental,Experimental,Experimental,Experimental,Electronic
+1069,Experimental,10,Lucky Dragons,Un Lagrima en la Discoteca,Pop,Experimental,Experimental,Experimental,Electronic
+1073,Experimental,10,Lucky Dragons,Onda Tocadisco,Hip-Hop,Rock,Rock,Rock,Electronic
+1075,Experimental,10,Lucky Dragons,Painful Corazon,Experimental,Electronic,Experimental,Electronic,Electronic
+1249,Experimental,163,Nautical Almanac,"""Cleanse Bath"" 10"" Metal Laquer",Hip-Hop,Electronic,Experimental,Electronic,Electronic
+1259,Experimental,163,Nautical Almanac,Rolling In The Green,Hip-Hop,Pop,Experimental,International,Electronic
+3624,Rock,728,Fallen Leaves,Days of Summer,Experimental,Pop,Rock,Rock,Electronic
+4108,Rock,1152,Psychedelic Horseshit,New Wave Hippies,Folk,Pop,Rock,Rock,Electronic
+7373,Experimental,10,Lucky Dragons,heartbreaker,Hip-Hop,Experimental,Pop,Pop,Electronic
+7374,Experimental,10,Lucky Dragons,new homes,Experimental,Experimental,Experimental,Experimental,Electronic
+7375,Experimental,10,Lucky Dragons,cherchez le dragon,Hip-Hop,Experimental,Electronic,Electronic,Electronic
+7376,Experimental,10,Lucky Dragons,about peter,Rock,Folk,Instrumental,Instrumental,Electronic
+7377,Experimental,10,Lucky Dragons,with new trees,Electronic,Electronic,Electronic,Experimental,Electronic
+7378,Experimental,10,Lucky Dragons,resurrect dead on planet jupiter,Experimental,Instrumental,Electronic,Electronic,Electronic
+7379,Experimental,10,Lucky Dragons,it's hard to fall asleep,Hip-Hop,International,Electronic,Hip-Hop,Electronic
+7381,Experimental,10,Lucky Dragons,i'd play at the rotunda,Instrumental,Pop,Instrumental,Experimental,Electronic
+7383,Experimental,10,Lucky Dragons,i hear horrible music,International,Experimental,Electronic,Experimental,Electronic
+7385,Experimental,10,Lucky Dragons,my imaginary scary home,International,International,Pop,Instrumental,Electronic
+7386,Experimental,10,Lucky Dragons,its hard to wake up,Electronic,Experimental,Experimental,Experimental,Electronic
+7388,Experimental,10,Lucky Dragons,girlworld (3 in a bed mix),Experimental,Pop,Electronic,Electronic,Electronic
+7391,Experimental,10,Lucky Dragons,all these wires between us,Electronic,Experimental,Electronic,Experimental,Electronic
+7393,Experimental,10,Lucky Dragons,leaving things as they are,Instrumental,Electronic,Electronic,Electronic,Electronic
+9155,Experimental,2244,Peeled Hearts Paste,Tossypot,Hip-Hop,Hip-Hop,Experimental,Experimental,Electronic
+10250,Instrumental,42,JayDee,Tree Symphony,Electronic,International,Experimental,Pop,Electronic
+10381,Folk,77,Big Blood,Baron in the Trees,Pop,Rock,Experimental,Pop,Electronic
+10382,Folk,77,Big Blood,New Dish Rag,Instrumental,International,Experimental,Experimental,Electronic
+10383,Folk,77,Big Blood,Graceless Lady,Folk,Experimental,Experimental,Pop,Electronic
+10384,Folk,77,Big Blood,Blood Mumble,Pop,International,Pop,Folk,Electronic
+10385,Folk,77,Big Blood,Curee,Instrumental,Folk,Instrumental,Instrumental,Electronic
+10386,Folk,77,Big Blood,The Birds &amp; The Herds,Folk,International,Rock,International,Electronic
+10387,Folk,77,Big Blood,Tease it Like a Cop,Instrumental,International,Instrumental,Instrumental,Electronic
+10388,Folk,77,Big Blood,Night Lighter,Folk,International,Folk,Folk,Electronic
+10389,Folk,77,Big Blood,Terrapin (oh! syd),International,Pop,Pop,Experimental,Electronic
+10438,Folk,77,Big Blood,Little Lepers,Pop,International,Experimental,Experimental,Electronic
+10439,Folk,77,Big Blood,In The Light Of The Moon,Experimental,Pop,Instrumental,Instrumental,Electronic
+10440,Folk,77,Big Blood,No Gravity Blues,Instrumental,Instrumental,Experimental,International,Electronic
+10441,Folk,77,Big Blood,In The Shade,Rock,Pop,Rock,Rock,Electronic
+10442,Folk,77,Big Blood,Something Brighter Than The News,Experimental,Instrumental,Experimental,Experimental,Electronic
+10443,Folk,77,Big Blood,Beast (1 Beast),International,Rock,Pop,Folk,Electronic
+10444,Folk,77,Big Blood,Restless Purity,Instrumental,International,International,International,Electronic
+10447,Folk,77,Big Blood,Low Gravity Blues,Instrumental,Pop,Pop,Experimental,Electronic
+10480,Folk,77,Big Blood,Adversaries &amp; Enemies,Instrumental,Electronic,Experimental,Experimental,Electronic
+10481,Folk,77,Big Blood,Spit Shine,Rock,Pop,Rock,Pop,Electronic
+10485,Folk,77,Big Blood,Song For Baltimore,Pop,Pop,Instrumental,Instrumental,Electronic
+10678,Folk,77,Big Blood,Glory Daze,Folk,International,International,International,Electronic
+10679,Folk,77,Big Blood,The Rise Of Quinnisa Rose,Experimental,Pop,International,Pop,Electronic
+10682,Folk,77,Big Blood,She Said Nothing,Folk,Folk,Folk,Folk,Electronic
+10684,Folk,77,Big Blood,Don't Trust The Ruin,Instrumental,Pop,Experimental,Experimental,Electronic
+10992,Folk,77,Big Blood,The Grove Is Hotter Than An Ocean's Oven,International,International,International,International,Electronic
+10993,Folk,77,Big Blood,Oh Country (Skin &amp; Bones),Instrumental,Rock,Experimental,Pop,Electronic
+11019,Experimental,10,Lucky Dragons,Mirror Friends,Pop,Pop,Pop,Pop,Electronic
+11020,Experimental,10,Lucky Dragons,Morning Ritual,International,International,Pop,Pop,Electronic
+11059,Folk,77,Big Blood,Vitamin C,Pop,Pop,Experimental,Experimental,Electronic
+11200,Pop,2881,March Rosetta,Berlin Lights (Finistere),International,International,Pop,Pop,Electronic
+11204,Hip-Hop,2886,Audible Intelligence,Steppin' In,Hip-Hop,Rock,Hip-Hop,Pop,Electronic
+11503,Folk,77,Big Blood,All Operations,Hip-Hop,Folk,Folk,Folk,Electronic
+11504,Folk,77,Big Blood,A Friendly Noose,Instrumental,Folk,Folk,International,Electronic
+11505,Folk,77,Big Blood,A Quiet Lousy Roar,Pop,International,International,International,Electronic
+11508,Folk,77,Big Blood,Under The Concourse,Folk,Folk,Folk,Experimental,Electronic
+12045,Folk,77,Big Blood,The WInds House,International,Rock,International,International,Electronic
+12046,Folk,77,Big Blood,Well Water,Instrumental,International,Instrumental,Rock,Electronic
+12047,Folk,77,Big Blood,Comin' Home Pt. I,Pop,International,International,International,Electronic
+12048,Folk,77,Big Blood,She Sells Sanctuary,Pop,Folk,Folk,Folk,Electronic
+12049,Folk,77,Big Blood,"On a Sunday, Years After",Pop,Instrumental,Instrumental,Instrumental,Electronic
+12050,Folk,77,Big Blood,Echohead,Experimental,International,Pop,Rock,Electronic
+12051,Folk,77,Big Blood,Comin' Home Pt. II,Instrumental,Folk,International,International,Electronic
+12052,Folk,77,Big Blood,Breath in a Seed,Instrumental,Experimental,Folk,Folk,Electronic
+12053,Folk,77,Big Blood,Land Upon Mud II,Pop,Folk,Folk,Folk,Electronic
+12058,Folk,77,Big Blood,Land Upon Mud I,Experimental,International,International,International,Electronic
+12059,Folk,77,Big Blood,Brotha-o-Brotha-o-,International,Folk,Folk,International,Electronic
+12060,Folk,77,Big Blood,Heart of Glass,Experimental,Instrumental,Experimental,Experimental,Electronic
+12061,Folk,77,Big Blood,Do Insects Sleep?,Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+12062,Folk,77,Big Blood,Sleepin' Time,Experimental,Rock,Experimental,Pop,Electronic
+12064,Folk,77,Big Blood,Beatle Bones 'N' Smokin' Stones,Pop,Folk,Rock,Rock,Electronic
+12065,Folk,77,Big Blood,So Old Again,Pop,Rock,Pop,Folk,Electronic
+12066,Folk,77,Big Blood,Apes &amp; History (Swimmin in Paper),Folk,Folk,Folk,Folk,Electronic
+12067,Folk,77,Big Blood,For Four Beating Lungs,Experimental,Instrumental,Experimental,Pop,Electronic
+12179,Pop,3222,Garmisch,U Fine,Folk,Pop,Electronic,Pop,Electronic
+12387,Pop,3343,Norton,Spherical Hearts (Trondheim Remix),International,International,Pop,Pop,Electronic
+12390,Pop,3346,Pipo Pegoraro,Varal,Pop,Hip-Hop,Pop,Pop,Electronic
+12481,Folk,77,Big Blood,Haystack (A.P.),Folk,International,International,International,Electronic
+12482,Folk,77,Big Blood,She Said Nothing II,Experimental,Folk,Folk,Folk,Electronic
+12484,Folk,77,Big Blood,Frost Farm,Folk,International,Folk,Experimental,Electronic
+12485,Folk,77,Big Blood,Got Wings?,International,International,Experimental,International,Electronic
+12486,Folk,77,Big Blood,I'm So Glad,Rock,Folk,Folk,Folk,Electronic
+12487,Folk,77,Big Blood,So Po Swing,Instrumental,International,Folk,Folk,Electronic
+12488,Folk,77,Big Blood,Moon Perfume,Folk,Folk,Folk,International,Electronic
+12489,Folk,77,Big Blood,'Preese 'Preese,Instrumental,Pop,Folk,Pop,Electronic
+12490,Folk,77,Big Blood,I've Been A Baby All My Life (I Hope You Don't Expect A Man),Instrumental,International,International,International,Electronic
+12508,Folk,77,Big Blood,Satie (First Gnossienne),Instrumental,Folk,Folk,International,Electronic
+12513,Folk,77,Big Blood,My Last Days As A Fish,Rock,International,Rock,Pop,Electronic
+12514,Folk,77,Big Blood,Indang Pariman,Folk,International,Experimental,Pop,Electronic
+12518,Pop,3346,Pipo Pegoraro,When you walk,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+12521,Rock,3227,Brad Sucks,Never Get Out,Hip-Hop,Hip-Hop,Hip-Hop,Pop,Electronic
+12690,International,3420,Bo Marley + Disrupt + Volfoniq,L'Anchoïade,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+12691,International,3420,Bo Marley + Disrupt + Volfoniq,La Tapenade,Electronic,Hip-Hop,Pop,Pop,Electronic
+12692,International,3420,Bo Marley + Disrupt + Volfoniq,La Brandade,Electronic,International,Pop,Pop,Electronic
+13328,Pop,3635,Morad Stars,Street Wild Lover,Pop,Rock,Rock,Pop,Electronic
+13578,Experimental,1783,Big City Orchestra,Milk,Folk,Hip-Hop,Experimental,Hip-Hop,Electronic
+13666,Rock,3736,M.A.Z.C.A.,Seven Faces of Him,Rock,Rock,Rock,Rock,Electronic
+13706,Electronic,3766,Goto80,Love Crime (Qwertypak Venom Remix),Experimental,Rock,Electronic,Electronic,Electronic
+13707,Electronic,3766,Goto80,For Newspress,Electronic,Electronic,Electronic,Electronic,Electronic
+13708,Electronic,3766,Goto80,Disk Machine,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+13709,Electronic,3766,Goto80,Member,Hip-Hop,Hip-Hop,Experimental,Electronic,Electronic
+13710,Electronic,3766,Goto80,Love Crime,Hip-Hop,Electronic,Electronic,Pop,Electronic
+13711,Electronic,3766,Goto80,Disk Machine (Sky Pole Remix),Experimental,Hip-Hop,Electronic,Electronic,Electronic
+14601,International,4053,Brahim Fribgane,(interview),Hip-Hop,International,International,International,Electronic
+14602,International,4053,Brahim Fribgane,Amazigh,Experimental,Folk,Folk,Folk,Electronic
+14603,International,4053,Brahim Fribgane,Sidi Rabi,Folk,Folk,Folk,Folk,Electronic
+14604,International,4053,Brahim Fribgane,Live Improv,Experimental,Folk,Folk,Folk,Electronic
+14653,Rock,3227,Brad Sucks,Bad Sign,Pop,Hip-Hop,Pop,Hip-Hop,Electronic
+14663,Pop,4072,Coleco Music,Coleco Says: How Are You?,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+14690,Experimental,10,Lucky Dragons,Givers,International,Hip-Hop,International,International,Electronic
+14733,Rock,4120,Throwing Muses,Mania,Rock,Rock,Pop,Pop,Electronic
+14734,Rock,4120,Throwing Muses,Shark,Electronic,Rock,Pop,Pop,Electronic
+14735,Rock,4120,Throwing Muses,Start,Electronic,Rock,Rock,Pop,Electronic
+14736,Rock,4120,Throwing Muses,Hazing,Pop,International,Rock,Rock,Electronic
+14737,Rock,4120,Throwing Muses,Speed and Sleep,Pop,International,Rock,Rock,Electronic
+14738,Rock,4120,Throwing Muses,Devil's Roof,Rock,International,Pop,Pop,Electronic
+14739,Rock,4120,Throwing Muses,Say Goodbye,Pop,International,Rock,Rock,Electronic
+14740,Rock,4120,Throwing Muses,Tar Kissers,Rock,International,Rock,Instrumental,Electronic
+14741,Rock,4120,Throwing Muses,Limbo,Pop,International,Rock,Rock,Electronic
+14742,Rock,4120,Throwing Muses,Bright Yellow Gun,Pop,Rock,Rock,Rock,Electronic
+14743,Rock,4120,Throwing Muses,Vicky's Box,Rock,International,Rock,Rock,Electronic
+14744,Rock,4120,Throwing Muses,Bea,Pop,Rock,Rock,Rock,Electronic
+14745,Rock,4120,Throwing Muses,Pearl,Rock,Pop,Pop,Pop,Electronic
+15094,Experimental,4193,guitarrorisms,banjo bird,Pop,International,Experimental,Experimental,Electronic
+16337,Pop,1762,Twizzle,Falling,Folk,Folk,Folk,Folk,Electronic
+16338,Pop,1762,Twizzle,Black Elk Mountain,Pop,International,Pop,Experimental,Electronic
+16339,Pop,1762,Twizzle,This Is No Chanson,Folk,International,Experimental,Electronic,Electronic
+16340,Pop,1762,Twizzle,Barefoot Girl/ Pebble Road,Folk,Rock,Pop,Experimental,Electronic
+16994,Rock,4656,Tusk Lord,First Christmas Song,Pop,Instrumental,Instrumental,Instrumental,Electronic
+16995,Rock,4656,Tusk Lord,Second Christmas Song,Folk,International,Instrumental,Instrumental,Electronic
+16997,Rock,4656,Tusk Lord,Third Christmas Song,Instrumental,Instrumental,Instrumental,Folk,Electronic
+18112,Experimental,1464,Sikhara,Bardos,Pop,Experimental,Experimental,Experimental,Electronic
+18350,Folk,1010,Josh Mease,Overboard,Pop,Folk,Folk,Instrumental,Electronic
+19439,Hip-Hop,5207,Sleaze,God Damn,Experimental,Electronic,Hip-Hop,Pop,Electronic
+19685,Rock,1110,Paik,Phantoms,Rock,Rock,Rock,Rock,Electronic
+20296,Experimental,1464,Sikhara,Part 3,Experimental,Experimental,Experimental,Experimental,Electronic
+20667,Electronic,5467,Vim,surprisingly upbeat about it,Electronic,International,Hip-Hop,International,Electronic
+21995,Pop,5828,Katapulto,zero rhythm dollar boy,International,Electronic,International,International,Electronic
+21996,Pop,5828,Katapulto,gospellioza,Electronic,Hip-Hop,Electronic,International,Electronic
+21997,Pop,5828,Katapulto,purity & danger,International,Electronic,Electronic,Electronic,Electronic
+21998,Pop,5828,Katapulto,karaoke megablast,Electronic,Electronic,Experimental,Experimental,Electronic
+21999,Pop,5828,Katapulto,danse macabre,International,Electronic,Electronic,Electronic,Electronic
+22000,Pop,5828,Katapulto,kolorowe wody,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+22001,Pop,5828,Katapulto,philcollins takes your hand,Hip-Hop,Pop,Pop,Pop,Electronic
+23010,Electronic,6032,Monopole,Stereo-vision radio,Hip-Hop,Hip-Hop,Hip-Hop,Experimental,Electronic
+23041,Rock,4449,Stromble Fix,Cold Age,Rock,International,Rock,Rock,Electronic
+23063,Experimental,6054,adcBicycle,poor economic policies,International,Pop,Rock,Rock,Electronic
+23862,Electronic,3766,Goto80,Datahell Beta,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+25055,Pop,6440,Ghosts and Strings,Judgement Day,Pop,Folk,Folk,Folk,Electronic
+26859,Electronic,6809,"I, Cactus",ruby cactus,Rock,Pop,Pop,Instrumental,Electronic
+26861,Electronic,6809,"I, Cactus",yellow cactus,Experimental,International,Pop,Experimental,Electronic
+26902,Electronic,3766,Goto80,The Hit,International,Hip-Hop,International,International,Electronic
+26904,Electronic,3766,Goto80,Boys Say Only You feat. Yazoo,Electronic,Hip-Hop,Hip-Hop,Electronic,Electronic
+26905,Electronic,3766,Goto80,Viking Conquistador feat. Acid Terrorist,Electronic,Hip-Hop,International,International,Electronic
+26906,Electronic,3766,Goto80,Invader Tune,Hip-Hop,Electronic,Experimental,Experimental,Electronic
+28070,Rock,7073,Bare Wires,Romantic Girl,Rock,Pop,Rock,Rock,Electronic
+28072,Rock,7073,Bare Wires,Nice to Know You,Rock,Pop,Rock,Rock,Electronic
+28179,Electronic,7082,I.D. & Baobinga,Raise Riddim,Rock,Electronic,Electronic,Electronic,Electronic
+28266,Rock,1655,Lame Drivers,Working Song,Hip-Hop,Rock,Rock,Rock,Electronic
+28692,Rock,6978,The Black Bug,You A Grave,Instrumental,Pop,Rock,Experimental,Electronic
+28802,Pop,7217,Grave Babies,Eating Babies,Rock,Rock,Rock,Rock,Electronic
+29351,International,7326,danzante de tijeras,tipac tipac,Electronic,International,International,International,Electronic
+30316,Experimental,7518,Wm. Burke's Hideous Truth,Frozen Assets,Pop,Hip-Hop,Experimental,Experimental,Electronic
+32435,Electronic,7972,Go Gadget,Password,Electronic,Electronic,Electronic,Experimental,Electronic
+33992,Rock,8391,The Pleasure Kills,Oblivion,Rock,Pop,Rock,Rock,Electronic
+35182,Pop,3222,Garmisch,Glimmer (Album Version),International,Pop,Instrumental,Experimental,Electronic
+35184,Pop,3222,Garmisch,U Fine,Pop,Electronic,Electronic,Pop,Electronic
+35198,Experimental,7413,Olelé Brut,It's Now or Never (Elvis Presley),Pop,Pop,Experimental,Pop,Electronic
+35199,Experimental,7413,Olelé Brut,Know (Nick Drake),Experimental,Folk,Rock,Rock,Electronic
+35204,Experimental,7413,Olelé Brut,Gnossienne No 1 (Erik Satie),Electronic,Instrumental,Experimental,Experimental,Electronic
+35544,Pop,3222,Garmisch,Facing the Sea,Pop,Folk,Pop,Experimental,Electronic
+35545,Pop,3222,Garmisch,Try 01,Pop,Folk,Instrumental,Instrumental,Electronic
+35549,Pop,3222,Garmisch,Laugh Tracks,Instrumental,Instrumental,Pop,Hip-Hop,Electronic
+35550,Pop,3222,Garmisch,Glimmer,International,Pop,International,Experimental,Electronic
+35569,Electronic,8616,Ion (Romania),Education After Auschwitz (Bonus Track),Hip-Hop,Electronic,Hip-Hop,Hip-Hop,Electronic
+35608,Pop,8619,Stan,Second Hand News,Folk,International,Folk,International,Electronic
+36096,Electronic,5978,Exteenager,your name is rain,Electronic,Electronic,Electronic,Electronic,Electronic
+36097,Electronic,5978,Exteenager,it was magic,International,Pop,Electronic,Electronic,Electronic
+36099,Electronic,5978,Exteenager,morpheus,International,Electronic,Electronic,International,Electronic
+36302,Hip-Hop,8693,Asthmatic Astronaut,Horn's for breakfast,Pop,Experimental,Hip-Hop,Hip-Hop,Electronic
+36799,Experimental,8784,Rully Shabara & Wukir,Tanah,International,Pop,Experimental,Electronic,Electronic
+36959,Pop,3222,Garmisch,Facing the Sea (Album Version),Pop,Folk,Pop,Experimental,Electronic
+36961,Pop,3222,Garmisch,Requiem for Wolf,Pop,Hip-Hop,International,International,Electronic
+36965,Pop,3222,Garmisch,U Fine (TSP's 8-Bit Edit),Pop,Hip-Hop,International,International,Electronic
+36966,Pop,3222,Garmisch,Glimmer (mGee's the Boom and the Bap Remix),Electronic,Hip-Hop,International,International,Electronic
+36998,Electronic,5978,Exteenager,bonsoir tiroir!,International,Hip-Hop,Electronic,International,Electronic
+38775,International,9237,Sláinte,"Kesh Jig, Leitrim Fancy",International,International,International,International,Electronic
+38776,International,9237,Sláinte,Silver Spear,Electronic,Folk,International,International,Electronic
+38777,International,9237,Sláinte,Star of the County Down,Folk,Folk,Folk,Folk,Electronic
+38778,International,9237,Sláinte,"Gander in the Pratie Hole, Morrison's Jig, Drowsy Maggie",International,International,International,International,Electronic
+38779,International,9237,Sláinte,Carolan's Draught,Folk,Folk,Folk,Folk,Electronic
+38780,International,9237,Sláinte,Maid Behind the Bar,Electronic,International,International,International,Electronic
+38781,International,9237,Sláinte,"Denis Murphy's, John Ryan's",International,Folk,International,International,Electronic
+38782,International,9237,Sláinte,Wild Mountain Thyme,International,Folk,Folk,Folk,Electronic
+38783,International,9237,Sláinte,Banish,International,International,International,International,Electronic
+38784,International,9237,Sláinte,Julia Delaney,Electronic,Folk,International,International,Electronic
+38785,International,9237,Sláinte,"Si Beag Si Mor, Snowy Path",International,International,International,International,Electronic
+38817,International,9237,Sláinte,The Banshee. Gravel Walks. The Old Copperplate,International,Experimental,Folk,Folk,Electronic
+38818,International,9237,Sláinte,Mairi's Wedding,Rock,Rock,Folk,Pop,Electronic
+38819,International,9237,Sláinte,The Butterfly. Kid on the Mountain,International,Pop,Folk,International,Electronic
+38820,International,9237,Sláinte,Fear a Bhata,Folk,Folk,Folk,Folk,Electronic
+38821,International,9237,Sláinte,Britches Full of Stitches. Munster Bank. Bill Sullivan's (The A Polkas),International,International,International,Experimental,Electronic
+38822,International,9237,Sláinte,The Manx Lullaby,Instrumental,Folk,Folk,Folk,Electronic
+38823,International,9237,Sláinte,Scully's Reel. Mrs McLeod's. Cooley's Reel,International,Folk,Folk,International,Electronic
+38824,International,9237,Sláinte,Lakes of Pontchartrain,Folk,Folk,Folk,Folk,Electronic
+38825,International,9237,Sláinte,Lark in the Morning. The Atholl Highlanders,International,Folk,Folk,Experimental,Electronic
+38826,International,9237,Sláinte,She Moved Through the Fair,Folk,Folk,Folk,Folk,Electronic
+38827,International,9237,Sláinte,The Crosses of Annagh. The Humors of Tulla. The Cup of Tea,International,Folk,Folk,Folk,Electronic
+38828,International,9237,Sláinte,Denis Murphy's Polka. I'll Tell Me Ma. John Ryan's Polka,International,Folk,Folk,Folk,Electronic
+38829,International,9237,Sláinte,Fanny Power,International,International,Folk,Instrumental,Electronic
+38830,International,9237,Sláinte,Jig of Slurs. Dublin Reel - Merry Blacksmith. The Mountain Road,International,International,International,International,Electronic
+38833,International,9237,Sláinte,Black Velvet Band,International,Folk,Folk,Folk,Electronic
+38834,International,9237,Sláinte,Sally Gardens,Folk,Folk,Folk,Folk,Electronic
+39316,Experimental,9336,John Badger & The Moustache Riders of Doom,Hart Island,Experimental,Instrumental,Experimental,Folk,Electronic
+39317,Experimental,9336,John Badger & The Moustache Riders of Doom,Brave New World,Experimental,Instrumental,Instrumental,Instrumental,Electronic
+39318,Experimental,9336,John Badger & The Moustache Riders of Doom,A Dream of Heaven in a Terminal Ward,Pop,Folk,Rock,Rock,Electronic
+39605,Electronic,9403,UltraCat,Disco High,Electronic,Electronic,Hip-Hop,Electronic,Electronic
+39607,Electronic,9403,UltraCat,Unexpected Little Happenings,Electronic,Hip-Hop,Electronic,Hip-Hop,Electronic
+40229,Folk,77,Big Blood,The Sound & The Sea,Instrumental,International,Folk,Experimental,Electronic
+40230,Folk,77,Big Blood,Lay Your Head On The Rails (& Comeback),Instrumental,International,Pop,Experimental,Electronic
+40231,Folk,77,Big Blood,Mouth of Seven Tongues,Instrumental,International,Instrumental,Instrumental,Electronic
+40232,Folk,77,Big Blood,South of Portland,Experimental,Rock,Experimental,Experimental,Electronic
+40233,Folk,77,Big Blood,Destin Rain,Experimental,Rock,Experimental,Experimental,Electronic
+40234,Folk,77,Big Blood,Oh My Child,Experimental,International,International,International,Electronic
+40235,Folk,77,Big Blood,"This is Record, OK?",Experimental,International,Rock,Rock,Electronic
+40236,Folk,77,Big Blood,Waiting Is ...,Experimental,International,Experimental,Experimental,Electronic
+40237,Folk,77,Big Blood,Moo-Hoo,Pop,International,International,International,Electronic
+40238,Folk,77,Big Blood,AIRAID AIR RAID,Instrumental,Folk,Instrumental,Instrumental,Electronic
+40239,Folk,77,Big Blood,She-Wander(er),Pop,International,International,International,Electronic
+40240,Folk,77,Big Blood,Creepin' Crazy Time,Folk,Folk,Experimental,Experimental,Electronic
+40241,Folk,77,Big Blood,Reverse Hymnal,Pop,Pop,Instrumental,Experimental,Electronic
+40242,Folk,77,Big Blood,Song for RO-HE-GE,Pop,Folk,Rock,Rock,Electronic
+40243,Folk,77,Big Blood,Coming Home Pt. III,Folk,Folk,Folk,Folk,Electronic
+40244,Folk,77,Big Blood,... Is All We Have,Pop,Pop,Rock,Rock,Electronic
+40245,Folk,77,Big Blood,Ringers in the Fold,Pop,Pop,Instrumental,Experimental,Electronic
+40844,Electronic,9527,Raw Stiles,E.M.F.H.,Electronic,Rock,Electronic,Electronic,Electronic
+40845,Electronic,9527,Raw Stiles,Rouge,International,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+41019,International,9628,Bankil,Manifesto,Electronic,International,International,International,Electronic
+41310,Folk,9744,Funny Cry Happy,Mercury Spring,International,Pop,Pop,Pop,Electronic
+42018,Electronic,9933,Electronischebasisgeluide,La boite a track (Spain),Hip-Hop,Pop,Electronic,Electronic,Electronic
+42040,Hip-Hop,6441,Coolzey,Enjoy Your Holiday,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+42129,Experimental,9957,Colin Shaddick & Roger Nicholls,Full-A-Blues,International,International,International,International,Electronic
+42135,Experimental,9957,Colin Shaddick & Roger Nicholls,E Boogie,Pop,Folk,Folk,Experimental,Electronic
+42138,Experimental,9957,Colin Shaddick & Roger Nicholls,Capture My Soul,Pop,Folk,Experimental,Experimental,Electronic
+42139,Experimental,9957,Colin Shaddick & Roger Nicholls,Bebop Rain,Folk,International,Experimental,Experimental,Electronic
+42141,Experimental,9957,Colin Shaddick & Roger Nicholls,Smoke In The Blues Bar,International,Electronic,Experimental,Instrumental,Electronic
+42146,Experimental,9957,Colin Shaddick & Roger Nicholls,Blues For Brownie,International,Folk,Folk,International,Electronic
+42372,Electronic,9067,Broke For Free,Only Instrumental,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+42373,Electronic,9067,Broke For Free,Mell's Parade,Electronic,International,Electronic,Electronic,Electronic
+42374,Electronic,9067,Broke For Free,My Luck,Hip-Hop,Folk,Electronic,Electronic,Electronic
+42375,Electronic,9067,Broke For Free,Day Bird,Folk,Pop,Instrumental,Instrumental,Electronic
+42376,Electronic,9067,Broke For Free,My Always Mood,Electronic,Pop,Electronic,Electronic,Electronic
+42377,Electronic,9067,Broke For Free,Night Owl,Instrumental,Rock,Electronic,Instrumental,Electronic
+42463,Folk,9990,Yves Rakotomalala,A 1 still a rambler,Pop,Folk,Folk,Folk,Electronic
+43516,International,10174,Eastern Watershed Klezmer Quartet,Varshaver,Folk,International,Folk,International,Electronic
+43517,International,10174,Eastern Watershed Klezmer Quartet,Heifitz' Frailach,Rock,Rock,International,International,Electronic
+43518,International,10174,Eastern Watershed Klezmer Quartet,Dance Medley,International,International,International,International,Electronic
+43519,International,10174,Eastern Watershed Klezmer Quartet,"Play It Again, Dave",Pop,Pop,International,International,Electronic
+43520,International,10174,Eastern Watershed Klezmer Quartet,Der Heyser Bulgar,Folk,International,International,International,Electronic
+43521,International,10174,Eastern Watershed Klezmer Quartet,Sammy's Medley,Pop,International,International,International,Electronic
+43765,International,411,Ansambl Mastika,Nova Zemja,International,International,International,International,Electronic
+43766,International,411,Ansambl Mastika,Memede Zlatna Ptica,International,International,International,International,Electronic
+43767,International,411,Ansambl Mastika,Pesna bez Zborovi/More Tri Godini,International,International,International,International,Electronic
+43768,International,411,Ansambl Mastika,Franklin'in Karsilamasi,International,International,International,International,Electronic
+43859,Hip-Hop,10231,Katrah-Quey ft. dj Alekzander,tameka method (pt.1),Folk,Electronic,Electronic,Hip-Hop,Electronic
+44777,Folk,10345,Least Carpet,Old Wedding Song,Electronic,Instrumental,Instrumental,Instrumental,Electronic
+44800,Experimental,10356,Aleksi Eeben,Avaruusmiehen Pieni Askel (Spaceman's Small Step),Electronic,Pop,Pop,Folk,Electronic
+45149,Electronic,10418,Nisiru,Magyar Skweeast,Hip-Hop,International,Hip-Hop,Hip-Hop,Electronic
+45152,Electronic,10422,DrGy,Million Flutes And One Drunken Shepherd,International,Rock,Electronic,Hip-Hop,Electronic
+45934,Experimental,10497,Rune Martinsen,Melancholic Depression,Electronic,Experimental,Experimental,Experimental,Electronic
+46717,Experimental,10698,Eva-Maria Houben,three lullabies 3,Experimental,Electronic,Experimental,Experimental,Electronic
+46718,Experimental,10698,Eva-Maria Houben,three lullabies 1,Folk,Instrumental,Instrumental,Instrumental,Electronic
+46720,Experimental,10698,Eva-Maria Houben,three lullabies 2,Experimental,Experimental,Experimental,Experimental,Electronic
+47471,Rock,10865,Elks,Weed Wolf,Rock,Rock,Rock,Rock,Electronic
+47526,Rock,7073,Bare Wires,Romantic Girl,Rock,International,Rock,Rock,Electronic
+47628,Folk,10900,Clever Elsa,A Promise,Rock,Folk,Pop,Pop,Electronic
+48293,Electronic,3766,Goto80,aaf,Electronic,Experimental,Electronic,Electronic,Electronic
+48990,Rock,6107,Les Baudouins Morts,Rompuy Reggae,Folk,Instrumental,Folk,Folk,Electronic
+48999,Rock,11153,The Great Wilderness,Dark Horse,Rock,International,Rock,Instrumental,Electronic
+49477,Pop,3222,Garmisch,U Fine (Remix) (Featuring CM aka Creative),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+50752,Rock,11418,Metalmorphosis,Ballada Bezbożna,Rock,Rock,Rock,Rock,Electronic
+50753,Rock,11418,Metalmorphosis,Całujcie Mnie,Rock,Rock,Rock,Rock,Electronic
+50754,Rock,11418,Metalmorphosis,Biopsja Duszy,Electronic,Rock,Rock,Rock,Electronic
+51260,Pop,11471,Les Filles et les Garçons,I Sing Despair,Instrumental,Pop,Instrumental,International,Electronic
+51272,Pop,11483,Work Drugs,Summer Blood,Experimental,Folk,Pop,Pop,Electronic
+51301,Experimental,9336,John Badger & The Moustache Riders of Doom,Skeletons Fighting Over A Pickled Herring,Experimental,Pop,Experimental,Instrumental,Electronic
+51305,Experimental,9336,John Badger & The Moustache Riders of Doom,A Nation of Culls & Weeds,Experimental,Experimental,Experimental,Experimental,Electronic
+53228,Pop,11811,Fruit Flesh,Cater Gator,Experimental,International,Pop,Experimental,Electronic
+53229,Pop,11811,Fruit Flesh,Cocaine,Electronic,Instrumental,Pop,Pop,Electronic
+53586,Folk,77,Big Blood,Run,Folk,Pop,International,Rock,Electronic
+53587,Folk,77,Big Blood,I Will Love You,Rock,Pop,Rock,Rock,Electronic
+53588,Folk,77,Big Blood,Never Let Me Go,Experimental,Folk,Experimental,Rock,Electronic
+53589,Folk,77,Big Blood,Keening,Folk,Experimental,Pop,Pop,Electronic
+54703,Folk,12030,Bird of Youth,Sons And Daughters,Folk,International,Folk,Folk,Electronic
+56523,Electronic,12273,Kevin Bryce,Sports Day,Experimental,Folk,Instrumental,Instrumental,Electronic
+56895,Pop,1655,Lame Drivers,(as Puppen),Hip-Hop,International,Rock,Hip-Hop,Electronic
+56929,Rock,12354,Jack Ruby,Hit and Run,Experimental,Rock,Rock,Rock,Electronic
+57271,Experimental,12158,Sol Rezza,The existence of the light,Instrumental,Instrumental,Instrumental,Experimental,Electronic
+57272,Experimental,12158,Sol Rezza,The existence of the light,Folk,Experimental,Instrumental,Instrumental,Electronic
+57273,Experimental,12158,Sol Rezza,The existence of the light,Experimental,Instrumental,Instrumental,Experimental,Electronic
+57274,Experimental,12158,Sol Rezza,The existence of the light,Pop,Folk,Experimental,Experimental,Electronic
+57540,Electronic,11122,Ralp,Oxuria Memoth,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+59562,Rock,12833,Handgrenades,Demo to London,Pop,Rock,Rock,Rock,Electronic
+59581,International,12351,Circus Marcus,Búsqueda exploratoria #005 - Tu pars.mp3,Pop,Instrumental,Folk,Instrumental,Electronic
+59695,International,12856,Judith Cohen,Coplas de Purím,International,International,International,International,Electronic
+60476,Hip-Hop,12967,Mokhov,Perfect Tomorrow,Electronic,Rock,Hip-Hop,Hip-Hop,Electronic
+60533,International,12974,Rakiya,Gori Mori,International,International,International,International,Electronic
+60534,International,12974,Rakiya,Siki Siki Baba,International,Experimental,International,International,Electronic
+60535,International,12974,Rakiya,Sa Bas Tute,International,International,International,International,Electronic
+60536,International,12974,Rakiya,Me Phirava Daje,International,International,International,International,Electronic
+60537,International,12974,Rakiya,Sweet Girl,International,International,International,International,Electronic
+60871,International,10174,Eastern Watershed Klezmer Quartet,Avante Me Fante,International,International,International,International,Electronic
+60872,International,10174,Eastern Watershed Klezmer Quartet,Introduction//Hora Mare,Experimental,International,International,Experimental,Electronic
+60873,International,10174,Eastern Watershed Klezmer Quartet,Hora De La Me Hedinti,International,Pop,International,International,Electronic
+60874,International,10174,Eastern Watershed Klezmer Quartet,Ca Aenesaca De La Cobadin,Electronic,Hip-Hop,International,International,Electronic
+60875,International,10174,Eastern Watershed Klezmer Quartet,Piece de Tarita,International,International,International,International,Electronic
+61820,Rock,13158,Ed Saad,THRASHMETAL,Experimental,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+61821,Rock,13158,Ed Saad,WALKING WITH SAAD,Pop,Hip-Hop,International,International,Electronic
+63064,Electronic,13326,Koona,Underwater,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+63065,Electronic,13326,Koona,Starkey,Experimental,Hip-Hop,Electronic,Hip-Hop,Electronic
+63149,Experimental,10,Lucky Dragons,25,International,International,Instrumental,Instrumental,Electronic
+63159,Experimental,10,Lucky Dragons,15,Experimental,Experimental,Experimental,Instrumental,Electronic
+63161,Experimental,10,Lucky Dragons,13,Instrumental,Instrumental,Experimental,Electronic,Electronic
+63250,Folk,77,Big Blood,Out of Turn,Folk,Pop,Rock,Instrumental,Electronic
+63251,Folk,77,Big Blood,Mark the Spot Spot,International,Rock,Rock,Rock,Electronic
+63252,Folk,77,Big Blood,Leviathan Song pt. I,Rock,Folk,Pop,Pop,Electronic
+63253,Folk,77,Big Blood,Sirens Knell,Rock,Pop,Rock,Rock,Electronic
+63255,Folk,77,Big Blood,Away pt. I,Rock,Rock,Experimental,Rock,Electronic
+63257,Folk,77,Big Blood,Awake Too Long,Experimental,International,Pop,Pop,Electronic
+63258,Folk,77,Big Blood,Shadows for the Land,Experimental,Rock,Pop,Pop,Electronic
+63456,Folk,77,Big Blood,Away pt. II,Instrumental,International,Folk,Rock,Electronic
+63457,Folk,77,Big Blood,Old Time Primitives,Instrumental,Rock,Pop,Pop,Electronic
+64618,Electronic,13492,Indian Wells,Deuce,Folk,Electronic,Hip-Hop,Electronic,Electronic
+65265,Experimental,13606,Susan Alcorn,Excerpt 1 - Jandek with Susan Alcorn Ryan Sawyer Shahzad Ismaily,Electronic,International,Rock,Rock,Electronic
+65777,Electronic,13720,Adubter,Sun Rice,Hip-Hop,Electronic,Electronic,Electronic,Electronic
+65779,Electronic,13720,Adubter,Let's go!,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+65780,Electronic,13720,Adubter,OutroDub,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+66534,Rock,10027,Waylon Thornton,Gator Foot,Pop,Rock,Rock,Experimental,Electronic
+66535,Rock,10027,Waylon Thornton,Baladora,Experimental,Rock,Rock,Rock,Electronic
+66536,Rock,10027,Waylon Thornton,Bat Glasses,Experimental,Rock,Rock,Experimental,Electronic
+66537,Rock,10027,Waylon Thornton,Cold Spot,Rock,Rock,Rock,Rock,Electronic
+66538,Rock,10027,Waylon Thornton,Pass The Ring,Rock,Rock,Rock,Experimental,Electronic
+66539,Rock,10027,Waylon Thornton,Come On Down,Pop,Rock,Folk,Instrumental,Electronic
+66717,Rock,13904,Young Love,Love On The Run,Hip-Hop,Hip-Hop,Rock,Pop,Electronic
+67330,Pop,13985,Drama for Yamaha,Rutherford,International,International,Folk,Pop,Electronic
+67331,Pop,13985,Drama for Yamaha,Diver,Pop,International,Folk,Folk,Electronic
+67332,Pop,13985,Drama for Yamaha,Island Pop,International,Rock,Pop,Pop,Electronic
+67333,Pop,13985,Drama for Yamaha,Lagoon,International,Rock,Folk,Folk,Electronic
+67334,Pop,13985,Drama for Yamaha,Spears,Pop,Rock,Rock,Pop,Electronic
+67336,Pop,13985,Drama for Yamaha,Waterflies,Rock,Rock,Rock,Rock,Electronic
+67365,Pop,13997,Saitto Elettrico Goodsound,World Premiere Grand Revue [#15 And 13],Hip-Hop,Experimental,Pop,Pop,Electronic
+67457,Experimental,1783,Big City Orchestra,a kiss,Folk,Pop,Instrumental,Instrumental,Electronic
+68404,Rock,14098,LAZY,Party City,Rock,Rock,Rock,Rock,Electronic
+68536,Experimental,14123,andybrannan,"Ambience Brooklyn Zoo Cafeteria, NYC",Electronic,Experimental,Experimental,Experimental,Electronic
+68537,Experimental,14123,andybrannan,Ambience Brooklyn Zoo Kids Waiting for Train,Experimental,Experimental,Experimental,International,Electronic
+68551,Experimental,14132,gelo-papas,Crowd Walla,Experimental,Experimental,Experimental,Experimental,Electronic
+68582,Electronic,13492,Indian Wells,In The Streets,Pop,Electronic,Electronic,Hip-Hop,Electronic
+68587,Electronic,13492,Indian Wells,South Beach,Hip-Hop,Rock,Pop,Pop,Electronic
+68891,Electronic,9067,Broke For Free,Building The Sun,Electronic,Electronic,Electronic,Electronic,Electronic
+68892,Electronic,9067,Broke For Free,One And,Experimental,Pop,Electronic,Electronic,Electronic
+68893,Electronic,9067,Broke For Free,Sidewalk Chalk,Electronic,Electronic,Electronic,Hip-Hop,Electronic
+68894,Electronic,9067,Broke For Free,Blown Out,International,Hip-Hop,Electronic,Electronic,Electronic
+68895,Electronic,9067,Broke For Free,Luminous,Hip-Hop,Hip-Hop,Electronic,Electronic,Electronic
+68896,Electronic,9067,Broke For Free,Fuck It,International,Electronic,Electronic,Electronic,Electronic
+68897,Electronic,9067,Broke For Free,Figure It Out ft. Caswell,Hip-Hop,Electronic,Electronic,Electronic,Electronic
+68898,Electronic,9067,Broke For Free,Like Swimming,Electronic,Experimental,Electronic,Electronic,Electronic
+68899,Electronic,9067,Broke For Free,Lonely Organ,Electronic,Rock,Pop,Pop,Electronic
+69221,Electronic,14217,Max Grin,Stay (Original Mix),Hip-Hop,International,Electronic,Hip-Hop,Electronic
+69222,Electronic,14217,Max Grin,Slump (feat. Mac),Hip-Hop,Instrumental,Electronic,Experimental,Electronic
+69223,Electronic,14217,Max Grin,Satellite (feat. Stereo),Electronic,Pop,Electronic,Pop,Electronic
+69303,Experimental,12704,Diamond Terrifier,The Subtle Body Wears a Shadow,Pop,Instrumental,Instrumental,Instrumental,Electronic
+71371,Rock,14555,Black Bones,Good Times,Rock,Rock,Rock,Rock,Electronic
+71372,Rock,14555,Black Bones,Rock N Roll,Pop,Hip-Hop,Rock,Rock,Electronic
+71420,Electronic,14558,Kurobear,Without Love,Pop,Folk,Instrumental,Instrumental,Electronic
+71503,Electronic,15504,ui,@,Hip-Hop,Experimental,Electronic,Electronic,Electronic
+71711,Rock,5309,Bad Party,Not That Kind Of Girl,Experimental,Rock,Experimental,Rock,Electronic
+73494,Experimental,14953,Echo Beach,Boss Extended,Rock,Rock,Rock,Rock,Electronic
+73519,Rock,14958,Hounds Of Hate,Evil That Men Do,Rock,Rock,Rock,Rock,Electronic
+73520,Rock,14958,Hounds Of Hate,Pride,Rock,Rock,Rock,Rock,Electronic
+73521,Rock,14958,Hounds Of Hate,Brotherhood Of Night,Rock,Rock,Rock,Rock,Electronic
+73522,Rock,14958,Hounds Of Hate,Blood From A Stone,Rock,Rock,Rock,Rock,Electronic
+73776,International,14991,StrangeZero,Different Feelings,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+73777,International,14982,Melodiesinfonie,Zeitmaschine,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+73779,International,14981,Mezonom,Deep Cut,International,Hip-Hop,Electronic,Electronic,Electronic
+74002,Pop,15036,Mystery Pills,The Glass Traditions,Electronic,Folk,Folk,Pop,Electronic
+74374,Experimental,15118,Roslyn,O Holy Night,Pop,Folk,Folk,Folk,Electronic
+74393,Experimental,12565,Rue Royale,Snow on Snow (The Bleak Midwinter),Folk,Folk,Folk,Folk,Electronic
+76128,Pop,9067,Broke For Free,Budding,Pop,Folk,Rock,Electronic,Electronic
+76129,Pop,9067,Broke For Free,942 Miles,Folk,Instrumental,Pop,Instrumental,Electronic
+76130,Pop,9067,Broke For Free,The Gold Lining,Rock,Pop,Electronic,Electronic,Electronic
+76131,Pop,9067,Broke For Free,Things To Come,Folk,Hip-Hop,Rock,Electronic,Electronic
+76363,Instrumental,12351,Circus Marcus,Valse du tout au fond,Pop,Folk,International,International,Electronic
+81071,Experimental,11832,Nick Kuepfer,"Ladybugs on Window, Spraypaint on Deer Carcass",Experimental,International,Experimental,International,Electronic
+82462,Rock,4120,Throwing Muses,Stand Up,Experimental,Instrumental,Instrumental,Rock,Electronic
+82464,Rock,4120,Throwing Muses,Not Too Soon,Experimental,Instrumental,Experimental,Rock,Electronic
+82778,Hip-Hop,16031,The Impossebulls,Bad Business,Hip-Hop,International,Hip-Hop,Hip-Hop,Electronic
+82780,Hip-Hop,16031,The Impossebulls,World Full of Sadness,Electronic,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+83898,Experimental,16170,Rod Rivers and the Big Action Sound,The Splendor of Love,Experimental,Experimental,Rock,Rock,Electronic
+83906,Experimental,16170,Rod Rivers and the Big Action Sound,Before I Go Out,Experimental,Experimental,Rock,Rock,Electronic
+84057,Experimental,16248,Sydney Beveridge,Star Spangled Preachers,Pop,Experimental,Experimental,Experimental,Electronic
+84091,Electronic,16267,Émilie Simon,Antartic (Le Perche Oreille Remix),Hip-Hop,Pop,Pop,Pop,Electronic
+84152,Experimental,1464,Sikhara,Haka,Rock,Pop,Pop,Pop,Electronic
+84736,Instrumental,12351,Circus Marcus,Pompas de Jabón,Instrumental,Folk,Instrumental,Folk,Electronic
+84777,Electronic,16378,Howse,Nothings Wrong (Shufflin' Edit),Electronic,Rock,Experimental,Experimental,Electronic
+85307,Pop,3222,Garmisch,They Seem To Be Intelligent,Instrumental,International,Hip-Hop,Hip-Hop,Electronic
+85308,Pop,3222,Garmisch,They Seem To Be Intelligent (Tastes So Intelligent Mixx),Pop,Electronic,Hip-Hop,Instrumental,Electronic
+85309,Pop,3222,Garmisch,They Seem To Be Intelligent (dustmotes Remix),International,Pop,Hip-Hop,International,Electronic
+85310,Pop,3222,Garmisch,They Seem To Be Intelligent (Instrumental),Instrumental,International,Hip-Hop,Hip-Hop,Electronic
+85311,Pop,3222,Garmisch,They Seem To Be Intelligent (Tastes So Intelligenstrumental),Electronic,Electronic,Electronic,Hip-Hop,Electronic
+85592,Pop,3222,Garmisch,Truth Is,Electronic,Instrumental,Electronic,Instrumental,Electronic
+85593,Pop,3222,Garmisch,Sole (Fire & Ice),Pop,Rock,Hip-Hop,Hip-Hop,Electronic
+85594,Pop,3222,Garmisch,You Come Get Your Boy Now,International,International,Hip-Hop,Hip-Hop,Electronic
+85595,Pop,3222,Garmisch,Truth Is (Interlude),Folk,Instrumental,Electronic,Hip-Hop,Electronic
+85596,Pop,3222,Garmisch,They Seem To Be Intelligent,Instrumental,International,Hip-Hop,Hip-Hop,Electronic
+85598,Pop,3222,Garmisch,And Now We Stand Against The Wall,Pop,International,International,Pop,Electronic
+85599,Pop,3222,Garmisch,Native Son,International,International,Pop,Rock,Electronic
+85600,Pop,3222,Garmisch,City Sounds,International,Instrumental,Hip-Hop,Hip-Hop,Electronic
+86037,Instrumental,16532,Teatro Grotesco,Doctor Faust,Experimental,Experimental,Experimental,Instrumental,Electronic
+86038,Instrumental,16532,Teatro Grotesco,"Pornography, the cult of the body and the death of Eros",Folk,International,Pop,Instrumental,Electronic
+86039,Instrumental,16532,Teatro Grotesco,MMXII,Pop,Hip-Hop,Electronic,Electronic,Electronic
+86040,Instrumental,16532,Teatro Grotesco,Through the fire,Pop,Experimental,Experimental,Experimental,Electronic
+86116,Pop,3222,Garmisch,And Now We Stand Against The Wall,Pop,International,Pop,Pop,Electronic
+86117,Pop,3222,Garmisch,And Now We Stand Against The Wall (Who Ha's Electron Takeover),Electronic,Electronic,Electronic,Electronic,Electronic
+86118,Pop,3222,Garmisch,ANWSATW (TSP Took Acid Once Mix),Hip-Hop,Pop,Electronic,International,Electronic
+86119,Pop,3222,Garmisch,And Now We Stand Against The Wall (Instrumental),Pop,International,Hip-Hop,Electronic,Electronic
+86256,Experimental,16583,echosonic,Warped Picture of the Restaurant Taken Through a Wine Glass,Folk,International,Instrumental,Instrumental,Electronic
+86415,Hip-Hop,16031,The Impossebulls,From the Bottom (Soundtrack Edit),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+86416,Hip-Hop,16031,The Impossebulls,One Hundred 10 (BPM) (Instrumental),Pop,Rock,Hip-Hop,Hip-Hop,Electronic
+86634,Pop,16630,David Blair,We Are Canucks,International,Hip-Hop,Hip-Hop,Pop,Electronic
+86788,Rock,16627,Die Leere im Kern Deiner Hoffnung,Es ist nie genug,Experimental,Experimental,Experimental,Experimental,Electronic
+87069,Electronic,11578,Waste Disposal Machine,I Sing the Body Electric (first take SFI remix),Electronic,International,Hip-Hop,Hip-Hop,Electronic
+89445,Hip-Hop,16870,Shad + Skratch Bastid,Outta My Head,Pop,Pop,International,Hip-Hop,Electronic
+90526,Instrumental,16986,Rod Hamilton,Ruca,Experimental,Experimental,Experimental,Folk,Electronic
+90527,Instrumental,16986,Rod Hamilton,Mushroom,Experimental,Folk,Instrumental,Experimental,Electronic
+90529,Instrumental,16986,Rod Hamilton,Ruby,Experimental,Instrumental,Instrumental,Experimental,Electronic
+90530,Instrumental,16986,Rod Hamilton,Zoey,Hip-Hop,Folk,Experimental,Experimental,Electronic
+90616,Instrumental,16986,Rod Hamilton,Gato,Instrumental,Folk,Instrumental,Instrumental,Electronic
+90617,Instrumental,16986,Rod Hamilton,Agnes,Folk,Pop,Instrumental,Instrumental,Electronic
+90618,Instrumental,16986,Rod Hamilton,Bird,Experimental,Pop,Instrumental,Instrumental,Electronic
+91468,Pop,15036,Mystery Pills,By Design,Pop,Pop,Pop,Pop,Electronic
+91471,Pop,15036,Mystery Pills,Olympic Gardens,International,International,Pop,Pop,Electronic
+92366,Electronic,17171,Out Of Orion (Ox3),Horror House,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+93518,Electronic,17332,Moon Veil,Mantilla,Pop,Folk,Rock,Rock,Electronic
+93519,Electronic,17332,Moon Veil,Scorpio,Pop,Folk,Rock,Rock,Electronic
+93520,Electronic,17332,Moon Veil,Slow Moving,Pop,Folk,Rock,Rock,Electronic
+93521,Electronic,17332,Moon Veil,Ivory,Pop,Folk,Rock,Rock,Electronic
+93522,Electronic,17332,Moon Veil,Snake Charm,Pop,Folk,Rock,Rock,Electronic
+93523,Electronic,17332,Moon Veil,Up There,Pop,Folk,Rock,Rock,Electronic
+94093,Rock,17370,Westy Reflector,prologue: in recollection and amazement,Instrumental,Rock,Rock,Rock,Electronic
+94099,Rock,17370,Westy Reflector,fire in the arcade (the reflectors),Rock,Rock,Rock,Rock,Electronic
+94101,Rock,17370,Westy Reflector,dreamy solace of rivers and bridges [disquiet0088],Experimental,Instrumental,Instrumental,Instrumental,Electronic
+94102,Rock,17370,Westy Reflector,man again,International,Rock,Rock,Rock,Electronic
+94803,Electronic,3766,Goto80,this machine thinks,Electronic,Electronic,Electronic,Electronic,Electronic
+95486,Pop,8536,Ventolyn & Becotyde,Pop Music,Experimental,Electronic,Electronic,Electronic,Electronic
+95535,Rock,17370,Westy Reflector,i must have love,Pop,Rock,Pop,Pop,Electronic
+97286,Rock,17448,Чокнутый Пропеллер,We Wanna Rock,Experimental,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+98077,Rock,17448,Чокнутый Пропеллер,Глазами Детей,Pop,Rock,Hip-Hop,Pop,Electronic
+98298,International,12974,Rakiya,Siki Siki Baba/Majstore,Pop,International,International,International,Electronic
+98299,International,12974,Rakiya,Me Phirava Daje,International,International,International,International,Electronic
+98300,International,12974,Rakiya,Taban Canu,Pop,International,International,International,Electronic
+98301,International,12974,Rakiya,Gori More,International,International,International,International,Electronic
+98302,International,12974,Rakiya,Sweet Girl,Pop,International,International,International,Electronic
+98346,International,17938,Ornamatik,Rampi Rampi,International,International,International,International,Electronic
+98348,International,17938,Ornamatik,Dafino Vino,International,International,International,International,Electronic
+98349,International,17938,Ornamatik,Balkan Space Camp,International,International,International,International,Electronic
+99093,Hip-Hop,16031,The Impossebulls,Time Is Running Away (Destroy Everything),International,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+99095,Hip-Hop,16031,The Impossebulls,Blaque Gloves,Electronic,International,Hip-Hop,Hip-Hop,Electronic
+99096,Hip-Hop,16031,The Impossebulls,1Nation (One Fam),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+101951,Rock,18238,Nancy,Hot Love,Rock,Rock,Rock,Rock,Electronic
+103518,Instrumental,18286,Novi Split,You Got Served,Hip-Hop,Rock,Pop,Folk,Electronic
+103519,Instrumental,18286,Novi Split,Clay Pigeons,Folk,Folk,Folk,Folk,Electronic
+103520,Instrumental,18286,Novi Split,Hold Tight,Folk,Pop,Pop,Pop,Electronic
+103521,Instrumental,18286,Novi Split,Young Girls,Folk,Folk,Folk,Folk,Electronic
+103522,Instrumental,18286,Novi Split,Stupid,Pop,Rock,Folk,Folk,Electronic
+103523,Instrumental,18286,Novi Split,Hollow Notes,Folk,Folk,Folk,Folk,Electronic
+104434,Experimental,15508,Farthest South,Mother War,Folk,Rock,Folk,Folk,Electronic
+105141,Rock,11578,Waste Disposal Machine,Debris,Experimental,Rock,Rock,Rock,Electronic
+105144,Rock,11578,Waste Disposal Machine,I Sing the Body Electric (remixed by Torsion),Rock,Rock,Hip-Hop,Rock,Electronic
+106629,Instrumental,18680,Phelios,IV,Experimental,Experimental,Experimental,Experimental,Electronic
+106872,Rock,17370,Westy Reflector,Long Road Ahead,Electronic,International,Pop,Pop,Electronic
+106876,Rock,17370,Westy Reflector,Always In The Sky,Electronic,Rock,Pop,Pop,Electronic
+106877,Rock,17370,Westy Reflector,Windfall,Experimental,Pop,Pop,Pop,Electronic
+108456,Pop,18873,Miracles of Modern Science,Ahem,Hip-Hop,International,Pop,Pop,Electronic
+108457,Pop,18873,Miracles of Modern Science,Dear Pressure,International,International,Hip-Hop,Hip-Hop,Electronic
+108459,Pop,18873,Miracles of Modern Science,Don't You See?,Pop,Pop,Pop,International,Electronic
+108460,Pop,18873,Miracles of Modern Science,The Singularity,International,International,Pop,Pop,Electronic
+108461,Pop,18873,Miracles of Modern Science,Physics Is Our Business,Hip-Hop,International,International,Rock,Electronic
+108493,Hip-Hop,18879,Sun Sunych ft. DanBrown,Ladder (ft. DanBrown),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+108495,Hip-Hop,18879,Sun Sunych ft. DanBrown,Toys (ft. DanBrown),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+108524,Electronic,18885,Ghost By Nature,Get Ready,Folk,Hip-Hop,Electronic,Hip-Hop,Electronic
+108525,Electronic,18885,Ghost By Nature,Quest,Electronic,Electronic,Electronic,Hip-Hop,Electronic
+108526,Electronic,18885,Ghost By Nature,Brain Tracker,Hip-Hop,Rock,Electronic,Electronic,Electronic
+108527,Electronic,18885,Ghost By Nature,Late Night In The Park,Electronic,Electronic,Electronic,Electronic,Electronic
+108528,Electronic,18885,Ghost By Nature,Funk Therapy,Pop,Electronic,Electronic,Electronic,Electronic
+108529,Electronic,18885,Ghost By Nature,Firecracker,Electronic,Electronic,Electronic,Electronic,Electronic
+108530,Electronic,18885,Ghost By Nature,Skatter,Electronic,Electronic,Electronic,Electronic,Electronic
+108531,Electronic,18885,Ghost By Nature,Robot Builder,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+108532,Electronic,18885,Ghost By Nature,Open Box,Electronic,Hip-Hop,Electronic,International,Electronic
+108533,Electronic,18885,Ghost By Nature,The Prowler,Electronic,Hip-Hop,Electronic,Electronic,Electronic
+108842,Hip-Hop,16031,The Impossebulls,Subterranean Homesick Blues,Hip-Hop,Pop,Hip-Hop,Hip-Hop,Electronic
+108843,Hip-Hop,16031,The Impossebulls,Doin Nothin (Deja Vu),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+108845,Hip-Hop,16031,The Impossebulls,ReIntroduction,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+108846,Hip-Hop,16031,The Impossebulls,Story (Telling),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+108847,Hip-Hop,16031,The Impossebulls,Renaissance Era,Experimental,Rock,Rock,Hip-Hop,Electronic
+110070,Hip-Hop,16031,The Impossebulls,Road Warriors,Hip-Hop,Electronic,Hip-Hop,Hip-Hop,Electronic
+110082,Hip-Hop,16031,The Impossebulls,The GetBack,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+110084,Hip-Hop,16031,The Impossebulls,The GetUp,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+110085,Hip-Hop,16031,The Impossebulls,Bigger Than You,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+110086,Hip-Hop,16031,The Impossebulls,Think (About It),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+110204,Experimental,12351,Circus Marcus,La tapa del domingo,International,Instrumental,Experimental,Experimental,Electronic
+110205,Experimental,12351,Circus Marcus,La tapa del jueves,Folk,International,Instrumental,Pop,Electronic
+110206,Experimental,12351,Circus Marcus,La tapa del lunes,International,Instrumental,Instrumental,Experimental,Electronic
+110207,Experimental,12351,Circus Marcus,La tapa del miércoles,Folk,Folk,Folk,Experimental,Electronic
+110208,Experimental,12351,Circus Marcus,La tapa del sábado,Folk,Instrumental,Experimental,Experimental,Electronic
+110209,Experimental,12351,Circus Marcus,La tapa del viernes,Pop,Instrumental,Experimental,Experimental,Electronic
+110743,Hip-Hop,16031,The Impossebulls,Textbook,Hip-Hop,Electronic,Hip-Hop,Hip-Hop,Electronic
+110744,Hip-Hop,16031,The Impossebulls,Textbook Response,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+110756,Hip-Hop,16031,The Impossebulls,Mediaocrity,Pop,Hip-Hop,Hip-Hop,Experimental,Electronic
+110764,Hip-Hop,16031,The Impossebulls,Strictly Hiphop (Undertheunderground Mixx),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+110765,Hip-Hop,16031,The Impossebulls,Hellidays (b/w Christmas in Hollis),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+110768,Hip-Hop,16031,The Impossebulls,Strictly Hiphop (A Tribute to Rick James) LIVE,Hip-Hop,Hip-Hop,International,International,Electronic
+110771,Hip-Hop,16031,The Impossebulls,For More Years (Instrumental),Hip-Hop,Electronic,Electronic,International,Electronic
+110772,Hip-Hop,16031,The Impossebulls,Circle of Lies (Instrumental),Electronic,Rock,Electronic,Electronic,Electronic
+110774,Hip-Hop,16031,The Impossebulls,RSVP (Part 2),Electronic,Hip-Hop,Hip-Hop,Electronic,Electronic
+110775,Hip-Hop,16031,The Impossebulls,Volume (Video Edit),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+110776,Hip-Hop,16031,The Impossebulls,1Nation (One Fam) (MMC Remix),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+110777,Hip-Hop,16031,The Impossebulls,Volume (Mad Apples Remix),Folk,Rock,Hip-Hop,Hip-Hop,Electronic
+110778,Hip-Hop,16031,The Impossebulls,Circle of Lies (Mad Apples Remix),Hip-Hop,Electronic,Electronic,Electronic,Electronic
+110779,Hip-Hop,16031,The Impossebulls,Volume (Original Demo Instrumental),Electronic,Hip-Hop,Electronic,Electronic,Electronic
+111146,Instrumental,16986,Rod Hamilton,Prelude 1,International,Pop,Instrumental,Experimental,Electronic
+111147,Instrumental,16986,Rod Hamilton,Dance 1-4,Experimental,Instrumental,Experimental,Experimental,Electronic
+111148,Instrumental,16986,Rod Hamilton,Prelude 3,Experimental,International,Experimental,Experimental,Electronic
+111149,Instrumental,16986,Rod Hamilton,Aqua 2,Instrumental,Folk,Instrumental,Instrumental,Electronic
+111150,Instrumental,16986,Rod Hamilton,Treppe 4,Instrumental,Experimental,Instrumental,Instrumental,Electronic
+111151,Instrumental,16986,Rod Hamilton,Prelude 2,Instrumental,Folk,Instrumental,Instrumental,Electronic
+111153,Instrumental,16986,Rod Hamilton,Aqua 1,Experimental,Instrumental,Instrumental,Instrumental,Electronic
+111154,Instrumental,16986,Rod Hamilton,Treppe 3,Rock,International,Instrumental,Experimental,Electronic
+111216,Experimental,19124,Minicomponente,Un quintero normal,Experimental,Hip-Hop,Hip-Hop,Experimental,Electronic
+111934,Hip-Hop,19201,Ebsa,A Thing or Two,International,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+111935,Hip-Hop,19201,Ebsa,Hustle Legit,Electronic,International,Hip-Hop,Hip-Hop,Electronic
+111936,Hip-Hop,19201,Ebsa,Like it or Not,Folk,Folk,Hip-Hop,Hip-Hop,Electronic
+111937,Hip-Hop,19201,Ebsa,Remain Resolute,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+111938,Hip-Hop,19201,Ebsa,Not Without a Fight,Hip-Hop,Hip-Hop,Electronic,Hip-Hop,Electronic
+111994,Instrumental,19213,Serakhe0n,Aego,Rock,Experimental,Experimental,Hip-Hop,Electronic
+112000,Instrumental,19213,Serakhe0n,Green,Experimental,Experimental,Experimental,Experimental,Electronic
+112001,Instrumental,19213,Serakhe0n,Blue,Experimental,Pop,Experimental,Experimental,Electronic
+112468,Hip-Hop,16031,The Impossebulls,Think (About It) (Plead the 5th Dimension Mixx),Hip-Hop,Pop,Hip-Hop,Hip-Hop,Electronic
+112481,Hip-Hop,16031,The Impossebulls,Runnin' With The Bulls (Instrumental),International,International,Hip-Hop,Hip-Hop,Electronic
+112483,Hip-Hop,16031,The Impossebulls,Bigger Than You (Instrumental),International,Electronic,Experimental,Experimental,Electronic
+112484,Hip-Hop,16031,The Impossebulls,The Breath I Got Left (Instrumental),Pop,Hip-Hop,Electronic,Hip-Hop,Electronic
+112485,Hip-Hop,16031,The Impossebulls,Erykah & Jean (Instrumental),Electronic,Rock,Hip-Hop,Hip-Hop,Electronic
+112486,Hip-Hop,16031,The Impossebulls,HaveNots Mascot (Instrumental),Rock,Hip-Hop,Electronic,Pop,Electronic
+112487,Hip-Hop,16031,The Impossebulls,Breaker 1-2 (Instrumental),Hip-Hop,Electronic,Electronic,Hip-Hop,Electronic
+112488,Hip-Hop,16031,The Impossebulls,FreeSpit (Instrumental),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+112790,Experimental,19291,Pyrn,Counting Sundays,Hip-Hop,Rock,Pop,Pop,Electronic
+113262,International,19360,Cartas a Felice,Volcán,Electronic,Rock,Folk,Folk,Electronic
+113273,International,19371,Ortalio,Ubogi Poeta,Hip-Hop,International,Hip-Hop,Hip-Hop,Electronic
+113274,International,19372,Rey Nocivo.,Dados con el Diablo,Rock,Instrumental,Rock,Rock,Electronic
+113275,International,19373,iNCH.,"Find, Fix & Save",International,International,Folk,Folk,Electronic
+113279,International,19376,Celestial Aeon Project,Hope for Rebirth,Instrumental,Pop,Instrumental,Electronic,Electronic
+114212,Instrumental,19472,Squire Tuck,Old Fashioned Lullaby,Folk,Pop,Pop,International,Electronic
+114222,Instrumental,19472,Squire Tuck,Ukulele Blues,Instrumental,International,Instrumental,Instrumental,Electronic
+114223,Instrumental,19472,Squire Tuck,Ukulele Rising,Instrumental,International,Experimental,International,Electronic
+114974,Experimental,12287,last king of poland,stormy castles (past),Pop,International,Pop,Experimental,Electronic
+114976,Experimental,12287,last king of poland,stormy castles (future),Rock,Experimental,Experimental,Electronic,Electronic
+115002,Instrumental,19472,Squire Tuck,Squire Tuck - Get on the Funky Train to Groove Town,Rock,Rock,Experimental,Experimental,Electronic
+115011,Instrumental,19472,Squire Tuck,"Squire Tuck - Funk In, Funk Out",Experimental,International,Experimental,Instrumental,Electronic
+115176,Instrumental,19472,Squire Tuck,Squire Tuck - Homage to John Carpenter,Electronic,Instrumental,Instrumental,Instrumental,Electronic
+115288,Instrumental,19472,Squire Tuck,Squire Tuck - Tongue-Tied & Twisted (for Your Love),Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+115289,Instrumental,19472,Squire Tuck,Squire Tuck - Overjoyed,Instrumental,International,Instrumental,Instrumental,Electronic
+115290,Instrumental,19472,Squire Tuck,Squire Tuck - Ukulele Rising,Instrumental,International,Experimental,International,Electronic
+115292,Instrumental,19472,Squire Tuck,Squire Tuck - Ukulele Blues,Instrumental,International,Instrumental,Instrumental,Electronic
+115293,Instrumental,19472,Squire Tuck,Squire Tuck - Rush to the Head,Pop,International,Folk,Folk,Electronic
+115294,Instrumental,19472,Squire Tuck,Squire Tuck - Old Fashioned Lullaby,Folk,Pop,Pop,International,Electronic
+115926,Folk,19713,Nestor +3,Brian de Palma,Folk,International,Folk,Folk,Electronic
+116175,Instrumental,19472,Squire Tuck,Misty Mountain Rendezvous,Instrumental,International,Folk,Experimental,Electronic
+116176,Instrumental,19472,Squire Tuck,Add Another Log to the Funeral Pyre,Folk,Folk,Instrumental,Instrumental,Electronic
+116177,Instrumental,19472,Squire Tuck,A Mexican Love Affair,Instrumental,Folk,Instrumental,Instrumental,Electronic
+116388,Hip-Hop,8693,Asthmatic Astronaut,Electronica 3,Pop,Hip-Hop,Experimental,Electronic,Electronic
+116389,Hip-Hop,8693,Asthmatic Astronaut,My heart beats to the break,Experimental,Rock,Experimental,Rock,Electronic
+116390,Hip-Hop,8693,Asthmatic Astronaut,Jazz soul,Experimental,International,Experimental,Pop,Electronic
+116407,Hip-Hop,8693,Asthmatic Astronaut,Dub step next left (feat Tom Wilkinson),Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+116526,Instrumental,19472,Squire Tuck,My Magnificent Melancholy Muse,Rock,Rock,Rock,Rock,Electronic
+116527,Instrumental,19472,Squire Tuck,Declaration of Love,Folk,Pop,Folk,Folk,Electronic
+116528,Instrumental,19472,Squire Tuck,Passing of Friends & Past True Loves,Rock,Folk,Folk,Folk,Electronic
+117251,Instrumental,19472,Squire Tuck,Unrequited Love,Instrumental,Folk,Instrumental,Instrumental,Electronic
+117252,Instrumental,19472,Squire Tuck,Music Box,Instrumental,Folk,Instrumental,Instrumental,Electronic
+117253,Instrumental,19472,Squire Tuck,The Consequences of Others,Instrumental,Folk,Instrumental,Instrumental,Electronic
+117626,Instrumental,19888,Ulrike Mod,bonus - La jeune Pierre - alt piano mix,Instrumental,Folk,Instrumental,Instrumental,Electronic
+117883,Rock,19909,Connections,Cruise Control,Rock,Pop,Rock,Rock,Electronic
+117884,Rock,19909,Connections,Green Skull,International,Pop,Rock,Rock,Electronic
+117885,Rock,19909,Connections,Cul de Sac/Tough City,Rock,Pop,Rock,Rock,Electronic
+117886,Rock,19909,Connections,You Won't Forget It/Low Low Low,Rock,Rock,Rock,Rock,Electronic
+117887,Rock,19909,Connections,Month 2 Month/Love St.,Rock,Pop,Rock,Rock,Electronic
+117943,International,5507,Arrogalla,Comment - Sulitu in dub,Electronic,Electronic,Electronic,Electronic,Electronic
+117961,Experimental,19916,Anal Sadist,"Marcel Duchamp, Frank Zappa, Jean Cocteau",Electronic,Rock,Experimental,Experimental,Electronic
+118505,Experimental,20007,Josh Tillinghast,B,Pop,Instrumental,Folk,Folk,Electronic
+119584,Pop,1821,Pee-Bug,Dildo Saga,Pop,Experimental,Pop,Pop,Electronic
+119592,Pop,1821,Pee-Bug,Free,Instrumental,Instrumental,Pop,Folk,Electronic
+119828,Instrumental,19472,Squire Tuck,Song of Hope in a World Without Care,Folk,Folk,Folk,Folk,Electronic
+119830,Instrumental,19472,Squire Tuck,Future Past,Rock,Folk,Folk,Folk,Electronic
+119831,Instrumental,19472,Squire Tuck,To Absent Friends,Pop,Folk,Folk,Folk,Electronic
+120206,Pop,2013,Very Proper Dragonflies,Just Believe (We'll Get There),Pop,International,Pop,Pop,Electronic
+121415,Rock,20310,Dead End Canada,The Western Front,Pop,Rock,Rock,Pop,Electronic
+121595,Electronic,20327,Phatte Harry,'85s,Pop,Hip-Hop,Rock,Hip-Hop,Electronic
+121913,International,20367,Negritage,Dubbing into di wild,Electronic,International,International,International,Electronic
+121915,International,20367,Negritage,Dub Kontrol Skank,Hip-Hop,Hip-Hop,Hip-Hop,Pop,Electronic
+121922,International,20367,Negritage,Babylon fall dubwize ft Jam York,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+121926,International,20367,Negritage,Youthman Stepwise (Bass cut),Electronic,Electronic,Electronic,Experimental,Electronic
+121929,International,20367,Negritage,Dubbing time,International,International,International,International,Electronic
+121930,International,20367,Negritage,Guetto Rockers in dub,Instrumental,International,International,International,Electronic
+121998,Experimental,20387,Beauty School,Leftover Skin,Rock,Rock,Rock,Rock,Electronic
+122106,Experimental,20418,Electroblurgen,"Gentle, Cruel Orb",International,Instrumental,Folk,Instrumental,Electronic
+122107,Experimental,20418,Electroblurgen,A Cheetah Grimly Grooms,Electronic,International,Electronic,Instrumental,Electronic
+122143,Experimental,18067,Anthony Donovan & Jaan Patterson,Genome Chomsky (pt I),Experimental,Experimental,Experimental,Experimental,Electronic
+122155,Experimental,20435,John Hyatt & Jaan Patterson,Destroyer,Folk,Pop,Pop,Pop,Electronic
+122168,Experimental,15939,Jeremy Gluck & Jaan Patterson,Victim of Dreams,Folk,Instrumental,Pop,Pop,Electronic
+122510,Instrumental,19472,Squire Tuck,Solitude Amongst the Wild Meadow Flowers,Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+122511,Instrumental,19472,Squire Tuck,What Price Love?,Folk,Rock,Rock,Rock,Electronic
+124184,Rock,20733,Bloodgod,Heist,Rock,Electronic,Experimental,Pop,Electronic
+124185,Rock,20733,Bloodgod,Wrecking Ball Surprise,Rock,Rock,Rock,Rock,Electronic
+124186,Rock,20733,Bloodgod,Bloodgod,Rock,Rock,Rock,Rock,Electronic
+124391,Rock,20763,Radius System,Impulsion pt.1,Rock,Pop,Rock,Instrumental,Electronic
+124392,Rock,20763,Radius System,Into Orbit,Rock,Rock,Rock,Rock,Electronic
+124393,Rock,20763,Radius System,Impulsion pt.2,Experimental,Folk,Folk,Folk,Electronic
+124394,Rock,20763,Radius System,Not Coming Back,Pop,Instrumental,Experimental,Experimental,Electronic
+126240,Instrumental,19472,Squire Tuck,Speaking in Hushed Tones,Instrumental,International,Instrumental,Instrumental,Electronic
+126241,Instrumental,19472,Squire Tuck,Walking in the Boots of Old Cowboys,Folk,Rock,Instrumental,Instrumental,Electronic
+126242,Instrumental,19472,Squire Tuck,What Happened to the Way We Were?,Instrumental,Rock,Rock,Rock,Electronic
+126243,Instrumental,19472,Squire Tuck,"Wherever You Are, Whatever You Do, Please Remember Me As I Do You?",Instrumental,Instrumental,Rock,Instrumental,Electronic
+126507,Experimental,16340,CROCODILE TEARS,Okružen mrtvima (Hymne de Soleil),Rock,Rock,Rock,Rock,Electronic
+127180,Pop,15469,Wintermitts,Le Paradis,Folk,Folk,Folk,Folk,Electronic
+127181,Pop,15469,Wintermitts,Sharks,Pop,Pop,Pop,Pop,Electronic
+127182,Pop,15469,Wintermitts,Springtime,Pop,Pop,Pop,Pop,Electronic
+127183,Pop,15469,Wintermitts,Birds,Experimental,International,Pop,Rock,Electronic
+127184,Pop,15469,Wintermitts,I Saw A Ghost,Folk,Pop,Pop,Pop,Electronic
+127185,Pop,15469,Wintermitts,Oceans Apart,International,Folk,Folk,Folk,Electronic
+127186,Pop,15469,Wintermitts,People Of The Eternal Sun,Folk,Hip-Hop,Pop,Pop,Electronic
+127187,Pop,15469,Wintermitts,Careful,International,International,Pop,Pop,Electronic
+127188,Pop,15469,Wintermitts,Basquiat,Rock,Rock,Rock,Rock,Electronic
+127189,Pop,15469,Wintermitts,A La Fraîche,Folk,Folk,Folk,Folk,Electronic
+127330,Rock,21084,Sunshine and the Rain,In A Dream,Rock,Pop,Rock,Pop,Electronic
+127331,Instrumental,19472,Squire Tuck,Alone Again,Folk,Folk,Folk,Folk,Electronic
+127484,Experimental,21100,Hyaena Fierling & MUTATE,Under the Labyrinth,Pop,International,International,Folk,Electronic
+127519,Instrumental,19472,Squire Tuck,A Journey In To The Great Unknown,Folk,Folk,Instrumental,Experimental,Electronic
+127520,Instrumental,19472,Squire Tuck,Unfinished Business,Folk,Folk,Folk,Folk,Electronic
+127559,Rock,21107,Droopies,High Hopes,Rock,Rock,Rock,Rock,Electronic
+128441,Hip-Hop,16031,The Impossebulls,The More Things Change,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+128878,Experimental,19472,Squire Tuck,Festive Felicitations,Pop,Instrumental,Instrumental,Electronic,Electronic
+128879,Experimental,19472,Squire Tuck,Bringing Joy at Christmas,Folk,Folk,Instrumental,Instrumental,Electronic
+128880,Experimental,19472,Squire Tuck,To Absent Friends this Christmas,Pop,Folk,Folk,Folk,Electronic
+128881,Experimental,19472,Squire Tuck,Alone Again at Christmas,Folk,Folk,Instrumental,Experimental,Electronic
+128882,Experimental,19472,Squire Tuck,"New Year, New Beginning",Instrumental,Folk,Instrumental,Instrumental,Electronic
+128885,Instrumental,19472,Squire Tuck,Why?,Instrumental,Instrumental,Instrumental,Electronic,Electronic
+128886,Instrumental,19472,Squire Tuck,Sad Times,International,International,Instrumental,Experimental,Electronic
+128887,Instrumental,19472,Squire Tuck,Love will Conquer All,International,Folk,Folk,Folk,Electronic
+128888,Instrumental,19472,Squire Tuck,The Last Goodbyes of Planet Earth,Rock,International,Instrumental,Instrumental,Electronic
+130752,Instrumental,19472,Squire Tuck,Song for the Cameleon,Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+131410,Experimental,10184,Suburban Howl,PITHIA,Instrumental,Instrumental,Experimental,Experimental,Electronic
+131476,Instrumental,19472,Squire Tuck,Facing Facts About Growing Old,Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+131932,International,21619,Edessa,Sa,International,Rock,International,International,Electronic
+131933,International,21619,Edessa,Graovsko,International,International,International,International,Electronic
+131934,International,21619,Edessa,Sheikhane,International,International,Rock,International,Electronic
+131935,International,21619,Edessa,Saskin,International,International,International,International,Electronic
+131936,International,21619,Edessa,Gunel Hirsizi,International,International,International,International,Electronic
+132117,Hip-Hop,21644,Timezone LaFontaine,Credit Where Credit Is Due,International,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+132171,Rock,21655,Ulises Lima,Color Blindness,Electronic,Rock,Rock,Rock,Electronic
+132448,Electronic,21691,Nihilore,Liberosis (Instrumental),Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+133102,Instrumental,19472,Squire Tuck,Natural Groove,Electronic,Folk,Folk,Folk,Electronic
+133681,Instrumental,19472,Squire Tuck,Midnight Chillin',Instrumental,Pop,Folk,Folk,Electronic
+133772,Rock,19770,Hearse Pileup,Grindstone,Hip-Hop,Rock,Rock,Rock,Electronic
+134486,Pop,19472,Squire Tuck,Love&Heartbreak,Pop,Instrumental,Instrumental,Folk,Electronic
+134790,Instrumental,18834,Pianochocolate,Analemma,Hip-Hop,Folk,Folk,Folk,Electronic
+134791,Instrumental,18834,Pianochocolate,Lake Baikal,Instrumental,Folk,Instrumental,Folk,Electronic
+134792,Instrumental,18834,Pianochocolate,Romance,Folk,Folk,International,Instrumental,Electronic
+134793,Instrumental,18834,Pianochocolate,Sunshower,Instrumental,Folk,Instrumental,Folk,Electronic
+134794,Instrumental,18834,Pianochocolate,Christina,Folk,Folk,Folk,Folk,Electronic
+134795,Instrumental,18834,Pianochocolate,Promenade,Instrumental,Folk,Instrumental,Folk,Electronic
+134796,Instrumental,18834,Pianochocolate,Eraser,International,Folk,Hip-Hop,Hip-Hop,Electronic
+134797,Instrumental,18834,Pianochocolate,Everyone will come back home,Folk,Folk,Instrumental,Instrumental,Electronic
+136054,Rock,22017,Sinapsi,Vertigo,Electronic,Rock,Rock,Rock,Electronic
+137605,Rock,21084,Sunshine and the Rain,Nobody Has To Know,Rock,International,Rock,Rock,Electronic
+137624,Rock,21476,The Sun Through A Telescope,You Can't Kill Me,Rock,Rock,Rock,Rock,Electronic
+137627,Rock,21476,The Sun Through A Telescope,I Die Smiling,Experimental,Instrumental,Experimental,Experimental,Electronic
+137630,Rock,21476,The Sun Through A Telescope,The Bitten,Pop,Instrumental,Instrumental,Rock,Electronic
+137631,Rock,21476,The Sun Through A Telescope,It's Cold But I'm Warm,Electronic,Experimental,Experimental,Experimental,Electronic
+137632,Rock,21476,The Sun Through A Telescope,Mr. Yawning Infinity Chasm/SuperInfinity,Folk,International,Rock,Rock,Electronic
+138018,Instrumental,22217,Christian Flanders,No Ones Trophy,Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+138019,Instrumental,22217,Christian Flanders,Asleep,Folk,Instrumental,Experimental,Instrumental,Electronic
+138020,Instrumental,22217,Christian Flanders,Dream Prelude,Pop,Experimental,Instrumental,Instrumental,Electronic
+138021,Instrumental,22217,Christian Flanders,Evelyn's Dream,Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+138022,Instrumental,22217,Christian Flanders,Bruises,Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+138023,Instrumental,22217,Christian Flanders,Silas,Rock,Folk,Experimental,Instrumental,Electronic
+138024,Instrumental,22217,Christian Flanders,Her Tragedy,Pop,Folk,Instrumental,Instrumental,Electronic
+138025,Instrumental,22217,Christian Flanders,Escape,Instrumental,Instrumental,Experimental,Instrumental,Electronic
+138026,Instrumental,22217,Christian Flanders,Black Hole (Remix),Instrumental,Experimental,Instrumental,Instrumental,Electronic
+139933,Electronic,22400,Resonancedj & Giulio Maddaloni,Intro,Electronic,Electronic,Experimental,Hip-Hop,Electronic
+139934,Electronic,22400,Resonancedj & Giulio Maddaloni,Fasten your seatbelt,Hip-Hop,Electronic,Electronic,Electronic,Electronic
+139935,Electronic,22400,Resonancedj & Giulio Maddaloni,Kevlar Boyz,Electronic,Electronic,Electronic,Electronic,Electronic
+139936,Electronic,22400,Resonancedj & Giulio Maddaloni,Particel Size,Hip-Hop,Hip-Hop,Electronic,Electronic,Electronic
+139937,Electronic,22400,Resonancedj & Giulio Maddaloni,Speleology,International,Electronic,Electronic,Electronic,Electronic
+140043,Rock,22409,The Blessed Cassettes,Miss You Miss Mew,Instrumental,Rock,Rock,Experimental,Electronic
+140609,Hip-Hop,16031,The Impossebulls,Back To It (w/ Daddy-O of Stetsasonic),Electronic,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+140620,Hip-Hop,16031,The Impossebulls,Bad Cop (Instrumental),Hip-Hop,Electronic,Electronic,Electronic,Electronic
+140621,Hip-Hop,16031,The Impossebulls,Back To It (12inch Mixx),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+140623,Hip-Hop,16031,The Impossebulls,The More Things Change,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+140625,Hip-Hop,16031,The Impossebulls,Back To It (12inchstrumental),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+140626,Hip-Hop,16031,The Impossebulls,No Country For Old Men (D's Muddy Water Breakfix Mixx),Folk,Hip-Hop,Electronic,Hip-Hop,Electronic
+140922,Electronic,21691,Nihilore,Morning Bell,Hip-Hop,Folk,Pop,Instrumental,Electronic
+140923,Electronic,21691,Nihilore,Whispers Invoke Paranoia,Experimental,Electronic,Electronic,Electronic,Electronic
+140924,Electronic,21691,Nihilore,Authenticity,Instrumental,Electronic,Electronic,Electronic,Electronic
+140925,Electronic,21691,Nihilore,Set Fire to Creation,Pop,Electronic,Electronic,Electronic,Electronic
+140926,Electronic,21691,Nihilore,A Different World By Night,Electronic,Electronic,Electronic,Electronic,Electronic
+140933,Electronic,21691,Nihilore,Evening Drum,Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+140934,Electronic,21691,Nihilore,The Absurd,Folk,International,Electronic,Electronic,Electronic
+141616,Electronic,13437,Barbarix,Born,Folk,Pop,Pop,Pop,Electronic
+141617,Electronic,13437,Barbarix,The Secret Garden,Hip-Hop,International,Pop,Pop,Electronic
+141618,Electronic,13437,Barbarix,Madeena Luithea,Pop,Pop,Experimental,Experimental,Electronic
+141619,Electronic,13437,Barbarix,When Night Falls,Electronic,Folk,Electronic,Electronic,Electronic
+141877,Rock,22584,Nocturnal Mayhem,I,Instrumental,Pop,Experimental,Pop,Electronic
+141878,Rock,22584,Nocturnal Mayhem,II,Instrumental,Pop,Experimental,Pop,Electronic
+142358,Hip-Hop,16031,The Impossebulls,5 x 5,Folk,Electronic,Hip-Hop,Hip-Hop,Electronic
+142359,Hip-Hop,16031,The Impossebulls,FutureBACK,Experimental,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+142360,Hip-Hop,16031,The Impossebulls,God's Radio Hell,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+142361,Hip-Hop,16031,The Impossebulls,Bad Cop,Electronic,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+142362,Hip-Hop,16031,The Impossebulls,"Revolution 88 (Parts 1, 2 & 3)",Hip-Hop,Pop,Pop,Pop,Electronic
+142533,International,22680,Terratombats,Bestial,Electronic,International,Pop,Pop,Electronic
+142534,International,22680,Terratombats,Hereus de mala vida,International,International,Pop,Pop,Electronic
+142535,International,22680,Terratombats,L'amic invisible,Pop,Hip-Hop,Pop,Pop,Electronic
+142536,International,22680,Terratombats,El iaio,Hip-Hop,Experimental,Pop,Pop,Electronic
+142537,International,22680,Terratombats,Atura el temps,Pop,International,Pop,Pop,Electronic
+142538,International,22680,Terratombats,El mig amic,Pop,Pop,Pop,Pop,Electronic
+142539,International,22680,Terratombats,Vull viure d'aventures,Folk,Folk,Folk,Folk,Electronic
+144212,Hip-Hop,16031,The Impossebulls,Life & Times of 40 Year Rhymes,International,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+144213,Hip-Hop,16031,The Impossebulls,Rhythm Roulette,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+144214,Hip-Hop,16031,The Impossebulls,Idle Hands,Pop,Rock,Hip-Hop,Hip-Hop,Electronic
+144215,Hip-Hop,16031,The Impossebulls,State Trooper,Electronic,Electronic,Hip-Hop,Hip-Hop,Electronic
+144216,Hip-Hop,16031,The Impossebulls,Let Me Spell You This (016 Tess Dis Champion Mixx),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+144592,Electronic,23004,Trillion Catz,Dark Matter,Rock,Electronic,Experimental,Electronic,Electronic
+145067,Rock,23115,TxSxBx,Ngrumme,Rock,Rock,Rock,Rock,Electronic
+145068,Rock,23115,TxSxBx,Demoni e Dei (Contropotere),Experimental,Rock,Experimental,Rock,Electronic
+145457,Instrumental,19472,Squire Tuck,Loving You Because...,Folk,Folk,Folk,Folk,Electronic
+145458,Instrumental,19472,Squire Tuck,Dilemma of the Heart,Folk,Folk,Folk,Folk,Electronic
+145475,Instrumental,19472,Squire Tuck,Dreamstalker,Hip-Hop,Instrumental,Experimental,Experimental,Electronic
+145476,Instrumental,19472,Squire Tuck,Homage to John Carpenter's Halloween Soundtrack,Folk,Instrumental,Instrumental,Instrumental,Electronic
+145477,Instrumental,19472,Squire Tuck,"In This Creepy, Sleepy Backward Town",Electronic,Instrumental,Electronic,Instrumental,Electronic
+145747,Hip-Hop,16031,The Impossebulls,You Forgot (Forget It),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+145748,Hip-Hop,16031,The Impossebulls,The BizBoxx,Electronic,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+145749,Hip-Hop,16031,The Impossebulls,Liars & Conmen,Pop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+145750,Hip-Hop,16031,The Impossebulls,Devil's Pie,Electronic,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+145751,Hip-Hop,16031,The Impossebulls,No Country For Old Men,Folk,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+145762,Instrumental,19472,Squire Tuck,"Holding on Until the Cold, Cold Morn",Folk,Folk,Folk,Folk,Electronic
+145777,Instrumental,19472,Squire Tuck,Heaven Beyond the Trees,Folk,Folk,Folk,Folk,Electronic
+145887,Instrumental,19472,Squire Tuck,Facing Inwards,Folk,Folk,Folk,Folk,Electronic
+147020,Hip-Hop,16031,The Impossebulls,Six Pack,Electronic,Rock,Hip-Hop,Hip-Hop,Electronic
+147021,Hip-Hop,16031,The Impossebulls,Life Is Good,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+147022,Hip-Hop,16031,The Impossebulls,The Menu,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+147023,Hip-Hop,16031,The Impossebulls,Armchair Revolution,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+147024,Hip-Hop,16031,The Impossebulls,A Roller Skating Jam Called Saturday Nite,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+147261,Hip-Hop,23411,Lozo Musico,Depravity,Hip-Hop,International,Hip-Hop,Hip-Hop,Electronic
+148002,Instrumental,19472,Squire Tuck,Little Peace at Christmas,Instrumental,Instrumental,Instrumental,Instrumental,Electronic
+148028,Hip-Hop,23527,BoyHoodBuchi,Disco From The Clouds,International,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+148031,Hip-Hop,23527,BoyHoodBuchi,I,Electronic,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+148032,Hip-Hop,23527,BoyHoodBuchi,WitchCraft,International,International,International,International,Electronic
+148082,Experimental,23532,Queen Elephantine,Onyx,Rock,International,Experimental,Experimental,Electronic
+148430,International,23586,Poder Fantasma,Tengo insectos en mis zapatillas,International,Folk,Folk,Folk,Electronic
+148606,Pop,23605,Red Crickets,My Deviance,Hip-Hop,Folk,Pop,Pop,Electronic
+148607,Pop,23605,Red Crickets,The Prisoner,Hip-Hop,International,Pop,Hip-Hop,Electronic
+148608,Pop,23605,Red Crickets,Dynamo,International,International,Pop,Pop,Electronic
+148609,Pop,23605,Red Crickets,Another Bedlam Romance,Pop,International,Pop,Pop,Electronic
+148610,Pop,23605,Red Crickets,Little Comfort,Folk,Pop,Pop,Pop,Electronic
+148611,Pop,23605,Red Crickets,Elektra (You Were Such Fun),Pop,Folk,Pop,Pop,Electronic
+148612,Pop,23605,Red Crickets,Superferries,Rock,Folk,Pop,Pop,Electronic
+148613,Pop,23605,Red Crickets,A Mess,Pop,Rock,Rock,Instrumental,Electronic
+149623,Hip-Hop,23687,Abdu Ali,Boy Bye,International,International,International,International,Electronic
+149625,Hip-Hop,23687,Abdu Ali,Keep Moving (Negro Kai),Experimental,International,Experimental,Experimental,Electronic
+149626,Hip-Hop,23687,Abdu Ali,"I, Exist",Experimental,International,International,International,Electronic
+150015,Pop,23748,Urs Graf Consort,Moutons,Rock,International,International,International,Electronic
+150017,Pop,23748,Urs Graf Consort,E.N.A.,International,Hip-Hop,Experimental,Experimental,Electronic
+150018,Pop,23748,Urs Graf Consort,Eldridge Cleaver,Hip-Hop,International,Pop,Pop,Electronic
+150287,Hip-Hop,16031,The Impossebulls,Pope,Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+150288,Hip-Hop,16031,The Impossebulls,Thank U ('92),Hip-Hop,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+154303,Hip-Hop,23208,Fleslit,In It to Win It,Experimental,International,Electronic,International,Electronic
+154305,Hip-Hop,23208,Fleslit,Calm Flight,Pop,Instrumental,Instrumental,Instrumental,Electronic
+154306,Hip-Hop,23208,Fleslit,Yummy,Folk,International,Electronic,Electronic,Electronic
+154307,Hip-Hop,23208,Fleslit,12:01 AM,International,Hip-Hop,Hip-Hop,Hip-Hop,Electronic
+154308,Hip-Hop,23208,Fleslit,MIA,Electronic,International,Electronic,Electronic,Electronic
+154309,Hip-Hop,23208,Fleslit,A1 Symphony,Electronic,Folk,Pop,Pop,Electronic

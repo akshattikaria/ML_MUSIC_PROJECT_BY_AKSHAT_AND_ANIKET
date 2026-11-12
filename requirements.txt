@@ -1,0 +1,2 @@
+# Python 3.11+; Python 3.12 was used for the included experiment.
+-e .[notebook,test]

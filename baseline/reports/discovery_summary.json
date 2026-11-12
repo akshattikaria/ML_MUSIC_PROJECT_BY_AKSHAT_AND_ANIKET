@@ -1,0 +1,14 @@
+{
+  "fit_split": "training",
+  "evaluation_split": "validation",
+  "test_used_for_discovery": false,
+  "pca_components": 50,
+  "pca_2d_explained_variance": 0.18910838663578033,
+  "pca_50d_explained_variance": 0.7159072160720825,
+  "kmeans_k": 8,
+  "kmeans_adjusted_rand_index": 0.14027888373195113,
+  "kmeans_normalized_mutual_information": 0.22441749612484757,
+  "kmeans_silhouette": 0.04055146872997284,
+  "permutation_repeats": 5,
+  "seed": 42
+}

@@ -1,0 +1,20 @@
+# Exact direct dependency versions used with Python 3.12.14.
+# Install from the project directory; transitive dependencies are resolver-managed.
+-e .[notebook,test]
+numpy==2.3.5
+pandas==2.2.3
+scipy==1.17.0
+scikit-learn==1.8.0
+matplotlib==3.10.8
+seaborn==0.13.2
+plotly==6.9.0
+joblib==1.5.3
+threadpoolctl==3.6.0
+tabulate==0.10.0
+mistune==3.4.0
+python-docx==1.2.0
+jupyterlab==4.6.4
+nbformat==5.11.1
+nbconvert==7.17.2
+ipykernel==7.4.0
+pytest==9.1.1

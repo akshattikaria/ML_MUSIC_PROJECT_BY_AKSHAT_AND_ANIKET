@@ -1,0 +1,27 @@
+{
+  "profile": "standard",
+  "seed": 42,
+  "threads": 2,
+  "champion": "SVM (RBF)",
+  "elapsed_seconds": 75.91162221599996,
+  "python": "3.12.14",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "versions": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "scipy": "1.17.0",
+    "scikit-learn": "1.8.0",
+    "joblib": "1.5.3",
+    "threadpoolctl": "3.6.0"
+  },
+  "dataset_processed_sha256": {
+    "features.npz": "4436d7b93891a9c25e2ef03328b85d22a2eaa203bd2f92c20f4613fd64433cbf",
+    "tracks.csv": "750c7f0ef7ec3004444087e18200828cf3b44906a6704d3979d8674a9001ed11"
+  },
+  "n_train": 6400,
+  "n_validation": 800,
+  "n_test": 800,
+  "n_features": 518,
+  "candidate_count": 21,
+  "ann_early_stopping": "10% internal holdout inside each fit; external official validation selects hyperparameters"
+}

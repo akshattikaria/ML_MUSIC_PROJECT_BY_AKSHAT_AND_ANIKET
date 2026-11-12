@@ -1,0 +1,12 @@
+family,n_features,mean_f1_drop,std_f1_drop,repeats,baseline_validation_f1,interpretation
+mfcc,140,0.22170062108018893,0.010913979455780811,5,0.5464100375381602,Mel-frequency cepstral coefficients; timbre and spectral envelope
+spectral_contrast,49,0.08952839009955935,0.005919314683537439,5,0.5464100375381602,Peak-to-valley differences in spectral bands
+chroma_stft,84,0.04841009428520502,0.01159038092563277,5,0.5464100375381602,STFT pitch-class energy; harmonic content
+chroma_cqt,84,0.037533244935214885,0.010406504473302262,5,0.5464100375381602,Constant-Q pitch-class energy; harmonic content
+tonnetz,42,0.03726254210330626,0.006045436839299169,5,0.5464100375381602,Tonal centroid coordinates; harmonic relationships
+spectral_bandwidth,7,0.014931840057712243,0.005880140738531001,5,0.5464100375381602,Spread of spectral energy around its centroid
+chroma_cens,84,0.014799179428053444,0.0069256496626200785,5,0.5464100375381602,Smoothed pitch-class energy; harmonic content
+spectral_rolloff,7,0.006441758844388268,0.004103324653405749,5,0.5464100375381602,Frequency below which most spectral energy lies
+spectral_centroid,7,0.005733060529704015,0.0023015171540094405,5,0.5464100375381602,Centre of spectral energy; brightness
+zcr,7,0.003959563878739946,0.0035494893069991543,5,0.5464100375381602,Zero-crossing rate; noisiness and rapid signal changes
+rmse,7,0.0030140542188905606,0.00316454351525523,5,0.5464100375381602,Root mean square energy; signal energy

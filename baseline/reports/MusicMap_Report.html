@@ -1,0 +1,639 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MusicMap · ML lab report</title><style>
+body{font:16px/1.65 system-ui,sans-serif;color:#183143;background:#f0f4f5;margin:0}
+main{max-width:1080px;margin:40px auto;padding:50px;background:white;border-radius:16px}
+h1{font-size:48px;letter-spacing:-2px;margin:0;color:#255f85}
+h2{font-size:25px;color:#255f85;margin-top:44px;line-height:1.3}
+h3{font-size:20px;margin-top:32px}a{color:#255f85}
+table{border-collapse:collapse;width:100%;font-size:13px;display:block;overflow:auto}
+th,td{padding:9px 12px;border-bottom:1px solid #d8e2e7;text-align:left}
+th{background:#edf4f7}tr:nth-child(even){background:#f8fafb}
+img{max-width:100%;height:auto;margin:12px 0}
+pre{background:#f0f4f5;padding:20px;overflow:auto;border-radius:8px}
+li{margin:6px 0}@media(max-width:700px){main{margin:0;padding:22px}h1{font-size:38px}}
+@media print{body{background:white}main{padding:0;margin:0}h2,h3{break-after:avoid}img,table{break-inside:avoid}}
+</style></head><body><main><h1>MusicMap</h1>
+<h2>Music Genre Classification and Pattern Discovery Using Machine Learning</h2>
+<p>ML Laboratory Project</p>
+<p>Student: [Enter your name]<br />
+Roll number: [Enter your roll number]<br />
+Department / institution: [Enter details]<br />
+Course / instructor: [Enter details]</p>
+<h2>Abstract</h2>
+<p>MusicMap investigates whether precomputed audio descriptors can distinguish music genres and reveal relationships between songs. The experiment uses 8,000 tracks from the balanced FMA-small subset, with eight genres and 518 numeric features. Decision Tree, K-nearest neighbors (KNN), radial-basis-function support vector machine (SVM), and a feed-forward artificial neural network (ANN) are compared with a majority-class baseline. The official artist-disjoint training, validation, and test partitions are preserved. Hyperparameters and the winning model are chosen using validation macro F1 before evaluating the test set. The selected model, SVM (RBF), achieves 49.12% test accuracy and 0.4885 test macro F1 in this run. PCA, K-means, nearest-neighbor retrieval, and grouped permutation importance provide complementary views of musical similarity and feature relevance. The findings describe this dataset and experimental configuration rather than universal genre boundaries.</p>
+<h2>1. Problem statement and objectives</h2>
+<p>Genre labels can help organize large music collections, but genres share instruments, production styles, and musical conventions. The project treats genre recognition as supervised multiclass classification: one feature vector is mapped to one of eight top-level genre labels.</p>
+<p>The objectives are:</p>
+<ol>
+<li>Prepare a manageable, reproducible dataset using audio features rather than downloading or decoding thousands of recordings.</li>
+<li>Compare Decision Tree, KNN, SVM, and ANN on identical external partitions and report more than accuracy alone.</li>
+<li>Identify audio feature families associated with genre separation.</li>
+<li>Discover similarities through dimensionality reduction, clustering, and nearest-neighbor retrieval.</li>
+</ol>
+<p>The research questions are which model performs best under this protocol, which genres it confuses, and whether audio-based clusters agree with the supplied labels.</p>
+<h2>2. Dataset and features</h2>
+<p>The source is FMA: A Dataset for Music Analysis by Defferrard, Benzi, Vandergheynst, and Bresson (ISMIR 2017). FMA-small contains 8,000 30-second track excerpts, balanced across Electronic, Experimental, Folk, Hip-Hop, Instrumental, International, Pop, and Rock. This project retains 8,000 tracks.</p>
+<p>Only the official 342 MiB metadata archive is required. The 7.2 GiB FMA-small audio archive is unnecessary for these experiments. The published archive SHA-1 is verified as f0df49ffe5f2a6008d7dc83c6915b31835dfe733. The CSVs have multiple header rows; feature rows and metadata are joined by track ID, never by assumed row position.</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Partition</th>
+  <th style="text-align:right">Tracks</th>
+  <th style="text-align:left">Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">training</td>
+  <td style="text-align:right">6400</td>
+  <td style="text-align:left">Fit candidate models and preprocessing</td>
+</tr>
+<tr>
+  <td style="text-align:left">validation</td>
+  <td style="text-align:right">800</td>
+  <td style="text-align:left">Choose hyperparameters and model</td>
+</tr>
+<tr>
+  <td style="text-align:left">test</td>
+  <td style="text-align:right">800</td>
+  <td style="text-align:left">Final held-out evaluation</td>
+</tr>
+</tbody>
+</table>
+<p>Each genre contributes 800 training, 100 validation, and 100 test tracks. The recorded overlap counts for artist IDs are {'training__validation': 0, 'training__test': 0, 'validation__test': 0}; missing artist IDs: 0. Thus this prepared release has no artists shared across partitions.</p>
+<p><img src="figures/genre_balance.png" alt="Genre distribution and partitions" /></p>
+<p>The 518 descriptors belong to 11 audio feature families. For each feature dimension, the dataset provides mean, standard deviation, skewness, kurtosis, median, minimum, and maximum over analysis frames. Predictors contain audio descriptors only. Titles, track IDs, artist IDs, album IDs, genre labels, and split labels are kept separately and never enter classifiers.</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Family</th>
+  <th style="text-align:right">Columns</th>
+  <th style="text-align:left">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">chroma_cens</td>
+  <td style="text-align:right">84</td>
+  <td style="text-align:left">Smoothed pitch-class energy; harmonic content</td>
+</tr>
+<tr>
+  <td style="text-align:left">chroma_cqt</td>
+  <td style="text-align:right">84</td>
+  <td style="text-align:left">Constant-Q pitch-class energy; harmonic content</td>
+</tr>
+<tr>
+  <td style="text-align:left">chroma_stft</td>
+  <td style="text-align:right">84</td>
+  <td style="text-align:left">STFT pitch-class energy; harmonic content</td>
+</tr>
+<tr>
+  <td style="text-align:left">mfcc</td>
+  <td style="text-align:right">140</td>
+  <td style="text-align:left">Mel-frequency cepstral coefficients; timbre and spectral envelope</td>
+</tr>
+<tr>
+  <td style="text-align:left">rmse</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:left">Root mean square energy; signal energy</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_bandwidth</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:left">Spread of spectral energy around its centroid</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_centroid</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:left">Centre of spectral energy; brightness</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_contrast</td>
+  <td style="text-align:right">49</td>
+  <td style="text-align:left">Peak-to-valley differences in spectral bands</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_rolloff</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:left">Frequency below which most spectral energy lies</td>
+</tr>
+<tr>
+  <td style="text-align:left">tonnetz</td>
+  <td style="text-align:right">42</td>
+  <td style="text-align:left">Tonal centroid coordinates; harmonic relationships</td>
+</tr>
+<tr>
+  <td style="text-align:left">zcr</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:left">Zero-crossing rate; noisiness and rapid signal changes</td>
+</tr>
+</tbody>
+</table>
+<p>For example, &quot;mfcc__mean__01&quot; means the temporal mean of the first MFCC coefficient. The table has no explicit tempo/BPM feature; this project does not claim to measure tempo directly.</p>
+<p>Data-quality checks found 0 non-finite feature values, 0 tracks requiring partial imputation, and 0 completely missing feature rows. Stored features use float32 to reduce memory. Prepared files also have SHA-256 integrity checks.</p>
+<h2>3. Experimental methodology</h2>
+<h3>3.1 Preprocessing and leakage prevention</h3>
+<p>Candidate fitting uses the 6,400 official training tracks. Each scikit-learn pipeline contains median imputation, removal of constant columns, standard scaling, and a classifier. Imputation and scaling are fitted inside the pipeline on training data. The transformation is z = (x − training mean) / training standard deviation. Scaling matters especially for distance-based KNN, SVM, and ANN; applying it to a tree is harmless.</p>
+<p>The current subset has complete features, so imputation does not change it. The same implementation can handle partially missing values. Entirely unusable rows are explicitly recorded if encountered during preparation.</p>
+<p>All 518 input descriptors are available to each classifier. PCA is used for exploratory analysis and similarity retrieval, not as classifier preprocessing. No feature ranking is used to select predictors after viewing test results.</p>
+<h3>3.2 Model comparison and selection</h3>
+<p>The &quot;standard&quot; profile evaluates 21 candidates including the baseline. In the standard profile, the grids are:</p>
+<ul>
+<li>Decision Tree: maximum depth in 10, 20, or unlimited; minimum leaf size in 2 or 5 (6 candidates).</li>
+<li>KNN: k in 5, 15, or 31; uniform or inverse-distance votes (6 candidates).</li>
+<li>RBF SVM: C in 1 or 10; gamma equal to the training-data scale heuristic or 0.001 (4 candidates).</li>
+<li>ANN: one 128-unit layer or two layers of 128 and 64 units; L2 alpha in 0.0001 or 0.01 (4 candidates).</li>
+<li>Dummy baseline: always predict the most frequent training label (1 candidate).</li>
+</ul>
+<p>The ANN is a feed-forward multilayer perceptron trained with Adam, ReLU activation, batch size 128, initial learning rate 0.001, and at most 200 epochs. It uses an internal 10% holdout for early stopping, with patience of 15 epochs. That internal holdout is a random track split within the current fitting partition; the official external validation and test sets remain artist-disjoint. The ANN encodes genre strings numerically during fitting and decodes predictions back to text.</p>
+<p>Each algorithm's hyperparameters are chosen by macro F1 on the official 800-track validation set. Validation accuracy breaks ties; an exact tie retains the first grid candidate. The winning algorithm is also chosen by validation macro F1. Selection is saved to &quot;selection.json&quot; before test features or labels are requested. Each selected configuration is then freshly fitted on the combined 7,200 training and validation tracks; ANN early stopping still reserves 10% internally. These refitted models are evaluated once on the 800-track test set. The baseline is reported for context and is excluded from the four-model winner selection.</p>
+<p>There is no cross-validation in this baseline experiment. A fixed official validation partition provides an affordable laptop workflow. Candidate scores are available in &quot;candidate_results.csv&quot;, and all final test predictions are saved in &quot;test_predictions.csv&quot;.</p>
+<h3>3.3 Algorithms</h3>
+<ul>
+<li>Decision Tree learns threshold rules that reduce Gini impurity. It captures nonlinear interactions and is interpretable, but deep trees can overfit.</li>
+<li>KNN assigns a label from nearby standardized feature vectors using Euclidean distance. It is simple but sensitive to scaling, redundant features, and high dimensionality.</li>
+<li>SVM learns separating boundaries in an RBF feature space. Its kernel is exp(−gamma × squared Euclidean distance); C controls the penalty for misclassification.</li>
+<li>ANN learns nonlinear combinations of descriptors through fully connected layers. Regularization and early stopping limit overfitting, but results can vary with initialization.</li>
+</ul>
+<p>Selected hyperparameters:</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Model</th>
+  <th style="text-align:left">Selected hyperparameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">Decision Tree</td>
+  <td style="text-align:left">{&quot;max_depth&quot;: 10, &quot;min_samples_leaf&quot;: 5}</td>
+</tr>
+<tr>
+  <td style="text-align:left">KNN</td>
+  <td style="text-align:left">{&quot;n_neighbors&quot;: 5, &quot;weights&quot;: &quot;distance&quot;}</td>
+</tr>
+<tr>
+  <td style="text-align:left">SVM (RBF)</td>
+  <td style="text-align:left">{&quot;C&quot;: 1.0, &quot;gamma&quot;: 0.001}</td>
+</tr>
+<tr>
+  <td style="text-align:left">ANN (MLP)</td>
+  <td style="text-align:left">{&quot;alpha&quot;: 0.0001, &quot;hidden_layer_sizes&quot;: [128, 64]}</td>
+</tr>
+</tbody>
+</table>
+<h3>3.4 Evaluation metrics</h3>
+<p>Accuracy is the fraction of correctly classified tracks. For a genre, precision is TP / (TP + FP), recall is TP / (TP + FN), and F1 is 2 × precision × recall / (precision + recall). Macro F1 averages per-genre F1 with equal weight for every genre. Balanced accuracy is mean recall. Undefined precision or F1 is assigned zero.</p>
+<p>The test partition is balanced, so balanced accuracy equals accuracy here. Confusion matrices show which genres are mistaken for which others. Validation scores measure training-only candidates; test scores measure their refitted versions, so the columns refer to different fitted models on different partitions.</p>
+<h2>4. Results</h2>
+<p>The algorithm selected before test evaluation is <strong>SVM (RBF)</strong>. Its test accuracy is <strong>49.12%</strong> and macro F1 is <strong>0.4885</strong>. The dummy baseline reaches 12.50% accuracy and 0.0278 macro F1.</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Model</th>
+  <th style="text-align:right">Validation F1</th>
+  <th style="text-align:left">Test accuracy</th>
+  <th style="text-align:right">Test precision</th>
+  <th style="text-align:right">Test recall</th>
+  <th style="text-align:right">Test F1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">SVM (RBF)</td>
+  <td style="text-align:right">0.5464</td>
+  <td style="text-align:left">49.12%</td>
+  <td style="text-align:right">0.4878</td>
+  <td style="text-align:right">0.4912</td>
+  <td style="text-align:right">0.4885</td>
+</tr>
+<tr>
+  <td style="text-align:left">ANN (MLP)</td>
+  <td style="text-align:right">0.5364</td>
+  <td style="text-align:left">45.88%</td>
+  <td style="text-align:right">0.4534</td>
+  <td style="text-align:right">0.4587</td>
+  <td style="text-align:right">0.4546</td>
+</tr>
+<tr>
+  <td style="text-align:left">KNN</td>
+  <td style="text-align:right">0.4270</td>
+  <td style="text-align:left">33.38%</td>
+  <td style="text-align:right">0.3542</td>
+  <td style="text-align:right">0.3337</td>
+  <td style="text-align:right">0.3287</td>
+</tr>
+<tr>
+  <td style="text-align:left">Decision Tree</td>
+  <td style="text-align:right">0.3656</td>
+  <td style="text-align:left">34.25%</td>
+  <td style="text-align:right">0.3488</td>
+  <td style="text-align:right">0.3425</td>
+  <td style="text-align:right">0.3437</td>
+</tr>
+<tr>
+  <td style="text-align:left">Dummy baseline</td>
+  <td style="text-align:right">0.0278</td>
+  <td style="text-align:left">12.50%</td>
+  <td style="text-align:right">0.0156</td>
+  <td style="text-align:right">0.1250</td>
+  <td style="text-align:right">0.0278</td>
+</tr>
+</tbody>
+</table>
+<p><img src="figures/model_comparison.png" alt="Comparison of all models" /></p>
+<p>The model ordering follows validation macro F1. A higher test score from another model would be a descriptive observation, not a reason to change the preselected winner. These are actual measurements from the included run; scores from a different machine or dependency version may differ slightly.</p>
+<h3>4.1 Per-genre performance</h3>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Genre</th>
+  <th style="text-align:right">Precision</th>
+  <th style="text-align:right">Recall</th>
+  <th style="text-align:right">F1</th>
+  <th style="text-align:right">Test tracks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">Electronic</td>
+  <td style="text-align:right">0.5769</td>
+  <td style="text-align:right">0.6000</td>
+  <td style="text-align:right">0.5882</td>
+  <td style="text-align:right">100</td>
+</tr>
+<tr>
+  <td style="text-align:left">Experimental</td>
+  <td style="text-align:right">0.3905</td>
+  <td style="text-align:right">0.4100</td>
+  <td style="text-align:right">0.4000</td>
+  <td style="text-align:right">100</td>
+</tr>
+<tr>
+  <td style="text-align:left">Folk</td>
+  <td style="text-align:right">0.2526</td>
+  <td style="text-align:right">0.2400</td>
+  <td style="text-align:right">0.2462</td>
+  <td style="text-align:right">100</td>
+</tr>
+<tr>
+  <td style="text-align:left">Hip-Hop</td>
+  <td style="text-align:right">0.6396</td>
+  <td style="text-align:right">0.7100</td>
+  <td style="text-align:right">0.6730</td>
+  <td style="text-align:right">100</td>
+</tr>
+<tr>
+  <td style="text-align:left">Instrumental</td>
+  <td style="text-align:right">0.4731</td>
+  <td style="text-align:right">0.4400</td>
+  <td style="text-align:right">0.4560</td>
+  <td style="text-align:right">100</td>
+</tr>
+<tr>
+  <td style="text-align:left">International</td>
+  <td style="text-align:right">0.5765</td>
+  <td style="text-align:right">0.4900</td>
+  <td style="text-align:right">0.5297</td>
+  <td style="text-align:right">100</td>
+</tr>
+<tr>
+  <td style="text-align:left">Pop</td>
+  <td style="text-align:right">0.4021</td>
+  <td style="text-align:right">0.3900</td>
+  <td style="text-align:right">0.3959</td>
+  <td style="text-align:right">100</td>
+</tr>
+<tr>
+  <td style="text-align:left">Rock</td>
+  <td style="text-align:right">0.5909</td>
+  <td style="text-align:right">0.6500</td>
+  <td style="text-align:right">0.6190</td>
+  <td style="text-align:right">100</td>
+</tr>
+</tbody>
+</table>
+<p><img src="figures/per_genre_f1.png" alt="Selected model per-genre F1" /></p>
+<p>The largest off-diagonal confusion counts for the selected model are:</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Actual genre</th>
+  <th style="text-align:left">Predicted genre</th>
+  <th style="text-align:right">Tracks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">International</td>
+  <td style="text-align:left">Folk</td>
+  <td style="text-align:right">26</td>
+</tr>
+<tr>
+  <td style="text-align:left">Instrumental</td>
+  <td style="text-align:left">Folk</td>
+  <td style="text-align:right">23</td>
+</tr>
+<tr>
+  <td style="text-align:left">Folk</td>
+  <td style="text-align:left">Experimental</td>
+  <td style="text-align:right">21</td>
+</tr>
+<tr>
+  <td style="text-align:left">Instrumental</td>
+  <td style="text-align:left">Experimental</td>
+  <td style="text-align:right">19</td>
+</tr>
+<tr>
+  <td style="text-align:left">Experimental</td>
+  <td style="text-align:left">Instrumental</td>
+  <td style="text-align:right">17</td>
+</tr>
+</tbody>
+</table>
+<p><img src="figures/confusion_matrices.png" alt="All four confusion matrices" /></p>
+<p>Each confusion-matrix row is normalized by its actual genre count. These errors show overlap in the supplied acoustic representation; they do not prove that a genre label is wrong.</p>
+<h3>4.2 Computation and reproducibility</h3>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Model</th>
+  <th style="text-align:right">Candidate fitting (s)</th>
+  <th style="text-align:right">Final refit (s)</th>
+  <th style="text-align:right">Test prediction (s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">SVM (RBF)</td>
+  <td style="text-align:right">18.3601</td>
+  <td style="text-align:right">4.4288</td>
+  <td style="text-align:right">1.0982</td>
+</tr>
+<tr>
+  <td style="text-align:left">ANN (MLP)</td>
+  <td style="text-align:right">7.1013</td>
+  <td style="text-align:right">1.7027</td>
+  <td style="text-align:right">0.0066</td>
+</tr>
+<tr>
+  <td style="text-align:left">KNN</td>
+  <td style="text-align:right">1.5029</td>
+  <td style="text-align:right">0.3108</td>
+  <td style="text-align:right">0.0875</td>
+</tr>
+<tr>
+  <td style="text-align:left">Decision Tree</td>
+  <td style="text-align:right">21.7439</td>
+  <td style="text-align:right">3.5446</td>
+  <td style="text-align:right">0.0055</td>
+</tr>
+<tr>
+  <td style="text-align:left">Dummy baseline</td>
+  <td style="text-align:right">0.2445</td>
+  <td style="text-align:right">0.2577</td>
+  <td style="text-align:right">0.0056</td>
+</tr>
+</tbody>
+</table>
+<p>The full tuning/refitting/evaluation stage took 75.9 seconds in the execution environment, using a limit of 2 numerical-library threads and seed 42. Times exclude downloading, preparation, visualization, and report generation. Candidate fitting time sums fitting only; prediction and other overhead account for the remaining elapsed time. This timing is not a laptop performance guarantee.</p>
+<p>The run used Python 3.12.14 and scikit-learn 1.8.0. Exact direct dependency versions are recorded in &quot;requirements-tested.txt&quot;; runtime details are in &quot;run_info.json&quot;. A fixed seed improves repeatability but does not establish robustness across random seeds.</p>
+<p>Fitting diagnostics:</p>
+<p>No fitting warnings were recorded.</p>
+<h2>5. Feature interpretation</h2>
+<p>The selected training-only model is evaluated on validation tracks. One entire feature family is jointly shuffled across tracks while all other families remain unchanged. The drop in macro F1 estimates how much this fitted model relies on that family. Joint shuffling preserves correlations among columns within the family. Each family uses 5 repeated permutations with a fixed seed.</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Family</th>
+  <th style="text-align:right">Columns</th>
+  <th style="text-align:right">Mean F1 drop</th>
+  <th style="text-align:right">Repeat SD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">mfcc</td>
+  <td style="text-align:right">140</td>
+  <td style="text-align:right">0.2217</td>
+  <td style="text-align:right">0.0109</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_contrast</td>
+  <td style="text-align:right">49</td>
+  <td style="text-align:right">0.0895</td>
+  <td style="text-align:right">0.0059</td>
+</tr>
+<tr>
+  <td style="text-align:left">chroma_stft</td>
+  <td style="text-align:right">84</td>
+  <td style="text-align:right">0.0484</td>
+  <td style="text-align:right">0.0116</td>
+</tr>
+<tr>
+  <td style="text-align:left">chroma_cqt</td>
+  <td style="text-align:right">84</td>
+  <td style="text-align:right">0.0375</td>
+  <td style="text-align:right">0.0104</td>
+</tr>
+<tr>
+  <td style="text-align:left">tonnetz</td>
+  <td style="text-align:right">42</td>
+  <td style="text-align:right">0.0373</td>
+  <td style="text-align:right">0.0060</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_bandwidth</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">0.0149</td>
+  <td style="text-align:right">0.0059</td>
+</tr>
+<tr>
+  <td style="text-align:left">chroma_cens</td>
+  <td style="text-align:right">84</td>
+  <td style="text-align:right">0.0148</td>
+  <td style="text-align:right">0.0069</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_rolloff</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">0.0064</td>
+  <td style="text-align:right">0.0041</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_centroid</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">0.0057</td>
+  <td style="text-align:right">0.0023</td>
+</tr>
+<tr>
+  <td style="text-align:left">zcr</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">0.0040</td>
+  <td style="text-align:right">0.0035</td>
+</tr>
+<tr>
+  <td style="text-align:left">rmse</td>
+  <td style="text-align:right">7</td>
+  <td style="text-align:right">0.0030</td>
+  <td style="text-align:right">0.0032</td>
+</tr>
+</tbody>
+</table>
+<p><img src="figures/feature_importance.png" alt="Feature-family permutation importance" /></p>
+<p>The leading families in this run are mfcc, spectral_contrast, chroma_stft. The audio meanings of these families are listed in Section 2. Positive drops indicate reliance; near-zero or negative drops can reflect redundancy, sampling variation, or features that the model does not use effectively. The error bars show variability across permutations, not confidence intervals across new datasets. Family sizes differ, and correlated families can substitute for one another, so the ranking is neither causal nor an equal-size feature comparison.</p>
+<p>Individual descriptors can also be ranked by a training-only one-way ANOVA F score:</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:left">Descriptor</th>
+  <th style="text-align:right">Training ANOVA F</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:left">mfcc__mean__01</td>
+  <td style="text-align:right">306.9543</td>
+</tr>
+<tr>
+  <td style="text-align:left">mfcc__median__01</td>
+  <td style="text-align:right">305.9203</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_contrast__median__02</td>
+  <td style="text-align:right">269.0754</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_contrast__mean__02</td>
+  <td style="text-align:right">265.7206</td>
+</tr>
+<tr>
+  <td style="text-align:left">mfcc__mean__03</td>
+  <td style="text-align:right">256.9555</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_contrast__mean__04</td>
+  <td style="text-align:right">253.6100</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_contrast__median__04</td>
+  <td style="text-align:right">251.7100</td>
+</tr>
+<tr>
+  <td style="text-align:left">mfcc__median__03</td>
+  <td style="text-align:right">250.8509</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_rolloff__mean__01</td>
+  <td style="text-align:right">249.5471</td>
+</tr>
+<tr>
+  <td style="text-align:left">spectral_contrast__median__03</td>
+  <td style="text-align:right">248.5839</td>
+</tr>
+</tbody>
+</table>
+<p>This ranking is an exploratory association measure. It ignores multivariate interactions and correlated predictors, and it is not a multiple-testing-adjusted significance claim or a feature-selection step.</p>
+<p><img src="figures/feature_distributions.png" alt="Training feature distributions" /></p>
+<p>Boxes show medians and interquartile ranges. Outlier points are omitted only from the drawing; they remain in the training data. Overlapping distributions explain why no single simple descriptor is expected to identify every genre.</p>
+<h2>6. Pattern discovery and song similarity</h2>
+<h3>6.1 PCA music map</h3>
+<p>Preprocessing and PCA are fitted only on training audio features. Training and validation tracks are projected into that space; genre labels are added only as display colors. The first two principal components retain 18.91% of standardized feature variance, and the first 50 retain 71.59%.</p>
+<p><img src="figures/pca_map.png" alt="PCA song map" /></p>
+<p><img src="figures/pca_variance.png" alt="PCA cumulative variance" /></p>
+<p>Open &quot;song_map.html&quot; for the offline interactive map: hover for track details, filter genres through the legend, and zoom. Nearby points share aspects of their measured audio descriptors. Since two dimensions discard information, separation or overlap in this drawing is not a classifier accuracy result.</p>
+<h3>6.2 K-means clustering</h3>
+<p>K-means uses the training-set 50-dimensional PCA representation and k = 8, fixed in advance to match the number of known genres. It does not use genre labels during fitting. Validation tracks receive the nearest learned cluster centroid.</p>
+<ul>
+<li>Adjusted Rand index against validation genres: 0.1403.</li>
+<li>Normalized mutual information against validation genres: 0.2244.</li>
+<li>Validation silhouette score in PCA space: 0.04055146872997284.</li>
+</ul>
+<p>ARI measures agreement after accounting for chance, NMI measures shared label information, and silhouette measures geometric compactness/separation. Cluster numbers are arbitrary and cannot be interpreted as genre IDs. A cluster can contain multiple genres, and one genre can span multiple clusters.</p>
+<p><img src="figures/cluster_composition.png" alt="Validation cluster composition" /></p>
+<p>The validation metrics and composition chart are descriptive; they are not used to tune k or select a classifier. Test tracks are excluded from discovery analyses.</p>
+<h3>6.3 Nearest songs</h3>
+<p>Euclidean distance in the training-fitted 50-dimensional PCA space retrieves similar tracks from the training catalog. The query itself and tracks with the same artist ID are excluded by default. Genre labels are shown for interpretation and are not part of the distance.</p>
+<p>For validation query ID 148, &quot;Blackout 2&quot; by Contradiction (Experimental), the five nearest eligible training tracks are:</p>
+<table>
+<thead>
+<tr>
+  <th style="text-align:right">track_id</th>
+  <th style="text-align:left">title</th>
+  <th style="text-align:left">artist</th>
+  <th style="text-align:left">genre</th>
+  <th style="text-align:right">distance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td style="text-align:right">12537</td>
+  <td style="text-align:left">Maree Lunaire</td>
+  <td style="text-align:left">Smoking After</td>
+  <td style="text-align:left">Pop</td>
+  <td style="text-align:right">14.8261</td>
+</tr>
+<tr>
+  <td style="text-align:right">127297</td>
+  <td style="text-align:left">The Pursuit of Unintentional Humor</td>
+  <td style="text-align:left">Oh Yeah, the Future</td>
+  <td style="text-align:left">Pop</td>
+  <td style="text-align:right">15.1386</td>
+</tr>
+<tr>
+  <td style="text-align:right">145730</td>
+  <td style="text-align:left">STOCKPILE! (Funky Dubb Mixx)</td>
+  <td style="text-align:left">LOWdown</td>
+  <td style="text-align:left">Hip-Hop</td>
+  <td style="text-align:right">15.1609</td>
+</tr>
+<tr>
+  <td style="text-align:right">113972</td>
+  <td style="text-align:left">Your Pulse</td>
+  <td style="text-align:left">Little Glass Men</td>
+  <td style="text-align:left">Electronic</td>
+  <td style="text-align:right">15.2266</td>
+</tr>
+<tr>
+  <td style="text-align:right">98838</td>
+  <td style="text-align:left">intense</td>
+  <td style="text-align:left">Moonove</td>
+  <td style="text-align:left">Electronic</td>
+  <td style="text-align:right">15.5473</td>
+</tr>
+</tbody>
+</table>
+<p>Distances are representation-specific values, not probabilities or listener-preference scores. This is an audio similarity demonstration rather than a personalized recommendation system.</p>
+<h2>7. Discussion and limitations</h2>
+<ol>
+<li>The four algorithms receive the same external partitions, but their small hyperparameter grids do not establish the best possible performance for each model family.</li>
+<li>Artist-disjoint splits reduce artist memorization. They do not remove every potential recording, production, album, or dataset-specific correlation.</li>
+<li>Genre boundaries are subjective and sometimes overlapping. This task uses one top-level label per track and only eight FMA-small genres.</li>
+<li>Summary descriptors discard musical sequence and detailed temporal structure. The model does not directly process waveforms or learn from spectrograms.</li>
+<li>The ANN uses an internal track-level early-stopping split, one initialization seed, and at most 200 epochs. Repeated artist-aware experiments could change the comparison.</li>
+<li>Standard scaling can remain sensitive to extreme values. PCA maximizes variance rather than genre discrimination, and the 2D map discards most dimensions.</li>
+<li>Grouped permutation importance describes reliance of one tuned model on one validation set. The validation partition has already influenced model selection, so it is not an independent confirmatory interpretation dataset.</li>
+<li>Results come from a single official holdout protocol. A larger evaluation or repeated group-aware validation would better quantify uncertainty.</li>
+<li>Predicting a genuinely new audio file requires compatible extraction of the same descriptors. The delivered predictor accepts prepared FMA feature rows or a matching flat feature CSV; raw MP3 feature extraction is outside this implementation.</li>
+</ol>
+<h2>8. Conclusion and future work</h2>
+<p>MusicMap provides a reproducible comparison of Decision Tree, KNN, SVM, and ANN for feature-based music genre classification. Under the recorded protocol, SVM (RBF) was selected on validation data and obtained 49.12% test accuracy with 0.4885 macro F1. The feature analysis highlights mfcc, spectral_contrast, chroma_stft, while PCA, K-means, and nearest-neighbor retrieval reveal relationships that are only partly aligned with genre labels.</p>
+<p>Future experiments can use artist-grouped cross-validation within the training partition, multiple ANN seeds, carefully validated feature selection, broader genres, or pretrained audio embeddings. Any such changes should be selected without reusing this test set for tuning.</p>
+<h2>9. Reproduction and deliverables</h2>
+<p>From the project directory, install the requirements and run:</p>
+<pre><code class="language-sh">python -m pip install -r requirements-tested.txt
+musicmap run --profile standard --seed 42 --threads 2
+jupyter lab notebooks/MusicMap.ipynb
+</code></pre>
+<p>The notebook defaults to displaying the included results. Set its RUN_TRAINING and RUN_DISCOVERY switches to True to recompute. Prepared subset data are bundled in the complete package; if absent, preparation downloads the official metadata archive automatically. No audio download or GPU is required.</p>
+<p>Deliverables include the Python package, executed notebook, metric tables, all test predictions, selected model, interactive map, figures, this report in Markdown/HTML/Word, a presentation outline, and viva preparation notes. Fill in the student and institution fields and adapt the report to the instructor's required format.</p>
+<h2>References and attribution</h2>
+<ol>
+<li>Defferrard, M., Benzi, K., Vandergheynst, P., and Bresson, X. (2017). FMA: A Dataset for Music Analysis. Proceedings of the 18th International Society for Music Information Retrieval Conference. https://arxiv.org/abs/1612.01840</li>
+<li>Official FMA repository and release documentation: https://github.com/mdeff/fma</li>
+<li>Official audio descriptor extraction implementation: https://github.com/mdeff/fma/blob/master/features.py</li>
+<li>Scikit-learn user guide and API documentation: https://scikit-learn.org/stable/</li>
+</ol>
+<p>FMA metadata and derived feature data are attributed to Defferrard et al. and distributed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. This project uses the original 2017 metadata release and does not redistribute audio recordings.</p>
+</main></body></html>

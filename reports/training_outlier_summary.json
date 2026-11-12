@@ -1,0 +1,6 @@
+{
+  "fit_split": "training",
+  "features_with_values_above_20_sigma": 83,
+  "max_abs_z": 79.95818328857422,
+  "motivation": "Compare quantile normalization with standard scaling; these diagnostics do not use validation/test rows."
+}

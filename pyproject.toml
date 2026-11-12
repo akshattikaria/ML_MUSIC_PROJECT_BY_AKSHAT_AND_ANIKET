@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "musicmap-lab"
+version = "1.0.0"
+description = "Reproducible FMA-small music classification and pattern discovery lab"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26,<3", "pandas>=2.2,<3", "scipy>=1.12,<2",
+    "scikit-learn>=1.5,<1.9", "matplotlib>=3.8,<4",
+    "seaborn>=0.13,<0.14", "plotly>=6,<7", "joblib>=1.4,<2",
+    "threadpoolctl>=3.5,<4", "tabulate>=0.9,<1",
+    "mistune>=3,<4", "python-docx>=1.1,<2",
+]
+
+[project.optional-dependencies]
+notebook = ["jupyterlab>=4,<5", "nbformat>=5,<6", "nbconvert>=7,<8", "ipykernel>=6,<8"]
+test = ["pytest>=8,<10"]
+
+[project.scripts]
+musicmap = "musicmap.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
