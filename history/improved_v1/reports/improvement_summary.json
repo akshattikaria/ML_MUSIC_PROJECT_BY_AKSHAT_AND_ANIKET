@@ -1,0 +1,11 @@
+{
+  "champion": "ANN (MLP)",
+  "evaluation_status": "extended benchmark; original test previously viewed",
+  "baseline_champion": "SVM (RBF)",
+  "baseline_test_accuracy": 0.49125,
+  "improved_test_accuracy": 0.4725,
+  "test_accuracy_change_percentage_points": -1.8750000000000044,
+  "baseline_test_f1_macro": 0.4885062383195722,
+  "improved_test_f1_macro": 0.46946005744584784,
+  "test_f1_macro_change": -0.01904618087372434
+}

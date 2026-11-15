@@ -1,25 +1,28 @@
 {
-  "profile": "improved",
+  "profile": "optimized",
   "seed": 42,
   "threads": 2,
-  "champion": "ANN (MLP)",
+  "champion": "Stacked Ensemble",
   "cv_folds": 3,
   "ann_seeds": [
     42,
     43,
-    44
+    44,
+    45,
+    46
   ],
-  "candidate_count": 94,
-  "elapsed_seconds": 1182.4638315809998,
-  "python": "3.12.14",
-  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "candidate_count": 56,
+  "elapsed_seconds": 1194.532482555,
+  "python": "3.13.18",
+  "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39",
+  "cpu_count": 2,
   "versions": {
-    "numpy": "2.3.5",
-    "pandas": "2.2.3",
-    "scipy": "1.17.0",
+    "numpy": "2.5.3",
+    "pandas": "2.3.3",
+    "scipy": "1.18.1",
     "scikit-learn": "1.8.0",
-    "joblib": "1.5.3",
-    "threadpoolctl": "3.6.0"
+    "joblib": "1.6.0",
+    "threadpoolctl": "3.7.0"
   },
   "dataset_processed_sha256": {
     "features.npz": "4436d7b93891a9c25e2ef03328b85d22a2eaa203bd2f92c20f4613fd64433cbf",
@@ -30,5 +33,5 @@
   "n_test": 800,
   "n_features": 518,
   "evaluation_status": "extended benchmark; test previously viewed",
-  "ann_early_stopping": "10% track holdout in each fit; probability average of three predeclared seeds"
+  "ann_early_stopping": "10% track holdout in each fit; probability average of 5 predeclared seeds"
 }
