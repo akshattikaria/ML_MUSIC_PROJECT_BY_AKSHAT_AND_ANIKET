@@ -106,27 +106,71 @@ def comparison_plots(dataset: Dataset, output: Path) -> None:
             title="Artist-grouped cross-validation · selected configurations",
         )
         _save(fig, figures / "grouped_cv.png")
-        original_path = output.parent / "baseline/reports/model_comparison.csv"
-        if original_path.exists():
-            old = pd.read_csv(original_path).set_index("model")
-            fig, ax = plt.subplots(figsize=(11, 5))
-            positions = np.arange(len(comparison))
-            original = [old.at[name, "test_accuracy"] if name in old.index else np.nan
-                        for name in comparison["model"]]
-            ax.barh(positions - .18, original, height=.34, color="#b9c9d3", label="Original experiment")
-            ax.barh(positions + .18, comparison["test_accuracy"], height=.34,
-                    color="#255f85", label="Improved experiment")
-            ax.set_yticks(positions, comparison["model"])
+        runs = [
+            ("Original project", output.parent / "baseline/reports/model_comparison.csv", "#c9d6de"),
+            ("First improvement", output.parent / "history/improved_v1/reports/model_comparison.csv", "#7fa7c0"),
+        ]
+        runs = [(label, pd.read_csv(path).set_index("model"), color) for label, path, color in runs if path.exists()]
+        if runs:
+            runs.append(("This run", comparison.set_index("model"), "#255f85"))
+            models = [name for name in comparison["model"] if name != BASELINE]
+            fig, ax = plt.subplots(figsize=(11, 0.75 * len(models) + 1.5))
+            height = 0.8 / len(runs)
+            positions = np.arange(len(models))
+            for i, (label, frame, color) in enumerate(runs):
+                values = [frame.at[name, "test_accuracy"] if name in frame.index else np.nan for name in models]
+                bars = ax.barh(positions + (i - (len(runs) - 1) / 2) * height, values, height=height * 0.95,
+                               color=color, label=label)
+                if label == "This run":
+                    for bar, value in zip(bars, values):
+                        ax.text(value + 0.005, bar.get_y() + bar.get_height() / 2, f"{value:.1%}",
+                                va="center", fontsize=8)
+            ax.set_yticks(positions, models)
             ax.invert_yaxis()
-            ax.set(xlim=(0, 1), xlabel="Test accuracy",
-                   title="Extended benchmark comparison on the same official test set")
-            ax.legend(loc="lower right")
+            ax.set(xlim=(0.25, 0.65), xlabel="Test accuracy (same 800 official test tracks)",
+                   title="Progress across runs · missing bars = family not in that run")
+            ax.legend(loc="lower right", fontsize=9)
             _save(fig, figures / "improvement_comparison.png")
+    ensemble_path = output / "ensemble.json"
+    if ensemble_path.exists():
+        ensemble = json.loads(ensemble_path.read_text())
+        weights = pd.Series(ensemble["weights"]).sort_values()
+        fig, ax = plt.subplots(figsize=(8, 0.5 * len(weights) + 1.2))
+        ax.barh(weights.index, weights.values, color="#50a995")
+        for i, value in enumerate(weights.values):
+            ax.text(value + 0.01, i, f"{value:.0%}", va="center", fontsize=9)
+        ax.set(xlim=(0, max(1.0, weights.max() + 0.1)), xlabel="Voting weight",
+               title="Soft-voting ensemble · weights from training OOF probabilities")
+        _save(fig, figures / "ensemble_weights.png")
+    predictions_path = output / "test_predictions.csv"
+    if predictions_path.exists():
+        predictions = pd.read_csv(predictions_path)
+        champion = json.loads((output / "selection.json").read_text())["champion"]
+        from .improvement import IMPROVED_SLUGS
+        slug = IMPROVED_SLUGS.get(champion)
+        if "champion_confidence" in predictions and slug in predictions:
+            correct = predictions[slug].eq(predictions["actual"])
+            bins = [0, 0.3, 0.45, 0.6, 0.75, 1.0001]
+            names = ["<30%", "30–45%", "45–60%", "60–75%", "≥75%"]
+            groups = pd.cut(predictions["champion_confidence"], bins, labels=names, right=False)
+            table = correct.groupby(groups, observed=False).agg(["mean", "size"])
+            fig, ax = plt.subplots(figsize=(9, 4.2))
+            bars = ax.bar(names, table["mean"], color="#255f85")
+            for bar, (accuracy, size) in zip(bars, table.itertuples(index=False)):
+                if size:
+                    ax.text(bar.get_x() + bar.get_width() / 2, accuracy + 0.02,
+                            f"{accuracy:.0%}\n(n={size})", ha="center", fontsize=9)
+            ax.axhline(correct.mean(), color="#e1a84b", linestyle="--", label=f"Overall {correct.mean():.1%}")
+            ax.set(ylim=(0, 1.1), xlabel="Champion's top-genre probability",
+                   ylabel="Test accuracy", title=f"{champion}: confident predictions are more accurate")
+            ax.legend(loc="upper left")
+            _save(fig, figures / "confidence.png")
 
     data = json.loads((output / "confusion_matrices.json").read_text())
     names = [name for name in data["matrices"] if name != BASELINE]
-    rows = (len(names) + 1) // 2
-    fig, axes = plt.subplots(rows, 2, figsize=(15, 6.5 * rows), squeeze=False)
+    columns = 2 if len(names) <= 4 else 3
+    rows = (len(names) + columns - 1) // columns
+    fig, axes = plt.subplots(rows, columns, figsize=(7.5 * columns, 6.5 * rows), squeeze=False)
     for name, ax in zip(names, axes.flat):
         counts_array = np.array(data["matrices"][name])
         normalized = counts_array / counts_array.sum(axis=1, keepdims=True)
@@ -277,7 +321,8 @@ def run_discovery(
         training_model = joblib.load(model_dir / "selected_training_model.joblib")
         selected_path = output / "selected_features.csv"
         selected_path.unlink(missing_ok=True)
-        reducer = training_model.named_steps.get("reduction")
+        steps = getattr(training_model, "named_steps", {})
+        reducer = steps.get("reduction") if hasattr(steps, "get") else None
         selector = getattr(reducer, "transformer_", None)
         if selector is not None and hasattr(selector, "get_support"):
             imputed_names = training_model.named_steps["imputer"].get_feature_names_out()
@@ -326,25 +371,36 @@ def run_discovery(
     return summary
 
 
+def nearest_to_features(
+    dataset: Dataset, model_dir: Path, features: pd.DataFrame, k: int = 5,
+    exclude_ids=(), exclude_artist=None,
+) -> pd.DataFrame:
+    """Nearest training tracks to one descriptor row in the train-fitted PCA space."""
+    if k < 1:
+        raise ValueError("k must be positive.")
+    transform = joblib.load(Path(model_dir) / "discovery_transform.joblib")
+    with np.load(Path(model_dir) / "training_embeddings.npz", allow_pickle=False) as arrays:
+        candidates, ids = arrays["values"], arrays["track_ids"]
+    query = transform.transform(features)[0]
+    distances = np.linalg.norm(candidates - query, axis=1)
+    eligible = ~np.isin(ids, list(exclude_ids))
+    if exclude_artist is not None and pd.notna(exclude_artist):
+        eligible &= dataset.metadata.loc[ids, "artist_id"].ne(exclude_artist).fillna(True).to_numpy(dtype=bool)
+    ranked = np.flatnonzero(eligible)
+    ranked = ranked[np.argsort(distances[ranked], kind="stable")][:k]
+    result = dataset.metadata.loc[ids[ranked], ["title", "artist", "genre", "split"]].copy()
+    result["distance"] = distances[ranked]
+    return result
+
+
 def nearest_tracks(
     dataset: Dataset, model_dir: Path, track_id: int,
     k: int = 5, exclude_same_artist: bool = True,
 ) -> pd.DataFrame:
     if track_id not in dataset.X.index:
         raise ValueError(f"Track {track_id} is not in the prepared FMA-small subset.")
-    if k < 1:
-        raise ValueError("k must be positive.")
-    transform = joblib.load(Path(model_dir) / "discovery_transform.joblib")
-    with np.load(Path(model_dir) / "training_embeddings.npz", allow_pickle=False) as arrays:
-        candidates, ids = arrays["values"], arrays["track_ids"]
-    query = transform.transform(dataset.X.loc[[track_id]])[0]
-    distances = np.linalg.norm(candidates - query, axis=1)
-    eligible = ids != track_id
-    artist = dataset.metadata.at[track_id, "artist_id"]
-    if exclude_same_artist and pd.notna(artist):
-        eligible &= dataset.metadata.loc[ids, "artist_id"].ne(artist).fillna(True).to_numpy(dtype=bool)
-    ranked = np.flatnonzero(eligible)
-    ranked = ranked[np.argsort(distances[ranked], kind="stable")][:k]
-    result = dataset.metadata.loc[ids[ranked], ["title", "artist", "genre", "split"]].copy()
-    result["distance"] = distances[ranked]
-    return result
+    artist = dataset.metadata.at[track_id, "artist_id"] if exclude_same_artist else None
+    return nearest_to_features(
+        dataset, model_dir, dataset.X.loc[[track_id]], k,
+        exclude_ids=(track_id,), exclude_artist=artist,
+    )

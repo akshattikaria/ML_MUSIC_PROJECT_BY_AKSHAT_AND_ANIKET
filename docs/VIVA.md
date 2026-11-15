@@ -75,10 +75,10 @@ Use these notes to understand the implementation and explain the measured result
     By Euclidean distance in the training-fitted 50-component PCA space, searching the training catalog. The query and same-artist tracks are excluded by default. Genre is displayed but not used in the distance.
 
 25. **Can the project classify a new MP3 directly?**  
-    The delivered predictor takes prepared feature rows or a matching 518-column feature CSV. Supporting a raw MP3 requires compatible extraction and separate validation against the original FMA descriptor implementation.
+    Yes, as a demonstration. musicmap predict --audio song.mp3 (or the Upload tab of musicmap app) extracts the same 518 descriptors with librosa, following the official FMA features.py recipe: 11 frame-level features summarized by seven statistics over a 30-second excerpt. Library versions differ from the 2017 extraction, so the values are close but not identical; predictions for new audio are therefore not part of the benchmark.
 
 26. **What would you improve next?**  
-    The improved version already implements artist-grouped cross-validation, broader tuning, feature reduction, and multiple ANN seeds. Next steps are broader genres, pretrained representations, and a fresh artist-disjoint confirmation set.
+    Version 2 already adds stronger models, ensembles, probability outputs and statistical tests. The close scores of very different algorithms suggest the 518 summary statistics are now the main limit, so the next step is learning from mel-spectrograms (a CNN) or pretrained audio embeddings, extending to FMA-medium, and confirming on a fresh artist-disjoint test set.
 
 27. **How do you know the results are reproducible?**  
     The code fixes seeds, records versions and all candidate scores, verifies source/processed checksums, preserves track IDs, saves final predictions, and provides a one-command run. Tests check preprocessing isolation, the selection lock, ANN serialization, data alignment, and feature-family shuffling.
@@ -93,7 +93,7 @@ Use these notes to understand the implementation and explain the measured result
     Many audio statistics are skewed or have extreme values. This training-fitted transformation maps their empirical quantiles toward a normal distribution. It changes geometry and can affect SVM and KNN; whether it helps is decided using training CV scores.
 
 31. **Why average ANN seeds rather than select the best seed?**  
-    Selecting the luckiest initialization can give an optimistic impression. The improved ANN uses the fixed seeds 42, 43, and 44 with equal probability averaging. Individual seed scores show variability; all three contribute to the reported ensemble.
+    Selecting the luckiest initialization can give an optimistic impression. Version 2 uses five fixed seeds (42–46) with equal probability averaging. Individual seed scores show variability; all five contribute to the reported ANN.
 
 32. **What does Extra Trees add?**  
     It averages many randomized decision trees, giving a useful ensemble benchmark against a single tree and the distance/network models. It still uses the same audio descriptors and external partitions.
@@ -101,8 +101,46 @@ Use these notes to understand the implementation and explain the measured result
 33. **Can we call an updated test score independent confirmation?**  
     The official test scores were already viewed during the original work. The updated model is selected without using test scores in its implemented search, but the comparison is still an extended benchmark study. A fresh artist-disjoint confirmation dataset would support a stronger generalization claim.
 
-34. **Did the recommended changes improve the selected winner's test accuracy?**  
-    No. The improved ANN ensemble won on validation macro F1, but its 47.25% test accuracy was 1.875 percentage points below the original selected SVM's 49.125%. The updated SVM reached 49.75%, the highest updated test score, but switching to it because of that test result would break the declared selection rule. Some same-family scores improved, while the final selection outcome did not.
+34. **What happened in the first improvement run?**  
+    Its ANN won on validation but scored 47.25% on test, below the original SVM's 49.125%. That run showed that a single validation winner can be noisy on 800 tracks — one motivation for version 2's ensembles, which average out the idiosyncratic errors of individual models.
 
 35. **Do the outlier diagnostics prove quantile transformation is better?**  
     No. Training-only diagnostics found 83 descriptors with values above 20 absolute standard deviations. This motivates testing an alternative transformation; quantile normalization can also distort useful relationships. Its benefit must be assessed using the declared development protocol, and small benchmark gains do not establish statistical significance.
+
+## Version 2 additions
+
+36. **What is gradient boosting (LightGBM)?**  
+    It builds hundreds of small decision trees one after another; each new tree is fitted to the errors (gradients of the log-loss) of the current ensemble, and a small learning rate shrinks every step. Feature and row subsampling plus L2 regularization limit overfitting. Unlike a single tree it models subtle interactions, and unlike Extra Trees its trees cooperate rather than vote independently.
+
+37. **Why add Logistic Regression?**  
+    It is the standard linear baseline: if a nonlinear model barely beats it, the nonlinearity is not helping. It is also fast and gives well-calibrated probabilities, which makes it a useful ensemble member.
+
+38. **What are out-of-fold (OOF) predictions?**  
+    In K-fold CV every training track is predicted exactly once by a model that did not see it. Collecting those predictions gives an honest probability estimate for every training track. They let us learn ensemble weights without touching the validation or test partitions.
+
+39. **How does the soft-voting ensemble choose its weights?**  
+    Greedy forward selection (Caruana et al., 2004): start empty; in each round add (with replacement) the family whose inclusion gives the best mean fold macro F1 on the OOF probabilities; keep the best prefix of 25 rounds. The count of each family becomes its weight. Because members can be added repeatedly, strong families get more weight and useless ones get none.
+
+40. **What is stacking, and how is it different?**  
+    A stacked ensemble trains a second-level model — here multinomial logistic regression — on the members' OOF log-probabilities (7 families × 8 genres = 56 inputs). It can learn, for example, to trust the SVM for Folk but gradient boosting for Electronic. Its regularization C is chosen by an inner grouped CV over the OOF predictions. More flexible than voting, but with more parameters to estimate.
+
+41. **Why can an ensemble beat its best member?**  
+    Members with similar accuracy but different errors (a kernel method, a tree ensemble, a neural network) partly cancel each other's mistakes when their probabilities are averaged. The gain is largest when errors are weakly correlated.
+
+42. **Are ensemble CV scores trustworthy?**  
+    Slightly optimistic, because the weights were chosen on the same OOF predictions they are scored on. That is why the ensembles must also compete on the untouched validation partition, and why test is reported separately.
+
+43. **What is a bootstrap confidence interval?**  
+    Resample the 800 test tracks with replacement 2,000 times, recompute accuracy each time, and take the 2.5th and 97.5th percentiles. With 800 tracks the interval is roughly ±3.5 percentage points, which is why small differences between models should not be over-interpreted.
+
+44. **What does the McNemar test check?**  
+    Whether two classifiers evaluated on the same tracks differ significantly. It ignores tracks both get right or both get wrong and tests whether the "only A correct" and "only B correct" counts are balanced (an exact binomial test). It is the appropriate paired test for comparing runs on one test set.
+
+45. **What is top-3 accuracy and why report it?**  
+    The share of tracks whose true genre is among the model's three most probable genres. Genres overlap (Pop vs Electronic, Folk vs International), so a model that ranks the right genre second is still useful, e.g. for tagging or recommendation.
+
+46. **What does the confidence chart show?**  
+    Test tracks are grouped by the champion's top probability. Accuracy rises steeply with confidence, so the probability is a meaningful signal of when to trust a prediction and when to double-check it.
+
+47. **Why parallel worker processes?**  
+    Each (configuration, fold) fit is independent, so joblib runs several at once, one BLAS thread each. This shortens the run roughly in proportion to the CPU cores without changing any result.

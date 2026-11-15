@@ -1,2 +1,2 @@
-# Python 3.11+; Python 3.12 was used for the included experiment.
--e .[notebook,test]
+# Python 3.11-3.13. Installs MusicMap with notebook, test, demo-app and audio extras.
+-e .[notebook,test,app,audio]

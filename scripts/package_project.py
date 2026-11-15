@@ -8,7 +8,7 @@ TOP_LEVEL = {
     "README.md", "LICENSE", "CITATION.bib", "pyproject.toml",
     "requirements.txt", "requirements-tested.txt", ".gitignore",
 }
-FOLDERS = {"src", "tests", "docs", "scripts", "notebooks", "reports", "models", "baseline"}
+FOLDERS = {"src", "tests", "docs", "scripts", "notebooks", "reports", "models", "baseline", "history", "data"}
 
 
 def eligible(path: Path, complete: bool) -> bool:
@@ -30,8 +30,8 @@ def eligible(path: Path, complete: bool) -> bool:
 
 def main():
     for complete, name in [
-        (True, "MusicMap_Improved_Complete.zip"),
-        (False, "MusicMap_Improved_Code_and_Results.zip"),
+        (True, "MusicMap_v2_Complete.zip"),
+        (False, "MusicMap_v2_Code_and_Results.zip"),
     ]:
         target = ROOT.parent / name
         with zipfile.ZipFile(target, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as bundle:
