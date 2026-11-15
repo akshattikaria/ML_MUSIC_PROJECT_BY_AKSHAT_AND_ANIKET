@@ -19,20 +19,21 @@ def build():
 
 **ML laboratory project · Python / scikit-learn**
 
-We compare Decision Tree, KNN, SVM, a feed-forward ANN, and an Extra Trees benchmark on FMA-small, then investigate audio similarity and feature relevance.
+We compare the four required algorithms (Decision Tree, KNN, SVM, ANN) with Logistic Regression, Extra Trees and Gradient Boosting on FMA-small, combine the best of them in a soft-voting ensemble, and investigate audio similarity and feature relevance.
 
-**Questions:** Which model generalizes best under an artist-disjoint split? Which genres are confused? Which feature families matter? Do unsupervised clusters resemble genres?
+**Questions:** Which model generalizes best under an artist-disjoint split? Does an ensemble of diverse models help? Which genres are confused? Which feature families matter? Do unsupervised clusters resemble genres?
 
-This notebook includes real outputs from the improved experiment. The original standard-profile reports and models are preserved in baseline/. Read the report for a complete interpretation and references. Fill in your student details in the editable Word report."""),
+This notebook includes real outputs from the optimized experiment (version 2). The original project's reports and models are preserved in baseline/, and the first improvement run in history/improved_v1/. Read the report for a complete interpretation and references. Fill in your student details in the editable Word report."""),
         md("""### How to use this notebook
 
 Run cells from top to bottom after installing the project requirements. The default switches display included measurements without retraining. Set **RUN_TRAINING = True** for a fresh experiment; this also rebuilds the dependent discovery analyses and report. Set **RUN_DISCOVERY = True** to rebuild analysis from the saved fitted models.
 
-The methodological explanations describe the default **improved** profile. The optional legacy **standard** and **quick** profiles reproduce the original validation-only search with one ANN seed; they do not run grouped CV, classifier feature reduction, an ANN ensemble, or Extra Trees. Use the recorded profile label to interpret the displayed measurements.
+The explanations describe the default **optimized** profile (`musicmap improve`). The legacy **standard** and **quick** profiles reproduce the original validation-only search for comparison.
 
-The complete package includes prepared feature data and fitted models. With the smaller code-and-results package or a source-only checkout, run **musicmap improve** first or set **RUN_TRAINING = True**. Missing data are prepared from the official 342 MiB metadata archive; the large audio archive is unnecessary. All computation uses the CPU."""),
+The complete package includes prepared feature data and fitted models. For a source-only checkout, run **musicmap improve** first or set **RUN_TRAINING = True** (about 20–30 minutes on a 4-core laptop). Missing data are prepared from the official 342 MiB metadata archive; the large audio archive is unnecessary. All computation uses the CPU."""),
         code("""from pathlib import Path
 import json
+import os
 import sys
 import joblib
 import numpy as np
@@ -53,9 +54,9 @@ from musicmap.reporting import generate_report
 
 RUN_TRAINING = False
 RUN_DISCOVERY = False
-PROFILE = "improved"
+PROFILE = "optimized"
 SEED = 42
-THREADS = 2
+THREADS = max(1, min(4, os.cpu_count() or 1))
 REPORTS = ROOT / "reports"
 pd.set_option("display.max_colwidth", 90)
 print("Project root:", ROOT)
@@ -90,9 +91,11 @@ display(Image(filename=str(REPORTS / "figures/genre_balance.png"), width=900))
 
 Every candidate learns its preprocessing within each artist-grouped fitting fold: **median imputation → constant-column removal → standard or quantile scaling → optional feature selection/PCA → classifier**.
 
-Standard scaling learns each feature's mean and standard deviation. The improved search also tests a quantile-to-normal transformation for skewed distributions, ANOVA descriptor selection, and PCA dimensionality reduction. All fitted transformations remain inside the cross-validation pipeline. The fixed 50-component PCA map is a separate exploratory representation.
+Standard scaling learns each feature's mean and standard deviation. The search also tests a quantile-to-normal transformation (robust to the heavy tails of kurtosis/max statistics), ANOVA descriptor selection, and PCA. All fitted transformations stay inside the cross-validation pipeline. The fixed 50-component PCA map is a separate exploratory representation.
 
-The ANN uses scikit-learn multilayer perceptrons with ReLU/Adam and early stopping. The selected architecture is evaluated at seeds 42, 43, and 44; the final ANN averages their class probabilities rather than choosing a lucky seed. Each network has an internal track holdout within its fitting partition. Outer assessment folds stay artist-disjoint. Label encoding preserves readable predictions."""),
+**Model families:** Decision Tree, KNN, SVM (RBF), ANN (MLP), Logistic Regression, Extra Trees, and histogram Gradient Boosting, plus a majority-class dummy. The selected ANN architecture is retrained with five predeclared seeds and their probabilities are averaged rather than choosing a lucky seed.
+
+**Ensemble:** the out-of-fold (OOF) class probabilities of each family's best configuration feed a greedy forward-selection procedure (Caruana et al., 2004) that picks voting weights using training data only."""),
         code("""train_ids = dataset.ids("training")
 validation_ids = dataset.ids("validation")
 X_train, y_train = dataset.X.loc[train_ids], dataset.y.loc[train_ids]
@@ -100,8 +103,8 @@ X_validation, y_validation = dataset.X.loc[validation_ids], dataset.y.loc[valida
 
 example_pipeline = build_model("SVM (RBF)", {"C": 10.0, "gamma": "scale"}, seed=SEED)
 print(example_pipeline)
-if PROFILE == "improved":
-    print("Improved search: artist-grouped CV, all/select/PCA features, standard/quantile scaling.")
+if PROFILE == "optimized":
+    print("Optimized search: artist-grouped CV, 7 families, all/select/PCA features, standard/quantile scaling.")
     if (REPORTS / "cv_results.csv").exists():
         search_rows = pd.read_csv(REPORTS / "cv_results.csv")
         display(search_rows.groupby("model").size().rename("recorded configurations").to_frame())
@@ -114,13 +117,13 @@ else:
 """),
         md("""### 4. Tune, lock selection, refit, evaluate
 
-Tune every configuration using **three-fold StratifiedGroupKFold within the official 6,400 training tracks**, with artist IDs as groups. Select one configuration per family by mean CV macro F1, then select the winning algorithm using the official validation set. The ANN is a fixed ensemble of its three recorded seeds. A majority-class dummy model supplies context.
+Tune every configuration using **three-fold StratifiedGroupKFold within the official 6,400 training tracks**, with artist IDs as groups; fits run in parallel worker processes. Select one configuration per family by mean CV macro F1, build the soft-voting ensemble from training OOF probabilities, then choose the champion (family or ensemble) using the official validation set. A majority-class dummy model supplies context.
 
 Save all choices before requesting this run's test features and labels. Refit selected configurations on 7,200 training/validation tracks, then evaluate on the official 800 test tracks.
 
 The original test scores were already viewed in the first project. Updated scores are an **extended benchmark comparison**, not a pristine new confirmatory holdout. The search uses training-fold and validation scores; a fresh artist-disjoint confirmation dataset would strengthen claims about generalization gains."""),
         code("""if RUN_TRAINING:
-    if PROFILE == "improved":
+    if PROFILE == "optimized":
         run_improvement(dataset, REPORTS, seed=SEED, threads=THREADS, cv_folds=3)
     else:
         run_experiment(dataset, REPORTS, profile=PROFILE, seed=SEED, threads=THREADS)
@@ -134,18 +137,24 @@ selection = json.loads((REPORTS / "selection.json").read_text())
 run_info = json.loads((REPORTS / "run_info.json").read_text())
 print("Validation-selected winner:", selection["champion"])
 print("Profile:", run_info["profile"], "| seed:", run_info["seed"])
-display(comparison[[
-    "model", "train_f1_macro", "validation_f1_macro",
-    "test_accuracy", "test_precision_macro", "test_recall_macro", "test_f1_macro"
-]].round(4))
+display(comparison[[c for c in (
+    "model", "cv_mean_f1", "validation_f1_macro", "test_accuracy",
+    "test_f1_macro", "test_top3_accuracy", "test_log_loss",
+) if c in comparison]].round(4))
+summary_path = REPORTS / "improvement_summary.json"
+if summary_path.exists():
+    summary = json.loads(summary_path.read_text())
+    if summary.get("champion_test_bootstrap"):
+        lo, hi = summary["champion_test_bootstrap"]["accuracy_95ci"]
+        print(f"Champion test accuracy 95% bootstrap interval: {lo:.1%} – {hi:.1%}")
 display(Image(filename=str(REPORTS / "figures/model_comparison.png"), width=1100))
 """),
-        md("""### Cross-validation, ANN variability, and the preserved baseline
+        md("""### Cross-validation, ensemble weights, and earlier runs
 
-Inspect all CV scores, the artist-overlap audit, and the three ANN seed results. CV standard deviations summarize fold variability; they are not confidence intervals. The final ANN uses all three seeds with equal weight.
+Inspect the best CV scores, the artist-overlap audit, the ANN seed results, and the ensemble weights. CV standard deviations summarize fold variability; they are not confidence intervals.
 
-The comparison below reports observed changes against the preserved first experiment. Test scores were already seen previously, so the new result is an extended comparison."""),
-        code("""if run_info["profile"] == "improved":
+The comparison table pairs this run with the preserved original and first-improvement runs on the same 800 test tracks, including an exact McNemar test. Test scores were already seen previously, so the new result is an extended comparison."""),
+        code("""if run_info["profile"] in ("improved", "optimized"):
     cv_results = pd.read_csv(REPORTS / "cv_results.csv")
     display(cv_results.sort_values("cv_mean_f1", ascending=False).head(10))
     cv_audit = json.loads((REPORTS / "cv_splits.json").read_text())
@@ -159,13 +168,13 @@ The comparison below reports observed changes against the preserved first experi
     display(FileLink("../reports/cv_splits.json", result_html_prefix="Full fold membership and artist-overlap audit: "))
     display(pd.read_csv(REPORTS / "ann_seed_results.csv"))
     display(Image(filename=str(REPORTS / "figures/grouped_cv.png"), width=1000))
-    baseline_file = ROOT / "baseline/reports/model_comparison.csv"
-    if baseline_file.exists():
-        old = pd.read_csv(baseline_file)
-        before = old[["model", "test_accuracy", "test_f1_macro"]].rename(columns={
-            "test_accuracy": "original_test_accuracy", "test_f1_macro": "original_test_f1"})
-        after = comparison[["model", "test_accuracy", "test_f1_macro"]]
-        display(after.merge(before, on="model", how="left").round(4))
+    if (REPORTS / "ensemble.json").exists():
+        ensemble = json.loads((REPORTS / "ensemble.json").read_text())
+        display(pd.Series(ensemble["weights"], name="voting weight").to_frame())
+        display(Image(filename=str(REPORTS / "figures/ensemble_weights.png"), width=800))
+    if summary_path.exists():
+        display(pd.json_normalize(summary.get("comparisons", [])))
+    if (REPORTS / "figures/improvement_comparison.png").exists():
         display(Image(filename=str(REPORTS / "figures/improvement_comparison.png"), width=1050))
 """),
         md("""### 5. Inspect genre-specific errors
@@ -182,6 +191,8 @@ display(genre_scores.round(4))
 display(Image(filename=str(REPORTS / "figures/confusion_matrices.png"), width=1100))
 test_predictions = pd.read_csv(REPORTS / "test_predictions.csv")
 display(test_predictions.head())
+if (REPORTS / "figures/confidence.png").exists():
+    display(Image(filename=str(REPORTS / "figures/confidence.png"), width=850))
 """),
         md("""### 6. Which audio features matter?
 
@@ -235,20 +246,25 @@ display(similar)
 """),
         md("""### 10. Use the saved final classifier
 
-The saved model is the validation-selected configuration refitted on training plus validation. The following uses one recorded test track as an illustration, not as new independent evaluation evidence. For performance claims, use the full test metrics above.
+The saved model is the validation-selected champion refitted on training plus validation. It returns a probability for each genre, so we can show the top three guesses and the model's confidence. The example uses recorded test tracks as an illustration, not as new evaluation evidence.
 
-A matching flat CSV of precomputed descriptors can also be passed to the command-line predictor. Raw MP3 descriptor extraction requires a separately validated pipeline compatible with the original FMA features."""),
+To classify your own song, install the audio extra and run `musicmap predict --audio song.mp3`, or start the interactive demo with `musicmap app`. Audio extraction follows the official FMA recipe; modern library versions produce close but not identical values."""),
         code("""model = joblib.load(ROOT / "models/best_model.joblib")
-example_id = int(dataset.ids("test")[0])
+example_ids = list(dataset.ids("test")[:5])
 with threadpool_limits(limits=THREADS):
-    predicted_genre = model.predict(dataset.X.loc[[example_id]])[0]
-display(pd.DataFrame([{
-    "track_id": example_id,
-    "title": dataset.metadata.at[example_id, "title"],
-    "actual_genre": dataset.y.at[example_id],
-    "predicted_genre": predicted_genre,
-    "partition": "test",
-}]))
+    probabilities = model.predict_proba(dataset.X.loc[example_ids])
+classes = np.asarray(model.classes_)
+rows = []
+for track_id, p in zip(example_ids, probabilities):
+    order = np.argsort(-p)[:3]
+    rows.append({
+        "track_id": track_id,
+        "title": dataset.metadata.at[track_id, "title"],
+        "actual_genre": dataset.y.at[track_id],
+        "predicted_genre": classes[order[0]],
+        "top_3": ", ".join(f"{classes[j]} {p[j]:.0%}" for j in order),
+    })
+display(pd.DataFrame(rows))
 """),
         md("""### 11. Reproducibility and report
 
@@ -259,8 +275,8 @@ The Markdown, HTML, and editable Word reports are generated from these saved mea
     "Python": run_info["python"],
     "scikit-learn": run_info["versions"]["scikit-learn"],
     "Candidate count including dummy": run_info["candidate_count"],
-    "Experiment seconds excluding preparation/discovery": round(run_info["elapsed_seconds"], 1),
-    "Numerical-library threads": run_info["threads"],
+    "Experiment minutes excluding preparation/discovery": round(run_info["elapsed_seconds"] / 60, 1),
+    "Parallel workers": run_info["threads"],
 }).to_frame("recorded value"))
 display(FileLink("../reports/MusicMap_Report.html", result_html_prefix="Report: "))
 display(FileLink("../reports/MusicMap_Report.docx", result_html_prefix="Editable Word report: "))
@@ -269,20 +285,21 @@ display(FileLink("../docs/VIVA.md", result_html_prefix="Viva preparation: "))
 """),
         md("""### Conclusions to explain in your own words
 
-1. State the validation-selected model and its actual test accuracy and macro F1.
-2. Compare it with the majority-class baseline and describe the biggest observed genre confusions.
-3. Explain why artist-disjoint evaluation and training-fitted scaling matter.
-4. Interpret the leading feature families without treating importance as causality.
-5. Distinguish classifier accuracy, cluster agreement, and geometric similarity.
-6. Explain what variance the 2D PCA map retains and what it omits.
-7. Identify the limits: eight genres, a finite search, limited ANN seeds, summary descriptors, and a previously viewed official test set. Explain why a fresh confirmation dataset remains useful.
+1. State the validation-selected model and its actual test accuracy, macro F1, and bootstrap interval.
+2. Explain why averaging the probabilities of different model families can beat each family alone, and why the ensemble weights were chosen on training OOF predictions only.
+3. Compare the result with the majority-class baseline and the earlier runs, and describe the biggest observed genre confusions.
+4. Explain why artist-disjoint evaluation and training-fitted scaling matter.
+5. Interpret the leading feature families without treating importance as causality.
+6. Distinguish classifier accuracy, cluster agreement, and geometric similarity.
+7. Explain what variance the 2D PCA map retains and what it omits.
+8. Identify the limits: eight genres, a finite search, summary descriptors, and a previously viewed official test set. Explain why a fresh confirmation dataset remains useful.
 
 **Reference:** Defferrard, M., Benzi, K., Vandergheynst, P., and Bresson, X. (2017). *FMA: A Dataset for Music Analysis*. ISMIR. [Paper](https://arxiv.org/abs/1612.01840), [dataset repository](https://github.com/mdeff/fma). FMA metadata and derived features: CC BY 4.0."""),
     ]
     notebook = nbf.v4.new_notebook(cells=cells)
     notebook.metadata = {
         "kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
-        "language_info": {"name": "python", "version": "3.12"},
+        "language_info": {"name": "python", "version": "3.13"},
     }
     return notebook
 
@@ -296,7 +313,7 @@ def main():
     if args.execute:
         from nbclient import NotebookClient
         client = NotebookClient(
-            notebook, timeout=900, kernel_name=args.kernel_name,
+            notebook, timeout=3600, kernel_name=args.kernel_name,
             resources={"metadata": {"path": str(ROOT / "notebooks")}},
         )
         client.execute()

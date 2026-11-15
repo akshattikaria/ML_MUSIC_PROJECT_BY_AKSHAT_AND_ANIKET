@@ -12,7 +12,8 @@ from threadpoolctl import threadpool_limits
 
 from musicmap.data import Dataset
 from musicmap.improvement import (
-    SeedAveragedMLP, build_candidate, make_group_folds, run_improvement,
+    ENSEMBLE, STACKED, SeedAveragedMLP, WeightedSoftVoter, bootstrap_interval, build_candidate,
+    greedy_ensemble, make_group_folds, mcnemar, run_improvement, search_space,
 )
 
 
@@ -169,24 +170,99 @@ def test_improved_selection_locks_before_test_and_refit_excludes_test(grouped_da
         }],
     }
     results = run_improvement(guarded, output, seed=42, threads=1, cv_folds=3, spaces=spaces)
-    assert len(results) == 3
+    assert len(results) == 5  # SVM, ANN, dummy, soft-voting and stacked ensembles
     assert results["selected_by_validation"].sum() == 1
     selection = json.loads((output / "selection.json").read_text())
     assert selection["test_used_for_selection"] is False
-    assert selection["champion"] in {"SVM (RBF)", "ANN (MLP)"}
+    assert selection["champion"] in {"SVM (RBF)", "ANN (MLP)", ENSEMBLE, STACKED}
+    ensemble = json.loads((output / "ensemble.json").read_text())
+    assert set(ensemble["weights"]) <= {"SVM (RBF)", "ANN (MLP)"}
+    assert abs(sum(ensemble["weights"].values()) - 1) < 1e-9
     final = joblib.load(tmp_path / "models/best_model.joblib")
     tuned = joblib.load(tmp_path / "models/selected_training_model.joblib")
     training = dataset.ids("training")
     development = dataset.metadata.index[dataset.metadata["split"].ne("test")]
     for model, ids in ((tuned, training), (final, development)):
-        imputer = next(
-            value for value in model.get_params(deep=True).values()
-            if isinstance(value, SimpleImputer) and hasattr(value, "statistics_")
-        )
-        np.testing.assert_allclose(imputer.statistics_, dataset.X.loc[ids].median())
+        members = [m for _, m in model.estimators_] if hasattr(model, "estimators_") and isinstance(model.estimators_, list) and isinstance(model.estimators_[0], tuple) else [model]
+        for member in members:
+            imputer = next(
+                value for value in member.get_params(deep=True).values()
+                if isinstance(value, SimpleImputer) and hasattr(value, "statistics_")
+            )
+            np.testing.assert_allclose(imputer.statistics_, dataset.X.loc[ids].median())
     predictions = pd.read_csv(output / "test_predictions.csv")
     assert len(predictions) == 30
     assert set(predictions.track_id) == set(dataset.metadata.index[dataset.metadata["split"].eq("test")])
     cv_results = pd.read_csv(output / "cv_results.csv")
     assert cv_results["cv_mean_f1"].notna().all()
     assert (output / "cv_splits.json").exists()
+
+
+def test_greedy_ensemble_prefers_informative_member_and_weights_sum_to_one():
+    rng = np.random.default_rng(0)
+    labels = ["A", "B", "C", "D"]
+    y = np.repeat(labels, 30)
+    truth = np.eye(4)[np.repeat(np.arange(4), 30)]
+    good = 0.7 * truth + 0.3 * rng.dirichlet(np.ones(4), len(y))
+    noise = rng.dirichlet(np.ones(4), len(y))
+    positions = np.arange(len(y))
+    folds = [(positions[positions % 3 != k], positions[positions % 3 == k]) for k in range(3)]
+    result = greedy_ensemble({"good": good, "noise": noise}, y, labels, folds, rounds=10)
+    assert result["weights"].get("good", 0) > result["weights"].get("noise", 0)
+    assert abs(sum(result["weights"].values()) - 1) < 1e-9
+    assert result["cv_mean_f1"] > 0.9
+
+
+def test_soft_voter_averages_member_probabilities_and_serializes(grouped_dataset, tmp_path):
+    dataset = grouped_dataset
+    train = dataset.ids("training")
+    X, y = dataset.X.loc[train], dataset.y.loc[train]
+    config = {"scaling": "standard", "reduction": "all", "classifier": {"C": 0.1, "max_iter": 500}}
+    first = build_candidate("Logistic Regression", config).fit(X, y)
+    second = build_candidate("SVM (RBF)", {"scaling": "standard", "reduction": "all",
+                                           "classifier": {"C": 1.0, "gamma": "scale"}},
+                             probability=True).fit(X, y)
+    voter = WeightedSoftVoter.from_fitted([("lr", first), ("svm", second)], [0.75, 0.25])
+    held = dataset.X.loc[dataset.ids("validation")]
+    expected = 0.75 * first.predict_proba(held) + 0.25 * second.predict_proba(held)
+    np.testing.assert_allclose(voter.predict_proba(held), expected)
+    assert list(voter.feature_names_in_) == list(X.columns)
+    path = tmp_path / "voter.joblib"
+    joblib.dump(voter, path)
+    np.testing.assert_array_equal(joblib.load(path).predict(held), voter.predict(held))
+
+
+def test_statistics_helpers():
+    y = np.array(["A", "B"] * 50)
+    perfect = y.copy()
+    wrong = np.where(y == "A", "B", "A")
+    interval = bootstrap_interval(y, perfect, ["A", "B"], repeats=50)
+    assert interval["accuracy_95ci"] == [1.0, 1.0]
+    test = mcnemar(y, perfect, wrong)
+    assert test["only_new_correct"] == 100 and test["only_reference_correct"] == 0
+    assert test["p_value"] < 1e-20
+
+
+def test_search_space_covers_all_required_and_new_families():
+    spaces = search_space()
+    for name in ("Decision Tree", "KNN", "SVM (RBF)", "ANN (MLP)", "Logistic Regression",
+                 "Extra Trees", "Gradient Boosting", "Dummy baseline"):
+        assert spaces[name], name
+    json.dumps(spaces)  # the plan must be serializable before fitting
+
+
+def test_boosting_and_logistic_families_fit_text_labels(grouped_dataset):
+    pytest.importorskip("lightgbm")
+    dataset = grouped_dataset
+    train, held = dataset.ids("training"), dataset.ids("validation")
+    spaces = search_space()
+    for name in ("Gradient Boosting", "Logistic Regression"):
+        config = dict(spaces[name][0])
+        if name == "Gradient Boosting":
+            config = {**config, "classifier": {**config["classifier"], "n_estimators": 20, "min_child_samples": 5}}
+        with threadpool_limits(limits=1):
+            model = build_candidate(name, config).fit(dataset.X.loc[train], dataset.y.loc[train])
+            probabilities = model.predict_proba(dataset.X.loc[held])
+        assert list(model.classes_) == sorted(dataset.manifest["genres"])
+        np.testing.assert_allclose(probabilities.sum(axis=1), 1, atol=1e-6)
+        assert (model.predict(dataset.X.loc[held]) == dataset.y.loc[held]).mean() > 0.9

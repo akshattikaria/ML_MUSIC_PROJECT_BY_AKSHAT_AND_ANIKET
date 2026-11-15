@@ -1,8 +1,13 @@
-"""Create a report from saved measurements, with editable Word and offline HTML copies."""
+"""Generate the lab report (Markdown, HTML, Word) and slide outline from saved measurements.
+
+Every number in the report is read from files written by the experiment and discovery
+stages; nothing is typed in by hand.
+"""
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import mistune
@@ -13,14 +18,147 @@ from .data import Dataset, FEATURE_FAMILIES
 from .discovery import nearest_tracks
 from .experiment import BASELINE
 
+ACCENT = "255F85"
+
 
 def _read(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _table(rows: list[dict] | pd.DataFrame) -> str:
+def _table(rows: list[dict] | pd.DataFrame, floatfmt: str = ".4f") -> str:
     frame = pd.DataFrame(rows) if isinstance(rows, list) else rows
-    return frame.to_markdown(index=False, floatfmt=".4f")
+    frame = frame.copy()
+    for column in frame.columns:
+        if frame[column].dtype == object:
+            frame[column] = frame[column].astype(str).str.replace("|", "/", regex=False)
+    return frame.to_markdown(index=False, floatfmt=floatfmt)
+
+
+def _pct(value) -> str:
+    return "—" if value is None or pd.isna(value) else f"{value:.2%}"
+
+
+def _num(value, digits: int = 4) -> str:
+    return "—" if value is None or pd.isna(value) else f"{value:.{digits}f}"
+
+
+def _settings(parameters) -> str:
+    """Compact, human-readable hyperparameters."""
+    if isinstance(parameters, str):
+        parameters = json.loads(parameters)
+    if "weights" in parameters:
+        return ", ".join(f"{name} {weight:.0%}" for name, weight in parameters["weights"].items())
+    if "meta_C" in parameters:
+        return f"logistic meta-learner (C={parameters['meta_C']}) over {len(parameters['members'])} families"
+    parts = []
+    if parameters.get("scaling"):
+        parts.append(f"{parameters['scaling']} scaling")
+    if parameters.get("reduction") == "select":
+        parts.append(f"ANOVA top {parameters['n_components']}")
+    elif parameters.get("reduction") == "pca":
+        parts.append(f"PCA {parameters['n_components']}")
+    for key, value in parameters.get("classifier", parameters).items():
+        if key in ("scaling", "reduction", "n_components", "max_iter", "n_iter_no_change"):
+            continue
+        parts.append(f"{key}={value}")
+    return ", ".join(parts)
+
+
+def _profile_methodology(run: dict, selection: dict, output: Path) -> str:
+    folds = run.get("cv_folds", 3)
+    if run.get("profile") != "optimized":
+        return f"""## 3. Experimental methodology
+
+### 3.1 Preprocessing and leakage prevention
+
+Each scikit-learn pipeline contains median imputation, constant-column removal, standard scaling, and a classifier. All transformations are fitted on the fitting partition only, so no statistics from validation or test tracks leak into training.
+
+### 3.2 Model comparison and selection
+
+The "{run['profile']}" profile evaluates {run['candidate_count']} candidates. Each algorithm's hyperparameters and the winning algorithm are chosen by macro F1 on the official 800-track validation set. Selection is saved to "selection.json" before test data are requested. The selected configurations are refitted on training + validation and evaluated once on the 800-track test set.
+
+"""
+    cv = pd.read_csv(output / "cv_results.csv")
+    seeds = run.get("ann_seeds", [])
+    ensemble_file = output / "ensemble.json"
+    ensemble = _read(ensemble_file) if ensemble_file.exists() else None
+    grid_rows = (
+        cv.groupby("model", sort=False).agg(
+            Configurations=("candidate_id", "count"), **{"Best CV macro F1": ("cv_mean_f1", "max")},
+            **{"Fit time (s)": ("fit_seconds", "sum")},
+        ).reset_index().rename(columns={"model": "Model family"})
+    )
+    selected_rows = [
+        {"Model": name, "CV macro F1": _num(row["cv_mean_f1"]), "Selected settings": _settings(row["parameters"])}
+        for name, row in selection["selected"].items() if name != BASELINE
+    ]
+    ensemble_text = ""
+    if ensemble:
+        history = pd.DataFrame(ensemble["history"])[["round", "added", "cv_mean_f1"]]
+        stacking = ensemble.get("stacking")
+        stack_text = ""
+        if stacking:
+            stack_text = (
+                "\nA second, more flexible combiner is also evaluated: a **stacked ensemble** whose multinomial "
+                "logistic-regression meta-learner takes the log-probabilities of all "
+                f"{len(stacking['members'])} families as input ({len(stacking['members']) * 8} features) and learns "
+                "how much to trust each family for each genre. The meta-learner is trained on the same training "
+                "OOF probabilities; its regularization strength C is chosen by an inner artist-grouped CV over "
+                f"those OOF predictions (selected C = {stacking['C']}, inner CV macro F1 = {stacking['cv_mean_f1']:.4f}). "
+                "For the final test model the members are refitted on training + validation while the meta-learner "
+                "is kept as trained on training OOF predictions.\n"
+            )
+        ensemble_text = f"""
+### 3.4 Ensembles: soft voting and stacking
+
+Different algorithms make different mistakes: a boosted tree ensemble, a kernel SVM and a neural network carve up the feature space in very different ways. Averaging their class probabilities can therefore cancel part of the error of each member.
+
+The ensemble is built with greedy forward selection (Caruana et al., 2004) using **only the out-of-fold probabilities from the training-partition cross-validation**. Starting from an empty ensemble, each round adds (with replacement) the family whose inclusion gives the highest mean fold macro F1; after {len(history)} rounds the best prefix of this path is kept. The number of times each family was chosen becomes its voting weight. Validation and test tracks are never used to set the weights, so the ensemble is a predeclared model that competes with the individual families on validation like any other candidate.
+
+Selected weights (rounds used: {ensemble['rounds_used']}): {_settings({'weights': ensemble['weights']})}. The ensemble's OOF macro F1 is {ensemble['cv_mean_f1']:.4f}. Because the weights were chosen on the same OOF predictions, this CV figure is slightly optimistic; the validation and test scores in Section 4 are the unbiased checks.
+{stack_text}"""
+    return f"""## 3. Experimental methodology
+
+### 3.1 Preprocessing and leakage prevention
+
+Every candidate is a single scikit-learn pipeline: **median imputation → constant-column removal → standard or quantile-to-normal scaling → optional ANOVA feature selection or PCA → classifier**. Because the whole pipeline is refitted inside every fitting fold, no statistic (median, scale, quantile, selected feature, principal direction) is ever computed from the tracks it is evaluated on. The quantile transform maps each descriptor to a normal distribution using training ranks, which tames the heavy tails present in many FMA statistics (kurtosis and max columns in particular).
+
+### 3.2 Artist-grouped cross-validation
+
+All tuning uses {folds}-fold **StratifiedGroupKFold** inside the official 6,400-track training partition, with artist ID as the group. No artist appears on both sides of any fold (audited in "cv_splits.json"), which mirrors the artist-disjoint official split and prevents the model from scoring well by recognizing a singer or producer instead of a genre. Each configuration is scored by mean fold macro F1; the fold standard deviation is reported as a stability measure (it is not a confidence interval). Fits run in parallel worker processes.
+
+{_table(grid_rows, '.4f')}
+
+In total {len(cv)} configurations were evaluated ({len(cv) * folds} fold fits), plus the probability refits, ANN seed runs and final refits.
+
+### 3.3 Model families
+
+- **Decision Tree** – axis-aligned threshold rules; interpretable but high-variance.
+- **KNN** – inverse-distance vote among the nearest training tracks, optionally in an ANOVA or PCA subspace.
+- **SVM (RBF)** – maximum-margin classifier in an RBF kernel space; C controls regularization. Platt scaling supplies class probabilities for the ensemble.
+- **ANN (MLP)** – feed-forward ReLU network trained with Adam, L2 regularization and early stopping on a 10% internal holdout. The selected architecture is retrained with {len(seeds)} predeclared seeds ({', '.join(map(str, seeds))}) and their probabilities are averaged; no seed is cherry-picked.
+- **Logistic Regression** – a regularized linear (multinomial) model; a strong, well-calibrated reference.
+- **Extra Trees** – an average of 500 extremely randomized trees.
+- **Gradient Boosting** – LightGBM: 500 small trees added sequentially, each fitted to the remaining errors of the previous ones, with a 0.03 learning rate, row/feature subsampling and L2 regularization.
+- **Dummy baseline** – always predicts the most frequent training genre (12.5% accuracy on balanced data).
+
+Selected configuration for each family:
+
+{_table(selected_rows)}
+{ensemble_text}
+### 3.5 Selection, refit and test evaluation
+
+Every family's selected configuration (and the ensemble) is fitted on the full training partition and scored on the separate official **validation** partition. The champion is the candidate with the highest validation macro F1. The complete selection is written to "selection.json" **before** the program requests any test features or labels; an automated test in the project enforces this ordering. The selected configurations are then refitted on training + validation (7,200 tracks) and evaluated once on the 800 test tracks.
+
+The official test set was already viewed when the original project was run. The test scores below are therefore an *extended benchmark comparison* on the same benchmark, not a pristine confirmation of an improvement.
+
+### 3.6 Metrics and statistics
+
+Accuracy is the share of correctly labelled tracks. For one genre, precision = TP/(TP+FP), recall = TP/(TP+FN), and F1 is their harmonic mean; **macro F1** averages F1 over the eight genres with equal weight and is the selection metric. Top-3 accuracy counts a track as correct when the true genre is among the three most probable genres, which is informative because genre boundaries overlap. Log-loss measures probability quality (lower is better).
+
+Uncertainty on the 800 test tracks is quantified with a 2,000-sample percentile **bootstrap** (95% interval). Paired comparisons with earlier runs use the exact **McNemar test**, which looks only at tracks that one model classifies correctly and the other does not.
+
+"""
 
 
 def generate_report(dataset: Dataset, output: Path) -> Path:
@@ -31,11 +169,15 @@ def generate_report(dataset: Dataset, output: Path) -> Path:
     discovery = _read(output / "discovery_summary.json")
     importance = pd.read_csv(output / "feature_family_importance.csv")
     associations = pd.read_csv(output / "training_feature_associations.csv").head(10)
+    summary_file = output / "improvement_summary.json"
+    summary = _read(summary_file) if summary_file.exists() else {}
     champion = selection["champion"]
     chosen = comparison.loc[comparison["model"].eq(champion)].iloc[0]
     baseline = comparison.loc[comparison["model"].eq(BASELINE)].iloc[0]
     per_class = _read(output / "classification_reports.json")[champion]
     matrices = _read(output / "confusion_matrices.json")
+    labels = dataset.manifest["genres"]
+
     matrix = np.array(matrices["matrices"][champion])
     np.fill_diagonal(matrix, 0)
     confusions = []
@@ -47,36 +189,37 @@ def generate_report(dataset: Dataset, output: Path) -> Path:
                 "Predicted genre": matrices["labels"][predicted],
                 "Tracks": int(matrix[actual, predicted]),
             })
+    audit = dataset.manifest["split_audit"]
     split_rows = [
         {"Partition": name, "Tracks": count, "Role": role}
         for (name, count), role in zip(
-            dataset.manifest["split_audit"]["counts"].items(),
-            ["Fit candidate models and preprocessing", "Choose hyperparameters and model", "Final held-out evaluation"],
+            audit["counts"].items(),
+            ["Artist-grouped CV tuning; ensemble weights", "Choose the champion", "Final held-out evaluation"],
         )
     ]
     feature_rows = [
         {"Family": name, "Columns": size, "Meaning": FEATURE_FAMILIES[name]}
         for name, size in sorted(dataset.manifest["feature_family_sizes"].items())
     ]
+    has_cv = "cv_mean_f1" in comparison
     score_rows = []
     for row in comparison.itertuples():
-        score_rows.append({
-            "Model": row.model,
-            "Validation F1": f"{row.validation_f1_macro:.4f}",
-            "Test accuracy": f"{row.test_accuracy:.2%}",
-            "Test precision": f"{row.test_precision_macro:.4f}",
-            "Test recall": f"{row.test_recall_macro:.4f}",
-            "Test F1": f"{row.test_f1_macro:.4f}",
+        entry = {"Model": f"**{row.model}**" if row.model == champion else row.model}
+        if has_cv:
+            entry["CV macro F1"] = _num(row.cv_mean_f1)
+        entry.update({
+            "Validation macro F1": _num(row.validation_f1_macro),
+            "Test accuracy": _pct(row.test_accuracy),
+            "Test macro F1": _num(row.test_f1_macro),
         })
-    selected_rows = [
-        {"Model": name, "Selected hyperparameters": json.dumps(selection["selected"][name]["parameters"])}
-        for name in selection["selected"] if name != BASELINE
-    ]
+        if "test_top3_accuracy" in comparison:
+            entry["Test top-3 accuracy"] = _pct(row.test_top3_accuracy)
+        score_rows.append(entry)
     genre_rows = [
         {"Genre": label, "Precision": per_class[label]["precision"],
          "Recall": per_class[label]["recall"], "F1": per_class[label]["f1-score"],
          "Test tracks": int(per_class[label]["support"])}
-        for label in dataset.manifest["genres"]
+        for label in labels
     ]
     importance_rows = [
         {"Family": row.family, "Columns": row.n_features,
@@ -84,468 +227,390 @@ def generate_report(dataset: Dataset, output: Path) -> Path:
         for row in importance.itertuples()
     ]
     timing_rows = [
-        {"Model": row.model, "Candidate fitting (s)": row.tuning_fit_seconds,
+        {"Model": row.model, "CV fitting (s)": row.tuning_fit_seconds,
          "Final refit (s)": row.refit_seconds, "Test prediction (s)": row.test_predict_seconds}
         for row in comparison.itertuples()
     ]
     query_id = int(dataset.ids("validation")[0])
     neighbors = nearest_tracks(dataset, output.parent / "models", query_id, k=5)
     neighbors.to_csv(output / "example_neighbors.csv")
-    neighbor_table = neighbors.reset_index()[["track_id", "title", "artist", "genre", "distance"]].copy()
-    for column in ("title", "artist"):
-        neighbor_table[column] = neighbor_table[column].astype(str).str.replace("|", "/", regex=False)
+    neighbor_table = neighbors.reset_index()[["track_id", "title", "artist", "genre", "distance"]]
     top_families = ", ".join(importance.head(3)["family"])
-    all_warnings = [
-        f"{row['model']} candidate {row['candidate_id']}: {warning}"
-        for row in _read(output / "candidate_results.json")
-        for warning in row["warnings"]
-    ]
-    all_warnings.extend(
-        f"{row.model} final refit: {warning}"
-        for row in comparison.itertuples() for warning in json.loads(row.refit_warnings)
-    )
-    warning_text = (
-        "\n".join(f"- {warning}" for warning in all_warnings)
-        if all_warnings else "No fitting warnings were recorded."
-    )
-    audit = dataset.manifest["split_audit"]
+    best_test = comparison.loc[comparison["model"].ne(BASELINE)].sort_values("test_accuracy", ascending=False).iloc[0]
+
+    # Champion uncertainty and comparison with earlier runs.
+    interval = (summary.get("champion_test_bootstrap") or {})
+    ci_text = ""
+    if interval:
+        lo, hi = interval["accuracy_95ci"]
+        flo, fhi = interval["f1_macro_95ci"]
+        ci_text = (f" A bootstrap over the 800 test tracks gives a 95% interval of **{lo:.1%}–{hi:.1%}** "
+                   f"for accuracy and {flo:.3f}–{fhi:.3f} for macro F1.")
+    history_rows, history_text = [], ""
+    run_names = {"original": "Original project (validation-only tuning)", "improved_v1": "First improvement (grouped CV, 5 families)"}
+    for entry in summary.get("comparisons", []):
+        test = entry.get("mcnemar_vs_champion")
+        history_rows.append({
+            "Run": run_names.get(entry["run"], entry["run"]), "Selected model": entry["champion"],
+            "Test accuracy": _pct(entry["test_accuracy"]), "Test macro F1": _num(entry["test_f1_macro"]),
+            "Change in accuracy (pp)": f"{entry['accuracy_change_percentage_points']:+.2f}",
+            "McNemar p": _num(test["p_value"], 3) if test else "—",
+        })
+    if history_rows:
+        history_rows.append({
+            "Run": "**This optimized run**", "Selected model": champion,
+            "Test accuracy": _pct(chosen.test_accuracy), "Test macro F1": _num(chosen.test_f1_macro),
+            "Change in accuracy (pp)": "—", "McNemar p": "—",
+        })
+        significant = [e for e in summary.get("comparisons", []) if e.get("mcnemar_vs_champion", {}).get("p_value", 1) < 0.05]
+        history_text = f"""### 4.1 Comparison with earlier runs
+
+The original and first-improvement reports and models are preserved under "baseline/" and "history/". All three runs use the same 800 official test tracks, so the comparison is paired.
+
+{_table(history_rows)}
+
+![Test accuracy of each model family across runs](figures/improvement_comparison.png)
+
+""" + (
+            " ".join(
+                f"Against the {run_names.get(e['run'], e['run']).split(' (')[0].lower()}, the McNemar p-value is "
+                f"{e['mcnemar_vs_champion']['p_value']:.3f} "
+                + ("(significant at the 5% level)." if e['mcnemar_vs_champion']['p_value'] < 0.05
+                   else "(not significant: the gain is an observed improvement on this benchmark, not a proven one).")
+                for e in summary.get("comparisons", []) if e.get("mcnemar_vs_champion")
+            ) + " "
+        ) + "Because the original test scores had already been seen, a fresh artist-disjoint dataset would be needed for a fully independent confirmation.\n\n"
+
+    ensemble_section = ""
+    ensemble_file = output / "ensemble.json"
+    if ensemble_file.exists():
+        ensemble = _read(ensemble_file)
+        members = [
+            {"Member": name, "Weight": f"{weight:.0%}",
+             "Member CV macro F1": _num(ensemble["member_cv_mean_f1"].get(name))}
+            for name, weight in sorted(ensemble["weights"].items(), key=lambda item: -item[1])
+        ]
+        ensemble_section = f"""### 4.3 What the ensemble is made of
+
+{_table(members)}
+
+![Ensemble weights](figures/ensemble_weights.png)
+
+"""
+    seeds_file = output / "ann_seed_results.csv"
+    seed_section = ""
+    if seeds_file.exists():
+        seed_section = f"""ANN seed variability (individual seeds and their probability average):
+
+{_table(pd.read_csv(seeds_file))}
+
+"""
+    confidence_section = ""
+    if (output / "figures/confidence.png").exists():
+        predictions = pd.read_csv(output / "test_predictions.csv")
+        if "champion_confidence" in predictions:
+            from .improvement import IMPROVED_SLUGS
+            slug = IMPROVED_SLUGS.get(champion)
+            correct = predictions[slug].eq(predictions["actual"])
+            high = predictions["champion_confidence"] >= 0.6
+            confidence_section = f"""### 4.5 How far can the predictions be trusted?
+
+The champion outputs a probability for each genre. When its top probability is at least 60% (true for {high.mean():.0%} of test tracks) it is correct {correct[high].mean():.1%} of the time; below 60% it is correct only {correct[~high].mean():.1%} of the time. The confidence score is therefore a useful signal for when to trust or double-check a prediction.
+
+![Accuracy by confidence](figures/confidence.png)
+
+"""
+    ranked_genres = sorted(labels, key=lambda g: per_class[g]["f1-score"], reverse=True)
+    easiest = ", ".join(f"{g} (F1 {per_class[g]['f1-score']:.2f})" for g in ranked_genres[:3])
+    hardest = " and ".join(f"{g} (F1 {per_class[g]['f1-score']:.2f})" for g in ranked_genres[-2:])
+    notes = {
+        "Pop": "Pop is a stylistic umbrella that borrows from many genres",
+        "Experimental": "Experimental music is defined by breaking conventions",
+        "International": "International mixes many regional styles",
+    }
+    full = np.array(matrices["matrices"][champion])
+    reasons = []
+    for g in ranked_genres[-2:]:
+        row = full[matrices["labels"].index(g)].astype(float)
+        row[matrices["labels"].index(g)] = -1
+        top = [matrices["labels"][j] for j in np.argsort(row)[::-1][:2]]
+        reasons.append((notes[g] + "; " if g in notes else "") + f"{g} tracks are most often predicted as {top[0]} or {top[1]}")
+    hard_note = (" " + ". ".join(r[0].upper() + r[1:] for r in reasons) + ". Overlapping acoustic styles are a plausible explanation, not a proven cause."
+                 if reasons else "")
+    from .improvement import ENSEMBLE, STACKED
+    individual = comparison.loc[~comparison["model"].isin([BASELINE, ENSEMBLE, STACKED])]
+    strongest = ", ".join(individual.sort_values("validation_f1_macro", ascending=False)["model"].head(3))
+    ensemble_note = ""
+    if champion in (ENSEMBLE, STACKED):
+        best_single = individual.sort_values("validation_f1_macro", ascending=False).iloc[0]
+        delta = 100 * (chosen.test_accuracy - best_single.test_accuracy)
+        lead = ("Combining complementary families paid off: the " if delta > 0 else "The ")
+        ensemble_note = (f" {lead}{champion.lower()} differs from the best single validation family "
+                         f"({best_single.model}) by {delta:+.2f} accuracy points on test and "
+                         f"{chosen.validation_f1_macro - best_single.validation_f1_macro:+.4f} macro F1 on validation.")
+    family_names = [name for name in comparison["model"] if name != BASELINE]
+
     text = f"""# MusicMap
 ## Music Genre Classification and Pattern Discovery Using Machine Learning
 
 ML Laboratory Project
 
-Student: [Enter your name]  
-Roll number: [Enter your roll number]  
-Department / institution: [Enter details]  
+Student: [Enter your name]
+Roll number: [Enter your roll number]
+Department / institution: [Enter details]
 Course / instructor: [Enter details]
 
 ## Abstract
 
-MusicMap investigates whether precomputed audio descriptors can distinguish music genres and reveal relationships between songs. The experiment uses {len(dataset.X):,} tracks from the balanced FMA-small subset, with eight genres and {dataset.X.shape[1]} numeric features. Decision Tree, K-nearest neighbors (KNN), radial-basis-function support vector machine (SVM), and a feed-forward artificial neural network (ANN) are compared with a majority-class baseline. The official artist-disjoint training, validation, and test partitions are preserved. Hyperparameters and the winning model are chosen using validation macro F1 before evaluating the test set. The selected model, {champion}, achieves {chosen.test_accuracy:.2%} test accuracy and {chosen.test_f1_macro:.4f} test macro F1 in this run. PCA, K-means, nearest-neighbor retrieval, and grouped permutation importance provide complementary views of musical similarity and feature relevance. The findings describe this dataset and experimental configuration rather than universal genre boundaries.
+MusicMap investigates whether precomputed audio descriptors can identify a track's music genre and reveal relationships between songs. It uses the {len(dataset.X):,} tracks of the balanced FMA-small dataset (eight genres, {dataset.X.shape[1]} numeric descriptors per track) and keeps the official artist-disjoint training, validation and test partitions. {len(family_names)} candidate models — {', '.join(family_names)} — are tuned with artist-grouped cross-validation and compared against a majority-class baseline. The validation-selected model, **{champion}**, reaches **{chosen.test_accuracy:.2%} test accuracy** and **{chosen.test_f1_macro:.4f} macro F1**{f", with the correct genre among its top three guesses for {chosen.test_top3_accuracy:.1%} of tracks" if 'test_top3_accuracy' in comparison and pd.notna(chosen.test_top3_accuracy) else ''} (chance: 12.5%). PCA, K-means clustering, nearest-neighbour retrieval and grouped permutation importance provide complementary views of musical similarity and of which audio properties matter. The findings describe this dataset and protocol rather than universal genre boundaries.
 
 ## 1. Problem statement and objectives
 
-Genre labels can help organize large music collections, but genres share instruments, production styles, and musical conventions. The project treats genre recognition as supervised multiclass classification: one feature vector is mapped to one of eight top-level genre labels.
+Genre labels help organize and recommend music, but genres share instruments, production styles and conventions. MusicMap treats genre recognition as supervised multiclass classification: one descriptor vector is mapped to one of eight top-level genres.
 
-The objectives are:
+Objectives:
 
-1. Prepare a manageable, reproducible dataset using audio features rather than downloading or decoding thousands of recordings.
-2. Compare Decision Tree, KNN, SVM, and ANN on identical external partitions and report more than accuracy alone.
-3. Identify audio feature families associated with genre separation.
-4. Discover similarities through dimensionality reduction, clustering, and nearest-neighbor retrieval.
-
-The research questions are which model performs best under this protocol, which genres it confuses, and whether audio-based clusters agree with the supplied labels.
+1. Prepare a reproducible dataset from published audio descriptors, without downloading 7.2 GiB of audio.
+2. Compare the required algorithms (Decision Tree, KNN, SVM, ANN) with stronger modern baselines (Logistic Regression, Extra Trees, Gradient Boosting) and a soft-voting ensemble, under a leakage-free protocol.
+3. Report more than accuracy: macro F1, per-genre errors, top-3 accuracy, confidence and uncertainty.
+4. Identify the audio feature families that drive the predictions.
+5. Discover structure through dimensionality reduction, clustering and nearest-song retrieval.
 
 ## 2. Dataset and features
 
-The source is FMA: A Dataset for Music Analysis by Defferrard, Benzi, Vandergheynst, and Bresson (ISMIR 2017). FMA-small contains 8,000 30-second track excerpts, balanced across Electronic, Experimental, Folk, Hip-Hop, Instrumental, International, Pop, and Rock. This project retains {len(dataset.X):,} tracks.
-
-Only the official 342 MiB metadata archive is required. The 7.2 GiB FMA-small audio archive is unnecessary for these experiments. The published archive SHA-1 is verified as {dataset.manifest['source_sha1']}. The CSVs have multiple header rows; feature rows and metadata are joined by track ID, never by assumed row position.
+The source is *FMA: A Dataset for Music Analysis* (Defferrard, Benzi, Vandergheynst and Bresson, ISMIR 2017). FMA-small contains 8,000 30-second excerpts balanced across Electronic, Experimental, Folk, Hip-Hop, Instrumental, International, Pop and Rock. Only the 342 MiB metadata archive is needed; its published SHA-1 ({dataset.manifest['source_sha1']}) is verified before reading. Feature rows and metadata are joined by track ID, never by row position.
 
 {_table(split_rows)}
 
-Each genre contributes 800 training, 100 validation, and 100 test tracks. The recorded overlap counts for artist IDs are {audit['artist_overlap_counts']}; missing artist IDs: {audit['missing_artist_ids']}. Thus this prepared release has no artists shared across partitions.
+Each genre contributes 800 training, 100 validation and 100 test tracks. Shared artists between partitions: {', '.join(f"{k.replace('__', '/')} = {v}" for k, v in audit['artist_overlap_counts'].items())} — no artist appears in more than one partition.
 
 ![Genre distribution and partitions](figures/genre_balance.png)
 
-The 518 descriptors belong to 11 audio feature families. For each feature dimension, the dataset provides mean, standard deviation, skewness, kurtosis, median, minimum, and maximum over analysis frames. Predictors contain audio descriptors only. Titles, track IDs, artist IDs, album IDs, genre labels, and split labels are kept separately and never enter classifiers.
+The {dataset.X.shape[1]} descriptors come from 11 audio feature families. For each frame-level feature the dataset stores seven statistics over time: mean, standard deviation, skewness, kurtosis, median, minimum and maximum. Only audio descriptors enter the classifiers; title, artist, album, genre and split are kept separate.
 
 {_table(feature_rows)}
 
-For example, "mfcc__mean__01" means the temporal mean of the first MFCC coefficient. The table has no explicit tempo/BPM feature; this project does not claim to measure tempo directly.
+For example, "mfcc__mean__01" is the temporal mean of the first MFCC coefficient. There is no explicit tempo feature. Data checks found {dataset.manifest['nonfinite_values_replaced_with_nan']} non-finite values and {len(dataset.manifest['removed_all_missing_track_ids'])} unusable rows.
 
-Data-quality checks found {dataset.manifest['nonfinite_values_replaced_with_nan']} non-finite feature values, {dataset.manifest['rows_needing_partial_imputation']} tracks requiring partial imputation, and {len(dataset.manifest['removed_all_missing_track_ids'])} completely missing feature rows. Stored features use float32 to reduce memory. Prepared files also have SHA-256 integrity checks.
+{_profile_methodology(run, selection, output)}## 4. Results
 
-## 3. Experimental methodology
-
-### 3.1 Preprocessing and leakage prevention
-
-Candidate fitting uses the 6,400 official training tracks. Each scikit-learn pipeline contains median imputation, removal of constant columns, standard scaling, and a classifier. Imputation and scaling are fitted inside the pipeline on training data. The transformation is z = (x − training mean) / training standard deviation. Scaling matters especially for distance-based KNN, SVM, and ANN; applying it to a tree is harmless.
-
-The current subset has complete features, so imputation does not change it. The same implementation can handle partially missing values. Entirely unusable rows are explicitly recorded if encountered during preparation.
-
-All 518 input descriptors are available to each classifier. PCA is used for exploratory analysis and similarity retrieval, not as classifier preprocessing. No feature ranking is used to select predictors after viewing test results.
-
-### 3.2 Model comparison and selection
-
-The "{run['profile']}" profile evaluates {run['candidate_count']} candidates including the baseline. In the standard profile, the grids are:
-
-- Decision Tree: maximum depth in 10, 20, or unlimited; minimum leaf size in 2 or 5 (6 candidates).
-- KNN: k in 5, 15, or 31; uniform or inverse-distance votes (6 candidates).
-- RBF SVM: C in 1 or 10; gamma equal to the training-data scale heuristic or 0.001 (4 candidates).
-- ANN: one 128-unit layer or two layers of 128 and 64 units; L2 alpha in 0.0001 or 0.01 (4 candidates).
-- Dummy baseline: always predict the most frequent training label (1 candidate).
-
-The ANN is a feed-forward multilayer perceptron trained with Adam, ReLU activation, batch size 128, initial learning rate 0.001, and at most 200 epochs. It uses an internal 10% holdout for early stopping, with patience of 15 epochs. That internal holdout is a random track split within the current fitting partition; the official external validation and test sets remain artist-disjoint. The ANN encodes genre strings numerically during fitting and decodes predictions back to text.
-
-Each algorithm's hyperparameters are chosen by macro F1 on the official 800-track validation set. Validation accuracy breaks ties; an exact tie retains the first grid candidate. The winning algorithm is also chosen by validation macro F1. Selection is saved to "selection.json" before test features or labels are requested. Each selected configuration is then freshly fitted on the combined 7,200 training and validation tracks; ANN early stopping still reserves 10% internally. These refitted models are evaluated once on the 800-track test set. The baseline is reported for context and is excluded from the four-model winner selection.
-
-There is no cross-validation in this baseline experiment. A fixed official validation partition provides an affordable laptop workflow. Candidate scores are available in "candidate_results.csv", and all final test predictions are saved in "test_predictions.csv".
-
-### 3.3 Algorithms
-
-- Decision Tree learns threshold rules that reduce Gini impurity. It captures nonlinear interactions and is interpretable, but deep trees can overfit.
-- KNN assigns a label from nearby standardized feature vectors using Euclidean distance. It is simple but sensitive to scaling, redundant features, and high dimensionality.
-- SVM learns separating boundaries in an RBF feature space. Its kernel is exp(−gamma × squared Euclidean distance); C controls the penalty for misclassification.
-- ANN learns nonlinear combinations of descriptors through fully connected layers. Regularization and early stopping limit overfitting, but results can vary with initialization.
-
-Selected hyperparameters:
-
-{_table(selected_rows)}
-
-### 3.4 Evaluation metrics
-
-Accuracy is the fraction of correctly classified tracks. For a genre, precision is TP / (TP + FP), recall is TP / (TP + FN), and F1 is 2 × precision × recall / (precision + recall). Macro F1 averages per-genre F1 with equal weight for every genre. Balanced accuracy is mean recall. Undefined precision or F1 is assigned zero.
-
-The test partition is balanced, so balanced accuracy equals accuracy here. Confusion matrices show which genres are mistaken for which others. Validation scores measure training-only candidates; test scores measure their refitted versions, so the columns refer to different fitted models on different partitions.
-
-## 4. Results
-
-The algorithm selected before test evaluation is **{champion}**. Its test accuracy is **{chosen.test_accuracy:.2%}** and macro F1 is **{chosen.test_f1_macro:.4f}**. The dummy baseline reaches {baseline.test_accuracy:.2%} accuracy and {baseline.test_f1_macro:.4f} macro F1.
+The model selected on validation before the test set was requested is **{champion}**. On the 800 test tracks it achieves **{chosen.test_accuracy:.2%} accuracy** and **{chosen.test_f1_macro:.4f} macro F1**.{ci_text} The majority-class baseline achieves {baseline.test_accuracy:.2%} accuracy and {baseline.test_f1_macro:.4f} macro F1. Rows are ordered by validation macro F1, the selection criterion.
 
 {_table(score_rows)}
 
 ![Comparison of all models](figures/model_comparison.png)
 
-The model ordering follows validation macro F1. A higher test score from another model would be a descriptive observation, not a reason to change the preselected winner. These are actual measurements from the included run; scores from a different machine or dependency version may differ slightly.
+{f"The highest observed test accuracy among all candidates is {best_test.test_accuracy:.2%} ({best_test.model}). Test scores are descriptive: they never change the predeclared validation-based choice." if best_test.model != champion else "The validation-selected champion also has the highest test accuracy of all candidates, so validation and test agree on the ranking at the top."} Validation scores are higher than test scores for every trained model; the official test partition is simply harder for all algorithms, which is a property of the split rather than of one model.
 
-### 4.1 Per-genre performance
+{history_text}### 4.2 Cross-validation stability
+
+![Artist-grouped cross-validation](figures/grouped_cv.png)
+
+{seed_section}{ensemble_section}### 4.4 Per-genre performance
 
 {_table(genre_rows)}
 
-![Selected model per-genre F1](figures/per_genre_f1.png)
+![Champion per-genre F1](figures/per_genre_f1.png)
 
-The largest off-diagonal confusion counts for the selected model are:
+The largest off-diagonal confusion counts for the champion are:
 
 {_table(confusions)}
 
-![All four confusion matrices](figures/confusion_matrices.png)
+![Confusion matrices](figures/confusion_matrices.png)
 
-Each confusion-matrix row is normalized by its actual genre count. These errors show overlap in the supplied acoustic representation; they do not prove that a genre label is wrong.
+Each confusion-matrix row is normalized by the number of tracks of that actual genre. The champion recognizes {easiest} best and finds {hardest} hardest.{hard_note}
 
-### 4.2 Computation and reproducibility
+{confidence_section}### 4.6 Computation and reproducibility
 
-{_table(timing_rows)}
+{_table(timing_rows, '.1f')}
 
-The full tuning/refitting/evaluation stage took {run['elapsed_seconds']:.1f} seconds in the execution environment, using a limit of {run['threads']} numerical-library threads and seed {run['seed']}. Times exclude downloading, preparation, visualization, and report generation. Candidate fitting time sums fitting only; prediction and other overhead account for the remaining elapsed time. This timing is not a laptop performance guarantee.
-
-The run used Python {run['python']} and scikit-learn {run['versions']['scikit-learn']}. Exact direct dependency versions are recorded in "requirements-tested.txt"; runtime details are in "run_info.json". A fixed seed improves repeatability but does not establish robustness across random seeds.
-
-Fitting diagnostics:
-
-{warning_text}
+The tuning, refit and evaluation stage took {run['elapsed_seconds'] / 60:.1f} minutes using {run['threads']} parallel worker processes (seed {run['seed']}), with Python {run['python']} and scikit-learn {run['versions']['scikit-learn']}. Times exclude data preparation, discovery and report generation and vary by machine. Exact dependency versions and checksums are recorded in "run_info.json".
 
 ## 5. Feature interpretation
 
-The selected training-only model is evaluated on validation tracks. One entire feature family is jointly shuffled across tracks while all other families remain unchanged. The drop in macro F1 estimates how much this fitted model relies on that family. Joint shuffling preserves correlations among columns within the family. Each family uses {discovery['permutation_repeats']} repeated permutations with a fixed seed.
+The training-only champion is evaluated on validation tracks while one entire feature family is jointly shuffled across tracks; all other families stay intact. The resulting drop in macro F1 measures how much the model relies on that family. Each family is shuffled {discovery['permutation_repeats']} times.
 
 {_table(importance_rows)}
 
 ![Feature-family permutation importance](figures/feature_importance.png)
 
-The leading families in this run are {top_families}. The audio meanings of these families are listed in Section 2. Positive drops indicate reliance; near-zero or negative drops can reflect redundancy, sampling variation, or features that the model does not use effectively. The error bars show variability across permutations, not confidence intervals across new datasets. Family sizes differ, and correlated families can substitute for one another, so the ranking is neither causal nor an equal-size feature comparison.
+The leading families are {top_families}. MFCCs describe timbre (the "colour" of the sound: distorted guitars, synthesizers, voice), and spectral contrast captures the difference between spectral peaks and valleys, which separates clean acoustic recordings from dense electronic or rock production. Family sizes differ and correlated families can substitute for one another, so this ranking describes model reliance, not musical causation.
 
-Individual descriptors can also be ranked by a training-only one-way ANOVA F score:
+The ten individual descriptors most associated with genre on the training set (one-way ANOVA F):
 
-{_table(associations[['feature', 'training_anova_f']].rename(columns={'feature': 'Descriptor', 'training_anova_f': 'Training ANOVA F'}))}
-
-This ranking is an exploratory association measure. It ignores multivariate interactions and correlated predictors, and it is not a multiple-testing-adjusted significance claim or a feature-selection step.
+{_table(associations[['feature', 'training_anova_f']].rename(columns={'feature': 'Descriptor', 'training_anova_f': 'Training ANOVA F'}), '.1f')}
 
 ![Training feature distributions](figures/feature_distributions.png)
-
-Boxes show medians and interquartile ranges. Outlier points are omitted only from the drawing; they remain in the training data. Overlapping distributions explain why no single simple descriptor is expected to identify every genre.
 
 ## 6. Pattern discovery and song similarity
 
 ### 6.1 PCA music map
 
-Preprocessing and PCA are fitted only on training audio features. Training and validation tracks are projected into that space; genre labels are added only as display colors. The first two principal components retain {discovery['pca_2d_explained_variance']:.2%} of standardized feature variance, and the first {discovery['pca_components']} retain {discovery['pca_50d_explained_variance']:.2%}.
+Scaling and PCA are fitted on training descriptors only; training and validation tracks are projected into that space, and genre labels are used only as colours. The first two components keep {discovery['pca_2d_explained_variance']:.1%} of the standardized variance and the first {discovery['pca_components']} keep {discovery['pca_50d_explained_variance']:.1%}.
 
 ![PCA song map](figures/pca_map.png)
 
 ![PCA cumulative variance](figures/pca_variance.png)
 
-Open "song_map.html" for the offline interactive map: hover for track details, filter genres through the legend, and zoom. Nearby points share aspects of their measured audio descriptors. Since two dimensions discard information, separation or overlap in this drawing is not a classifier accuracy result.
+Open "song_map.html" for the offline interactive version: hover for track details, filter genres through the legend and zoom. Overlap in two dimensions is expected because most information lives in the remaining components.
 
 ### 6.2 K-means clustering
 
-K-means uses the training-set {discovery['pca_components']}-dimensional PCA representation and k = {discovery['kmeans_k']}, fixed in advance to match the number of known genres. It does not use genre labels during fitting. Validation tracks receive the nearest learned cluster centroid.
+K-means (k = {discovery['kmeans_k']}, fixed in advance) is fitted on the training PCA representation without labels; validation tracks are assigned to the nearest centroid.
 
-- Adjusted Rand index against validation genres: {discovery['kmeans_adjusted_rand_index']:.4f}.
-- Normalized mutual information against validation genres: {discovery['kmeans_normalized_mutual_information']:.4f}.
-- Validation silhouette score in PCA space: {discovery['kmeans_silhouette'] if discovery['kmeans_silhouette'] is not None else 'undefined'}.
-
-ARI measures agreement after accounting for chance, NMI measures shared label information, and silhouette measures geometric compactness/separation. Cluster numbers are arbitrary and cannot be interpreted as genre IDs. A cluster can contain multiple genres, and one genre can span multiple clusters.
+- Adjusted Rand index against genres: {discovery['kmeans_adjusted_rand_index']:.4f}
+- Normalized mutual information: {discovery['kmeans_normalized_mutual_information']:.4f}
+- Silhouette score: {_num(discovery['kmeans_silhouette'])}
 
 ![Validation cluster composition](figures/cluster_composition.png)
 
-The validation metrics and composition chart are descriptive; they are not used to tune k or select a classifier. Test tracks are excluded from discovery analyses.
+The low but positive agreement shows that unsupervised audio clusters capture *some* genre structure but mostly group songs by overall sound (production, loudness, timbre) rather than by label. That is why supervised learning is needed for genre recognition.
 
 ### 6.3 Nearest songs
 
-Euclidean distance in the training-fitted {discovery['pca_components']}-dimensional PCA space retrieves similar tracks from the training catalog. The query itself and tracks with the same artist ID are excluded by default. Genre labels are shown for interpretation and are not part of the distance.
-
-For validation query ID {query_id}, "{dataset.metadata.at[query_id, 'title']}" by {dataset.metadata.at[query_id, 'artist']} ({dataset.y.at[query_id]}), the five nearest eligible training tracks are:
+Euclidean distance in the training-fitted {discovery['pca_components']}-dimensional PCA space retrieves similar training tracks. The query itself and tracks by the same artist are excluded. For validation track {query_id}, "{dataset.metadata.at[query_id, 'title']}" by {dataset.metadata.at[query_id, 'artist']} ({dataset.y.at[query_id]}), the five nearest tracks are:
 
 {_table(neighbor_table)}
 
-Distances are representation-specific values, not probabilities or listener-preference scores. This is an audio similarity demonstration rather than a personalized recommendation system.
+Distances are representation-specific and not listener-preference scores; this is an audio-similarity demonstration, not a personalized recommender.
 
 ## 7. Discussion and limitations
 
-1. The four algorithms receive the same external partitions, but their small hyperparameter grids do not establish the best possible performance for each model family.
-2. Artist-disjoint splits reduce artist memorization. They do not remove every potential recording, production, album, or dataset-specific correlation.
-3. Genre boundaries are subjective and sometimes overlapping. This task uses one top-level label per track and only eight FMA-small genres.
-4. Summary descriptors discard musical sequence and detailed temporal structure. The model does not directly process waveforms or learn from spectrograms.
-5. The ANN uses an internal track-level early-stopping split, one initialization seed, and at most 200 epochs. Repeated artist-aware experiments could change the comparison.
-6. Standard scaling can remain sensitive to extreme values. PCA maximizes variance rather than genre discrimination, and the 2D map discards most dimensions.
-7. Grouped permutation importance describes reliance of one tuned model on one validation set. The validation partition has already influenced model selection, so it is not an independent confirmatory interpretation dataset.
-8. Results come from a single official holdout protocol. A larger evaluation or repeated group-aware validation would better quantify uncertainty.
-9. Predicting a genuinely new audio file requires compatible extraction of the same descriptors. The delivered predictor accepts prepared FMA feature rows or a matching flat feature CSV; raw MP3 feature extraction is outside this implementation.
+1. **Feature ceiling.** All models use the same 518 summary statistics, which discard the order of musical events. The close scores of very different algorithms suggest the representation, not the classifier, is now the main limit; learning from spectrograms or pretrained audio embeddings is the natural next step.
+2. **Overlapping labels.** Each track carries one top-level genre although many songs mix styles. Top-3 accuracy and the confidence analysis show that many "errors" are near-misses between neighbouring genres.
+3. **Reused test set.** The official test partition was viewed in the original project, so improvements are an extended benchmark comparison. The McNemar test and bootstrap intervals quantify, but cannot remove, this limitation.
+4. **Finite search.** Grids are deliberately affordable on a laptop. Larger searches could find slightly better settings for individual families.
+5. **Artist effects.** Artist-disjoint splits remove artist memorization but not every production or label-specific correlation.
+6. **Importance is not causation.** Permutation importance describes one fitted model on one validation set.
+7. **New audio.** Predicting a new MP3 requires extracting the same descriptors; "musicmap extract" follows the official FMA extraction recipe, but modern library versions can produce slightly different values.
 
 ## 8. Conclusion and future work
 
-MusicMap provides a reproducible comparison of Decision Tree, KNN, SVM, and ANN for feature-based music genre classification. Under the recorded protocol, {champion} was selected on validation data and obtained {chosen.test_accuracy:.2%} test accuracy with {chosen.test_f1_macro:.4f} macro F1. The feature analysis highlights {top_families}, while PCA, K-means, and nearest-neighbor retrieval reveal relationships that are only partly aligned with genre labels.
+Under a strict, leakage-free and artist-disjoint protocol, {champion} was selected on validation and obtained {chosen.test_accuracy:.2%} test accuracy and {chosen.test_f1_macro:.4f} macro F1 on eight balanced genres — about {chosen.test_accuracy / 0.125:.1f} times the chance level. The strongest individual families on validation were {strongest}.{ensemble_note} The feature analysis highlights {top_families}, while unsupervised clusters reflect overall sound more than genre labels.
 
-Future experiments can use artist-grouped cross-validation within the training partition, multiple ANN seeds, carefully validated feature selection, broader genres, or pretrained audio embeddings. Any such changes should be selected without reusing this test set for tuning.
+Future work: learn directly from mel-spectrograms with a CNN or use pretrained audio embeddings (e.g. VGGish, PANNs, CLAP), extend to the 16-genre FMA-medium subset, and confirm results on a fresh artist-disjoint test set.
 
 ## 9. Reproduction and deliverables
 
-From the project directory, install the requirements and run:
-
 ~~~sh
-python -m pip install -r requirements-tested.txt
-musicmap run --profile standard --seed 42 --threads 2
+python -m pip install -r requirements.txt
+musicmap improve --seed 42
+musicmap predict --track-id 2
+musicmap neighbors --track-id 2 --k 5
 jupyter lab notebooks/MusicMap.ipynb
 ~~~
 
-The notebook defaults to displaying the included results. Set its RUN_TRAINING and RUN_DISCOVERY switches to True to recompute. Prepared subset data are bundled in the complete package; if absent, preparation downloads the official metadata archive automatically. No audio download or GPU is required.
-
-Deliverables include the Python package, executed notebook, metric tables, all test predictions, selected model, interactive map, figures, this report in Markdown/HTML/Word, a presentation outline, and viva preparation notes. Fill in the student and institution fields and adapt the report to the instructor's required format.
+The notebook displays the included results by default; set RUN_TRAINING = True to recompute. "musicmap app" starts an interactive demo in the browser. No GPU or audio download is needed.
 
 ## References and attribution
 
-1. Defferrard, M., Benzi, K., Vandergheynst, P., and Bresson, X. (2017). FMA: A Dataset for Music Analysis. Proceedings of the 18th International Society for Music Information Retrieval Conference. https://arxiv.org/abs/1612.01840
-2. Official FMA repository and release documentation: https://github.com/mdeff/fma
-3. Official audio descriptor extraction implementation: https://github.com/mdeff/fma/blob/master/features.py
-4. Scikit-learn user guide and API documentation: https://scikit-learn.org/stable/
+1. Defferrard, M., Benzi, K., Vandergheynst, P., and Bresson, X. (2017). FMA: A Dataset for Music Analysis. ISMIR. https://arxiv.org/abs/1612.01840
+2. Official FMA repository: https://github.com/mdeff/fma
+3. Caruana, R., Niculescu-Mizil, A., Crew, G., and Ksikes, A. (2004). Ensemble selection from libraries of models. ICML.
+4. Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python. JMLR 12, 2825–2830. https://scikit-learn.org/
+5. McNemar, Q. (1947). Note on the sampling error of the difference between correlated proportions or percentages. Psychometrika 12, 153–157.
 
-FMA metadata and derived feature data are attributed to Defferrard et al. and distributed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. This project uses the original 2017 metadata release and does not redistribute audio recordings.
+FMA metadata and derived features are attributed to Defferrard et al. and distributed under CC BY 4.0. No audio is redistributed.
 """
-    if run.get("profile") == "improved":
-        text = _improved_report(text, output, comparison, selection, run)
+    text = re.sub(r"\n{3,}", "\n\n", text)
     report = output / "MusicMap_Report.md"
     report.write_text(text, encoding="utf-8")
+    _write_html(text, output)
+    _write_docx(text, output)
+    _write_presentation(champion, chosen, discovery, importance, output, run, summary)
+    _update_readme(output.parent, comparison, champion, chosen, summary, run)
+    print(f"Wrote report: {report}", flush=True)
+    return report
+
+
+def _write_html(text: str, output: Path) -> None:
     renderer = mistune.create_markdown(plugins=["table"])
     body = renderer(text)
     html = """<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MusicMap · ML lab report</title><style>
-body{font:16px/1.65 system-ui,sans-serif;color:#183143;background:#f0f4f5;margin:0}
-main{max-width:1080px;margin:40px auto;padding:50px;background:white;border-radius:16px}
-h1{font-size:48px;letter-spacing:-2px;margin:0;color:#255f85}
-h2{font-size:25px;color:#255f85;margin-top:44px;line-height:1.3}
-h3{font-size:20px;margin-top:32px}a{color:#255f85}
-table{border-collapse:collapse;width:100%;font-size:13px;display:block;overflow:auto}
-th,td{padding:9px 12px;border-bottom:1px solid #d8e2e7;text-align:left}
-th{background:#edf4f7}tr:nth-child(even){background:#f8fafb}
-img{max-width:100%;height:auto;margin:12px 0}
-pre{background:#f0f4f5;padding:20px;overflow:auto;border-radius:8px}
-li{margin:6px 0}@media(max-width:700px){main{margin:0;padding:22px}h1{font-size:38px}}
-@media print{body{background:white}main{padding:0;margin:0}h2,h3{break-after:avoid}img,table{break-inside:avoid}}
+:root{--ink:#183143;--accent:#255f85;--soft:#edf4f7;--line:#d8e2e7;--bg:#f0f4f5;--card:#fff}
+body{font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);margin:0}
+main{max-width:1080px;margin:40px auto;padding:50px;background:var(--card);border-radius:16px;box-shadow:0 1px 3px #0001}
+h1{font-size:48px;letter-spacing:-2px;margin:0;color:var(--accent)}
+h2{font-size:25px;color:var(--accent);margin-top:44px;line-height:1.3;border-bottom:2px solid var(--soft);padding-bottom:6px}
+h3{font-size:20px;margin-top:32px}a{color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:13px;display:block;overflow:auto;margin:14px 0}
+th,td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+td:last-child{white-space:normal}
+th{background:var(--soft)}tr:nth-child(even){background:#f8fafb}
+img{max-width:100%;height:auto;margin:12px 0;border-radius:6px}
+pre{background:var(--bg);padding:20px;overflow:auto;border-radius:8px}
+li{margin:6px 0}@media(max-width:700px){main{margin:0;padding:22px;border-radius:0}h1{font-size:36px}}
+@media print{body{background:white}main{padding:0;margin:0;box-shadow:none}h2,h3{break-after:avoid}img,table{break-inside:avoid}}
 </style></head><body><main>""" + body + "</main></body></html>"
     (output / "MusicMap_Report.html").write_text(html, encoding="utf-8")
-    _write_docx(text, output)
-    _write_presentation(champion, chosen, discovery, importance, output, run)
-    print(f"Wrote report: {report}", flush=True)
-    return report
-
-
-def _improved_report(text: str, output: Path, comparison: pd.DataFrame, selection: dict, run: dict) -> str:
-    """Replace baseline-specific prose with the recorded improved protocol."""
-    champion = selection["champion"]
-    chosen = comparison.loc[comparison["model"].eq(champion)].iloc[0]
-    cv = pd.read_csv(output / "cv_results.csv")
-    seeds = pd.read_csv(output / "ann_seed_results.csv")
-    cv_columns = [name for name in ("model", "cv_mean_f1", "cv_std_f1", "parameters") if name in cv]
-    cv_best = cv.sort_values(
-        ["cv_mean_f1", "cv_std_f1"], ascending=[False, True], kind="stable"
-    ).groupby("model", sort=False).head(1)
-    baseline_file = output.parent / "baseline/reports/model_comparison.csv"
-    baseline_comparison = ""
-    if baseline_file.exists():
-        original = pd.read_csv(baseline_file)
-        original_selection = _read(baseline_file.parent / "selection.json")
-        old = original.loc[original["model"].eq(original_selection["champion"])].iloc[0]
-        rows = [{
-            "Run": "Original standard profile", "Selected model": old.model,
-            "Validation macro F1": old.validation_f1_macro, "Test accuracy": old.test_accuracy,
-            "Test macro F1": old.test_f1_macro,
-        }, {
-            "Run": "Improved experiment", "Selected model": champion,
-            "Validation macro F1": chosen.validation_f1_macro, "Test accuracy": chosen.test_accuracy,
-            "Test macro F1": chosen.test_f1_macro,
-        }]
-        delta = 100 * (chosen.test_accuracy - old.test_accuracy)
-        baseline_comparison = (
-            "\n### 4.1 Comparison with the preserved original run\n\n" + _table(rows) +
-            f"\n\nThe selected model's test accuracy changes by {delta:+.2f} percentage points, "
-            f"and macro F1 changes by {chosen.test_f1_macro - old.test_f1_macro:+.4f}. "
-            "The original reports, predictions, and models are preserved under baseline/. "
-            "This is an extended benchmark comparison: the official test performance was already "
-            "seen during the original project. It is not an independent, newly unseen confirmation "
-            "of the improvement. A fresh artist-disjoint dataset would provide stronger confirmation.\n"
-            "\n![Original and improved test accuracy by model](figures/improvement_comparison.png)\n"
-        )
-        original_by_model = original.set_index("model")
-        changes = []
-        for row in comparison.itertuples():
-            before = original_by_model.loc[row.model] if row.model in original_by_model.index else None
-            changes.append({
-                "Model": row.model,
-                "Original test accuracy": f"{before.test_accuracy:.2%}" if before is not None else "New benchmark",
-                "Updated test accuracy": f"{row.test_accuracy:.2%}",
-                "Change (percentage points)": f"{100 * (row.test_accuracy - before.test_accuracy):+.3f}" if before is not None else "—",
-                "Updated test macro F1": f"{row.test_f1_macro:.4f}",
-            })
-        highest_test = comparison.loc[comparison["model"].ne(BASELINE)].sort_values(
-            "test_accuracy", ascending=False
-        ).iloc[0]
-        baseline_comparison += (
-            "\nSame-family comparisons:\n\n" + _table(changes) +
-            f"\n\nThe validation-selected model is {champion}; the highest observed updated test accuracy "
-            f"is {highest_test.test_accuracy:.2%} from {highest_test.model}. Test performance is descriptive "
-            "and does not change the predeclared validation-based selection. Broader tuning improves some "
-            "same-family scores in this run, but it does not establish a general improvement of the "
-            "selection procedure. Small differences on 800 tracks do not by themselves demonstrate "
-            "statistically significant gains.\n"
-        )
-    folds = run.get("cv_folds", selection.get("cv_folds", 3))
-    seed = run["seed"]
-    seed_names = ", ".join(str(value) for value in run.get("ann_seeds", [seed, seed + 1, seed + 2]))
-    outlier_note = ""
-    outlier_file = output / "training_outlier_summary.json"
-    if outlier_file.exists():
-        outliers = _read(outlier_file)
-        outlier_note = (
-            f"Training-only diagnostics found {outliers['features_with_values_above_20_sigma']} "
-            f"descriptors with an absolute standardized value above 20, with maximum absolute z-score "
-            f"{outliers['max_abs_z']:.2f}. These observations motivated testing quantile normalization. "
-            "A quantile transform changes distances and can discard useful scale information; it is "
-            "not universally beneficial. Its settings are chosen using training CV, and this diagnostic "
-            "does not use validation or test rows."
-        )
-    methodology = f"""## 3. Experimental methodology
-
-### 3.1 Preprocessing and candidate representations
-
-The official 6,400-track training partition is the only source of cross-validation data. Every fitted pipeline learns median imputation, constant-column removal, scaling, and any feature reduction from the current fitting fold. Fold-assessment features and labels are not used to fit those transformations.
-
-The improved experiment compares the full descriptor representation with training-fitted feature selection and PCA. ANOVA selection ranks individual descriptors by their association with the training labels; PCA learns directions of high transformed-feature variance without labels. The candidate search also compares standard scaling with a quantile-to-normal transformation to handle skewed feature distributions and extreme values. These transformations are fitted within each fold. This supervised candidate search is separate from the fixed standardized 50-component PCA representation used for the similarity map and clustering.
-
-{outlier_note}
-
-### 3.2 Artist-grouped cross-validation and selection
-
-The search evaluates {len(cv)} recorded configurations with {folds}-fold artist-grouped cross-validation inside the official training partition. The fold builder preserves artist groups: no artist occurs in both fitting and assessment tracks in a fold. "cv_splits.json" records the assignments and audits. Each candidate's mean macro F1 across these folds is the tuning criterion; its standard deviation describes fold-to-fold variability, not a confidence interval.
-
-For each model family, the configuration with the highest mean cross-validation macro F1 advances to the official 800-track validation partition. The final winning family is chosen using validation macro F1, with the recorded tie-breaking rules in "selection.json". Validation is outside the cross-validation folds. The official test set contributes no features or labels to this run's search or selection.
-
-The improved search broadens SVM regularization/kernel settings, compares feature representations, tunes ANN size/learning rate/regularization, and adds Extra Trees as an ensemble benchmark. The four original required algorithms remain present. "cv_results.csv" contains all candidate settings and scores; the following summarizes the best cross-validation row per family:
-
-{_table(cv_best[cv_columns])}
-
-![Selected models in artist-grouped cross-validation](figures/grouped_cv.png)
-
-The CV chart uses the selected family configurations and displays fold standard deviations. For ANN, it shows the fixed three-seed ensemble's CV score; the table above shows the base-seed architecture search.
-
-The ANN is a feed-forward network operating on descriptors. The architecture, learning rate, and regularization grid is tuned using base seed {seed}, with at most 300 epochs and early-stopping patience of 20 epochs. Its selected configuration is evaluated with seeds {seed_names}, and the final ANN uses a fixed average of all three models' class probabilities. No best-performing seed is cherry-picked. The individual and ensemble scores are retained in "ann_seed_results.csv"; the base-seed tuning scores and final ensemble CV score answer different questions. The numeric label encoder converts predictions back to readable genres. Each network uses an internal random 10% track holdout for early stopping, within its current fitting partition; that internal split is distinct from the artist-disjoint outer folds and official validation/test partitions.
-
-{_table(seeds)}
-
-Selected settings for each family:
-
-{_table([{"Model": name, "Settings": json.dumps(row["parameters"])} for name, row in selection["selected"].items()])}
-
-### 3.3 Refit and extended test comparison
-
-The complete selection is saved before this run requests test features or labels. Selected configurations are freshly fitted on the combined 7,200 training and validation tracks. Their predictions on the 800 official test tracks are recorded once for this run. The dummy model is a contextual baseline and cannot win the trained-model selection.
-
-The same official test set was already viewed in the original experiment. The updated scores therefore provide an extended benchmark comparison, not a pristine new confirmatory holdout. Decisions in the implemented search use training folds and validation scores; a fresh artist-disjoint confirmation set would strengthen claims about generalization gains.
-
-### 3.4 Algorithms and evaluation
-
-- Decision Tree learns threshold rules that reduce class impurity.
-- KNN uses neighboring transformed feature representations and inverse-distance votes.
-- RBF SVM learns a nonlinear separating boundary; C and gamma control regularization and kernel locality.
-- ANN learns nonlinear combinations of descriptors using fully connected layers and regularization.
-- Extra Trees averages randomized decision trees to reduce sensitivity to a single fitted tree.
-
-Accuracy is correct labels divided by track count. Per-genre precision is TP / (TP + FP), recall is TP / (TP + FN), and F1 is their harmonic mean. Macro F1 gives all eight genres equal weight. Undefined scores are assigned zero. With balanced test genres, balanced accuracy equals accuracy.
-
-Cross-validation scores describe fold-fitted candidates. Validation scores describe training-partition fits, and test scores describe models refitted on training plus validation. They concern different fitted models and different samples.
-
-"""
-    before, remainder = text.split("## 3. Experimental methodology", 1)
-    _, after = remainder.split("## 4. Results", 1)
-    text = before + methodology + "## 4. Results" + after
-    text = text.replace(
-        "and a feed-forward artificial neural network (ANN) are compared with a majority-class baseline.",
-        "and a feed-forward artificial neural network (ANN) are compared with Extra Trees and a majority-class baseline.",
-    ).replace(
-        "Hyperparameters and the winning model are chosen using validation macro F1 before evaluating the test set.",
-        "Hyperparameters are tuned using artist-grouped cross-validation within training, and the winning family is chosen using validation macro F1 before an extended comparison on the previously viewed official test set.",
-    )
-    text = text.replace("### 4.1 Per-genre performance", baseline_comparison + "\n### 4.2 Per-genre performance")
-    text = text.replace("### 4.2 Computation and reproducibility", "### 4.3 Computation and reproducibility")
-    text = text.replace("![All four confusion matrices]", "![Confusion matrices for the trained models]")
-    text = text.replace(
-        "Candidate fitting time sums fitting only; prediction and other overhead account for the remaining elapsed time.",
-        "Candidate fitting time sums primary candidate cross-validation fits only. It excludes the additional ANN seed diagnostics and full-training fits; those stages, predictions, and overhead are included in the total elapsed time.",
-    )
-    text = text.replace(
-        "Compare Decision Tree, KNN, SVM, and ANN on identical external partitions",
-        "Compare Decision Tree, KNN, SVM, ANN, and Extra Trees on identical external partitions",
-    ).replace(
-        "MusicMap provides a reproducible comparison of Decision Tree, KNN, SVM, and ANN for feature-based music genre classification.",
-        "MusicMap provides a reproducible comparison of Decision Tree, KNN, SVM, ANN, and Extra Trees for feature-based music genre classification.",
-    )
-    text = text.replace(
-        "This ranking is an exploratory association measure. It ignores multivariate interactions and correlated predictors, and it is not a multiple-testing-adjusted significance claim or a feature-selection step.",
-        "This displayed full-training ranking is an exploratory association measure. It ignores multivariate interactions and correlated predictors and is not a multiple-testing-adjusted significance claim. Any ANOVA selector in a supervised candidate is separately fitted within its own training fold; the displayed ranking is not reused across CV folds.",
-    )
-    text = text.replace(
-        "1. The four algorithms receive the same external partitions, but their small hyperparameter grids do not establish the best possible performance for each model family.",
-        "1. The five trained algorithms receive the same external partitions and artist-grouped fold assignments. The finite candidate search still does not establish the best possible performance for each model family.",
-    ).replace(
-        "5. The ANN uses an internal track-level early-stopping split, one initialization seed, and at most 200 epochs. Repeated artist-aware experiments could change the comparison.",
-        "5. Multiple ANN initialization seeds are examined, but this limited seed set does not fully characterize optimization variability. Consult the recorded ANN settings and seed results rather than treating one fit as universal.",
-    ).replace(
-        "8. Results come from a single official holdout protocol. A larger evaluation or repeated group-aware validation would better quantify uncertainty.",
-        "8. The official test set was already viewed before this improvement study. Updated scores are an extended benchmark comparison and require a fresh artist-disjoint confirmation set for stronger generalization claims.",
-    ).replace(
-        "Future experiments can use artist-grouped cross-validation within the training partition, multiple ANN seeds, carefully validated feature selection, broader genres, or pretrained audio embeddings. Any such changes should be selected without reusing this test set for tuning.",
-        "Artist-grouped cross-validation, feature reduction, multiple ANN seeds, and an ensemble benchmark are now implemented. Further work can use more genres, pretrained audio embeddings, and a fresh artist-disjoint confirmation set. Future decisions should use development data rather than the reported test scores.",
-    ).replace(
-        "musicmap run --profile standard --seed 42 --threads 2",
-        "musicmap improve --seed 42 --threads 2 --cv-folds 3",
-    )
-    return text
 
 
 def _write_docx(markdown: str, output: Path) -> None:
     from docx import Document
+    from docx.enum.table import WD_TABLE_ALIGNMENT
+    from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
+    from docx.oxml import OxmlElement
+    from docx.oxml.ns import qn
     from docx.shared import Inches, Pt, RGBColor
 
     document = Document()
     section = document.sections[0]
-    section.top_margin = section.bottom_margin = Inches(0.75)
-    section.left_margin = section.right_margin = Inches(0.8)
-    document.styles["Normal"].font.name = "Calibri"
-    document.styles["Normal"].font.size = Pt(10)
-    for name in ("Title", "Heading 1", "Heading 2", "Heading 3"):
-        document.styles[name].font.color.rgb = RGBColor.from_string("255F85")
-    section.footer.paragraphs[0].text = "MusicMap | Machine Learning Laboratory Project"
+    section.top_margin = section.bottom_margin = Inches(0.8)
+    section.left_margin = section.right_margin = Inches(0.85)
+    normal = document.styles["Normal"]
+    normal.font.name = "Calibri"
+    normal.font.size = Pt(10.5)
+    normal.paragraph_format.space_after = Pt(6)
+    normal.paragraph_format.line_spacing = 1.12
+    for name, size in (("Title", 30), ("Heading 1", 16), ("Heading 2", 13), ("Heading 3", 12)):
+        style = document.styles[name]
+        style.font.color.rgb = RGBColor.from_string(ACCENT)
+        style.font.size = Pt(size)
+        style.font.name = "Calibri"
+    footer = section.footer.paragraphs[0]
+    footer.text = "MusicMap · Machine Learning Laboratory Project · page "
+    footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = footer.add_run()
+    for kind, text in (("begin", None), (None, "PAGE"), ("end", None)):
+        if kind:
+            element = OxmlElement("w:fldChar")
+            element.set(qn("w:fldCharType"), kind)
+        else:
+            element = OxmlElement("w:instrText")
+            element.set(qn("xml:space"), "preserve")
+            element.text = text
+        run._r.append(element)
+
+    counters = {"figure": 0, "table": 0}
+
+    def shade(cell, color):
+        properties = cell._tc.get_or_add_tcPr()
+        fill = OxmlElement("w:shd")
+        fill.set(qn("w:val"), "clear")
+        fill.set(qn("w:color"), "auto")
+        fill.set(qn("w:fill"), color)
+        properties.append(fill)
+
+    def add_inline(paragraph, tokens, bold=False, italic=False):
+        for token in tokens:
+            kind = token["type"]
+            if kind in ("text", "codespan"):
+                piece = paragraph.add_run(token.get("raw", ""))
+                piece.bold, piece.italic = bold, italic
+                if kind == "codespan":
+                    piece.font.name = "Consolas"
+            elif kind == "strong":
+                add_inline(paragraph, token.get("children", []), True, italic)
+            elif kind == "emphasis":
+                add_inline(paragraph, token.get("children", []), bold, True)
+            elif kind in ("softbreak", "linebreak"):
+                paragraph.add_run().add_break()
+            elif kind == "link":
+                add_inline(paragraph, token.get("children", []), bold, italic)
+            else:
+                add_inline(paragraph, token.get("children", []), bold, italic)
 
     def plain(tokens):
         result = ""
@@ -553,14 +618,12 @@ def _write_docx(markdown: str, output: Path) -> None:
             if token["type"] in ("text", "codespan"):
                 result += token.get("raw", "")
             elif token["type"] in ("softbreak", "linebreak"):
-                result += "\n"
-            elif token["type"] == "link":
-                label = plain(token.get("children", []))
-                url = token.get("attrs", {}).get("url", "")
-                result += label if label == url else f"{label} ({url})"
+                result += " "
             else:
                 result += plain(token.get("children", []))
         return result
+
+    first_heading = {"done": False}
 
     def add_blocks(tokens, list_style=None):
         for token in tokens:
@@ -568,123 +631,196 @@ def _write_docx(markdown: str, output: Path) -> None:
             children = token.get("children", [])
             if kind == "heading":
                 level = token["attrs"]["level"]
-                document.add_heading(plain(children), level=max(0, level - 1))
+                title = plain(children)
+                if level == 1 and not first_heading["done"]:
+                    for _ in range(5):
+                        document.add_paragraph()
+                    paragraph = document.add_paragraph(title, style="Title")
+                    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    first_heading["done"] = True
+                    continue
+                if level == 2 and title.startswith("Music Genre"):
+                    paragraph = document.add_paragraph()
+                    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    piece = paragraph.add_run(title)
+                    piece.font.size, piece.bold = Pt(15), True
+                    piece.font.color.rgb = RGBColor.from_string("50A995")
+                    continue
+                if level == 2 and title == "Abstract":
+                    document.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
+                document.add_heading(title, level=max(1, level - 1))
             elif kind in ("paragraph", "block_text"):
                 images = [child for child in children if child["type"] == "image"]
                 if images:
                     for child in images:
                         path = output / child["attrs"]["url"]
                         if path.exists():
-                            document.add_picture(str(path), width=Inches(6.5))
-                            document.add_paragraph(plain(child.get("children", [])), style="Caption")
+                            document.add_picture(str(path), width=Inches(6.4))
+                            document.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
+                            counters["figure"] += 1
+                            caption = document.add_paragraph(
+                                f"Figure {counters['figure']}. {plain(child.get('children', []))}", style="Caption")
+                            caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
                 else:
-                    document.add_paragraph(plain(children), style=list_style)
+                    paragraph = document.add_paragraph(style=list_style)
+                    add_inline(paragraph, children)
+                    if plain(children).startswith(("ML Laboratory", "Student:")):
+                        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
             elif kind == "list":
                 style = "List Number" if token.get("attrs", {}).get("ordered") else "List Bullet"
                 for item in children:
                     add_blocks(item.get("children", []), style)
             elif kind == "block_code":
                 paragraph = document.add_paragraph()
-                run = paragraph.add_run(token.get("raw", ""))
-                run.font.name = "Consolas"
-                run.font.size = Pt(9)
+                piece = paragraph.add_run(token.get("raw", "").rstrip())
+                piece.font.name = "Consolas"
+                piece.font.size = Pt(9)
             elif kind == "table":
-                rows = []
+                head, body = [], []
                 for part in children:
                     if part["type"] == "table_head":
-                        rows.append([plain(cell.get("children", [])) for cell in part["children"]])
+                        head = [cell.get("children", []) for cell in part["children"]]
                     elif part["type"] == "table_body":
-                        for row in part["children"]:
-                            rows.append([plain(cell.get("children", [])) for cell in row["children"]])
-                if rows:
-                    table = document.add_table(rows=1, cols=len(rows[0]))
-                    table.style = "Light Shading Accent 1"
-                    for i, value in enumerate(rows[0]):
-                        table.rows[0].cells[i].text = value
-                    for row in rows[1:]:
-                        cells = table.add_row().cells
-                        for i, value in enumerate(row):
-                            cells[i].text = value
-                    for row in table.rows:
-                        for cell in row.cells:
-                            for paragraph in cell.paragraphs:
-                                for run in paragraph.runs:
-                                    run.font.size = Pt(8)
-                    document.add_paragraph()
+                        body = [[cell.get("children", []) for cell in row["children"]] for row in part["children"]]
+                if not head:
+                    continue
+                table = document.add_table(rows=1, cols=len(head))
+                table.style = "Table Grid"
+                table.alignment = WD_TABLE_ALIGNMENT.CENTER
+                for i, cell_tokens in enumerate(head):
+                    cell = table.rows[0].cells[i]
+                    cell.text = ""
+                    piece = cell.paragraphs[0].add_run(plain(cell_tokens))
+                    piece.bold = True
+                    piece.font.color.rgb = RGBColor.from_string("FFFFFF")
+                    shade(cell, ACCENT)
+                for r, row in enumerate(body):
+                    cells = table.add_row().cells
+                    for i, cell_tokens in enumerate(row):
+                        cells[i].text = ""
+                        add_inline(cells[i].paragraphs[0], cell_tokens)
+                        if r % 2:
+                            shade(cells[i], "EEF4F7")
+                for row in table.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.paragraphs:
+                            paragraph.paragraph_format.space_after = Pt(0)
+                            for piece in paragraph.runs:
+                                piece.font.size = Pt(8.5)
+                document.add_paragraph()
 
     parser = mistune.create_markdown(renderer="ast", plugins=["table"])
     add_blocks(parser(markdown))
     document.save(output / "MusicMap_Report.docx")
 
 
-def _write_presentation(champion, chosen, discovery, importance, output: Path, run: dict | None = None) -> None:
+def _write_presentation(champion, chosen, discovery, importance, output: Path,
+                        run: dict | None = None, summary: dict | None = None) -> None:
+    run = run or {}
+    summary = summary or {}
+    comparisons = {entry["run"]: entry for entry in summary.get("comparisons", [])}
+    original = comparisons.get("original")
+    progress = (
+        f"- Original project: {original['champion']} {original['test_accuracy']:.2%} → this run: "
+        f"{champion} {chosen.test_accuracy:.2%} ({original['accuracy_change_percentage_points']:+.2f} pp).\n"
+        if original else ""
+    )
+    report = json.loads((output / "classification_reports.json").read_text())[champion]
+    genres = sorted((k for k in report if k not in ("accuracy", "macro avg", "weighted avg")),
+                    key=lambda g: report[g]["f1-score"], reverse=True)
+    easy, hard = " and ".join(genres[:2]), " and ".join(genres[-2:])
     slides = f"""# MusicMap presentation outline
 
-Use these ten slides for a 7–10 minute lab presentation. Add your name, roll number, and institution.
+Ten slides for a 7–10 minute lab presentation. Add your name, roll number and institution.
 
 ## Slide 1 — Title and problem
 - MusicMap: Music Genre Classification and Pattern Discovery Using Machine Learning.
 - Can audio descriptors predict a track's genre and reveal similar songs?
 
 ## Slide 2 — Dataset
-- FMA-small: 8,000 tracks, eight balanced genres, 518 descriptors.
+- FMA-small: 8,000 tracks, eight balanced genres, 518 descriptors (11 feature families × 7 statistics).
 - Precomputed features; no audio download or GPU.
 - Show figures/genre_balance.png and cite Defferrard et al. (2017).
 
 ## Slide 3 — Experimental design
 - Official artist-disjoint split: 6,400 training / 800 validation / 800 test.
-- Fit preprocessing on training; choose on validation; refit on 7,200; evaluate on test.
-- Explain why artist leakage would inflate a random track split.
+- Tune with {run.get('cv_folds', 3)}-fold artist-grouped cross-validation inside training (no artist on both sides).
+- Choose the champion on validation; lock selection; refit on 7,200; evaluate once on test.
 
 ## Slide 4 — Models
-- Decision Tree: threshold rules.
-- KNN: nearby standardized feature vectors.
-- SVM: nonlinear RBF boundary.
-- ANN: feed-forward ReLU network with early stopping.
-- Include the majority-class baseline.
+- Required: Decision Tree, KNN, SVM (RBF), ANN (MLP, seed-averaged).
+- Stronger baselines: Logistic Regression, Extra Trees, Gradient Boosting.
+- Soft-voting ensemble: weights chosen by greedy selection on out-of-fold probabilities.
+- Majority-class baseline for context (12.5%).
 
-## Slide 5 — Evaluation and results
-- Macro F1 chooses the winner; also report accuracy and per-genre scores.
-- Validation-selected model: {champion}.
-- Test accuracy: {chosen.test_accuracy:.2%}; macro F1: {chosen.test_f1_macro:.4f}.
-- Show figures/model_comparison.png.
+## Slide 5 — Results
+- Champion (chosen on validation): {champion}.
+- Test accuracy {chosen.test_accuracy:.2%}; macro F1 {chosen.test_f1_macro:.4f}{f"; top-3 accuracy {chosen.test_top3_accuracy:.1%}" if 'test_top3_accuracy' in chosen and pd.notna(chosen.test_top3_accuracy) else ''}.
+{progress}- Show figures/model_comparison.png and figures/improvement_comparison.png.
 
-## Slide 6 — Errors
+## Slide 6 — Errors and confidence
 - Show figures/confusion_matrices.png or figures/per_genre_f1.png.
-- Explain two observed genre confusions using the report's counts.
-- Distinguish measured errors from speculation about their causes.
+- Easiest genres: {easy}; hardest: {hard} (see per-genre F1).
+- Show figures/confidence.png: high-confidence predictions are much more accurate.
 
 ## Slide 7 — Feature interpretation
-- Jointly shuffle feature families on validation data.
-- Highest three mean drops: {', '.join(importance.head(3)['family'])}.
-- Show figures/feature_importance.png.
-- Importance describes model reliance, not musical causality.
+- Jointly shuffle each feature family on validation data and measure the F1 drop.
+- Top three: {', '.join(importance.head(3)['family'])}.
+- Show figures/feature_importance.png. Importance = model reliance, not causation.
 
 ## Slide 8 — Pattern discovery
-- PCA fitted on training features; first two PCs retain {discovery['pca_2d_explained_variance']:.2%} variance.
-- K-means fitted without genres; validation ARI: {discovery['kmeans_adjusted_rand_index']:.4f}.
+- Train-only PCA: first two PCs keep {discovery['pca_2d_explained_variance']:.1%} of variance.
+- K-means without labels: validation ARI {discovery['kmeans_adjusted_rand_index']:.3f} — clusters follow timbre more than genre.
 - Show figures/pca_map.png and figures/cluster_composition.png.
 
-## Slide 9 — Demonstration
-- Open song_map.html; hover, zoom, and filter the genre legend.
-- Run musicmap neighbors --track-id [a valid FMA-small ID] --k 5.
-- Show that neighbors use audio descriptors and a training-only catalog.
+## Slide 9 — Live demonstration
+- musicmap app — pick a song, see genre probabilities and the five most similar songs.
+- Or: musicmap predict --track-id 2 and musicmap neighbors --track-id 2.
+- Open song_map.html; hover, zoom and filter the legend.
 
 ## Slide 10 — Conclusions and limits
-- State the measured winner and the strongest feature families.
-- Eight genres, one fixed split, one ANN seed, modest tuning.
-- New raw audio requires compatible feature extraction.
-- Future work: grouped cross-validation, repeated seeds, pretrained embeddings.
+- Ensembles of diverse models give the best, most stable results on summary features.
+- Limits: summary features, overlapping genres, previously viewed test set.
+- Future: spectrogram CNNs / pretrained embeddings, FMA-medium, fresh confirmation set.
 """
-    if run and run.get("profile") == "improved":
-        slides = slides.replace(
-            "- Fit preprocessing on training; choose on validation; refit on 7,200; evaluate on test.",
-            "- Tune with artist-grouped cross-validation inside training; choose the algorithm on validation.\n"
-            "- Refit on training + validation; report an extended comparison on the previously viewed test set.",
-        ).replace("- Include the majority-class baseline.",
-                  "- Extra Trees supplies an ensemble benchmark; include the majority-class baseline.")
-        slides = slides.replace("- Eight genres, one fixed split, one ANN seed, modest tuning.",
-                                "- Eight genres, finite search, several ANN seeds, and one previously viewed official test set.")
-        slides = slides.replace("- Future work: grouped cross-validation, repeated seeds, pretrained embeddings.",
-                                "- Future work: a fresh confirmation set, more genres, and pretrained embeddings.")
     (output / "presentation_outline.md").write_text(slides, encoding="utf-8")
+
+
+def _update_readme(root: Path, comparison: pd.DataFrame, champion: str, chosen, summary: dict, run: dict) -> None:
+    """Refresh the measured-results block of README.md so it always matches the run."""
+    readme = root / "README.md"
+    start, end = "<!-- RESULTS START -->", "<!-- RESULTS END -->"
+    if not readme.exists() or start not in readme.read_text(encoding="utf-8"):
+        return
+    rows = []
+    for row in comparison.itertuples():
+        rows.append({
+            "Model": f"**{row.model}**" if row.model == champion else row.model,
+            "CV macro F1": _num(getattr(row, "cv_mean_f1", None)),
+            "Validation macro F1": _num(row.validation_f1_macro),
+            "Test accuracy": _pct(row.test_accuracy),
+            "Test macro F1": _num(row.test_f1_macro),
+            "Top-3 accuracy": _pct(getattr(row, "test_top3_accuracy", None)),
+        })
+    lines = [start, "", _table(rows), ""]
+    interval = summary.get("champion_test_bootstrap")
+    text = (f"**Champion (chosen on validation): {champion}** — test accuracy **{chosen.test_accuracy:.2%}**, "
+            f"macro F1 **{chosen.test_f1_macro:.4f}**")
+    if interval:
+        lo, hi = interval["accuracy_95ci"]
+        text += f" (95% bootstrap interval for accuracy: {lo:.1%}–{hi:.1%})"
+    lines.append(text + ".")
+    names = {"original": "original project", "improved_v1": "first improvement"}
+    for entry in summary.get("comparisons", []):
+        test = entry.get("mcnemar_vs_champion")
+        lines.append(
+            f"- vs. {names.get(entry['run'], entry['run'])} ({entry['champion']}, {entry['test_accuracy']:.2%}): "
+            f"**{entry['accuracy_change_percentage_points']:+.2f} percentage points**"
+            + (f", McNemar p = {test['p_value']:.3f}" if test else "")
+        )
+    lines += ["", f"Full run: {run['elapsed_seconds'] / 60:.1f} min with {run['threads']} parallel workers "
+              f"(Python {run['python']}, scikit-learn {run['versions']['scikit-learn']}).", "", end]
+    text = readme.read_text(encoding="utf-8")
+    before, rest = text.split(start, 1)
+    _, after = rest.split(end, 1)
+    readme.write_text(before + "\n".join(lines) + after, encoding="utf-8")

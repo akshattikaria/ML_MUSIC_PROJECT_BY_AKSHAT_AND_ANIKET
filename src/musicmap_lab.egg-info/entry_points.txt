@@ -1,0 +1,2 @@
+[console_scripts]
+musicmap = musicmap.cli:main
