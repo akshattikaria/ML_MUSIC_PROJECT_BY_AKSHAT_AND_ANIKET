@@ -1,0 +1,11 @@
+{
+  "automated_tests_passed": 11,
+  "cv_candidates": 94,
+  "cv_folds": 3,
+  "training_tracks_assessed_exactly_once": 6400,
+  "artist_overlap_per_fold": 0,
+  "test_metrics_reconciled_models": 6,
+  "test_prediction_rows": 800,
+  "saved_model_predictions_match_csv": true,
+  "ann_probabilities_equal_fixed_seed_average": true
+}

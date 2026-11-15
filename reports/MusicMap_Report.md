@@ -3,45 +3,42 @@
 
 ML Laboratory Project
 
-Student: [Enter your name]  
-Roll number: [Enter your roll number]  
-Department / institution: [Enter details]  
+Student: [Enter your name]
+Roll number: [Enter your roll number]
+Department / institution: [Enter details]
 Course / instructor: [Enter details]
 
 ## Abstract
 
-MusicMap investigates whether precomputed audio descriptors can distinguish music genres and reveal relationships between songs. The experiment uses 8,000 tracks from the balanced FMA-small subset, with eight genres and 518 numeric features. Decision Tree, K-nearest neighbors (KNN), radial-basis-function support vector machine (SVM), and a feed-forward artificial neural network (ANN) are compared with Extra Trees and a majority-class baseline. The official artist-disjoint training, validation, and test partitions are preserved. Hyperparameters are tuned using artist-grouped cross-validation within training, and the winning family is chosen using validation macro F1 before an extended comparison on the previously viewed official test set. The selected model, ANN (MLP), achieves 47.25% test accuracy and 0.4695 test macro F1 in this run. PCA, K-means, nearest-neighbor retrieval, and grouped permutation importance provide complementary views of musical similarity and feature relevance. The findings describe this dataset and experimental configuration rather than universal genre boundaries.
+MusicMap investigates whether precomputed audio descriptors can identify a track's music genre and reveal relationships between songs. It uses the 8,000 tracks of the balanced FMA-small dataset (eight genres, 518 numeric descriptors per track) and keeps the official artist-disjoint training, validation and test partitions. 9 candidate models — Stacked Ensemble, Gradient Boosting, Soft-voting Ensemble, ANN (MLP), SVM (RBF), Extra Trees, Logistic Regression, KNN, Decision Tree — are tuned with artist-grouped cross-validation and compared against a majority-class baseline. The validation-selected model, **Stacked Ensemble**, reaches **50.38% test accuracy** and **0.4987 macro F1**, with the correct genre among its top three guesses for 80.4% of tracks (chance: 12.5%). PCA, K-means clustering, nearest-neighbour retrieval and grouped permutation importance provide complementary views of musical similarity and of which audio properties matter. The findings describe this dataset and protocol rather than universal genre boundaries.
 
 ## 1. Problem statement and objectives
 
-Genre labels can help organize large music collections, but genres share instruments, production styles, and musical conventions. The project treats genre recognition as supervised multiclass classification: one feature vector is mapped to one of eight top-level genre labels.
+Genre labels help organize and recommend music, but genres share instruments, production styles and conventions. MusicMap treats genre recognition as supervised multiclass classification: one descriptor vector is mapped to one of eight top-level genres.
 
-The objectives are:
+Objectives:
 
-1. Prepare a manageable, reproducible dataset using audio features rather than downloading or decoding thousands of recordings.
-2. Compare Decision Tree, KNN, SVM, ANN, and Extra Trees on identical external partitions and report more than accuracy alone.
-3. Identify audio feature families associated with genre separation.
-4. Discover similarities through dimensionality reduction, clustering, and nearest-neighbor retrieval.
-
-The research questions are which model performs best under this protocol, which genres it confuses, and whether audio-based clusters agree with the supplied labels.
+1. Prepare a reproducible dataset from published audio descriptors, without downloading 7.2 GiB of audio.
+2. Compare the required algorithms (Decision Tree, KNN, SVM, ANN) with stronger modern baselines (Logistic Regression, Extra Trees, Gradient Boosting) and a soft-voting ensemble, under a leakage-free protocol.
+3. Report more than accuracy: macro F1, per-genre errors, top-3 accuracy, confidence and uncertainty.
+4. Identify the audio feature families that drive the predictions.
+5. Discover structure through dimensionality reduction, clustering and nearest-song retrieval.
 
 ## 2. Dataset and features
 
-The source is FMA: A Dataset for Music Analysis by Defferrard, Benzi, Vandergheynst, and Bresson (ISMIR 2017). FMA-small contains 8,000 30-second track excerpts, balanced across Electronic, Experimental, Folk, Hip-Hop, Instrumental, International, Pop, and Rock. This project retains 8,000 tracks.
+The source is *FMA: A Dataset for Music Analysis* (Defferrard, Benzi, Vandergheynst and Bresson, ISMIR 2017). FMA-small contains 8,000 30-second excerpts balanced across Electronic, Experimental, Folk, Hip-Hop, Instrumental, International, Pop and Rock. Only the 342 MiB metadata archive is needed; its published SHA-1 (f0df49ffe5f2a6008d7dc83c6915b31835dfe733) is verified before reading. Feature rows and metadata are joined by track ID, never by row position.
 
-Only the official 342 MiB metadata archive is required. The 7.2 GiB FMA-small audio archive is unnecessary for these experiments. The published archive SHA-1 is verified as f0df49ffe5f2a6008d7dc83c6915b31835dfe733. The CSVs have multiple header rows; feature rows and metadata are joined by track ID, never by assumed row position.
+| Partition   |   Tracks | Role                                       |
+|:------------|---------:|:-------------------------------------------|
+| training    |     6400 | Artist-grouped CV tuning; ensemble weights |
+| validation  |      800 | Choose the champion                        |
+| test        |      800 | Final held-out evaluation                  |
 
-| Partition   |   Tracks | Role                                   |
-|:------------|---------:|:---------------------------------------|
-| training    |     6400 | Fit candidate models and preprocessing |
-| validation  |      800 | Choose hyperparameters and model       |
-| test        |      800 | Final held-out evaluation              |
-
-Each genre contributes 800 training, 100 validation, and 100 test tracks. The recorded overlap counts for artist IDs are {'training__validation': 0, 'training__test': 0, 'validation__test': 0}; missing artist IDs: 0. Thus this prepared release has no artists shared across partitions.
+Each genre contributes 800 training, 100 validation and 100 test tracks. Shared artists between partitions: training/validation = 0, training/test = 0, validation/test = 0 — no artist appears in more than one partition.
 
 ![Genre distribution and partitions](figures/genre_balance.png)
 
-The 518 descriptors belong to 11 audio feature families. For each feature dimension, the dataset provides mean, standard deviation, skewness, kurtosis, median, minimum, and maximum over analysis frames. Predictors contain audio descriptors only. Titles, track IDs, artist IDs, album IDs, genre labels, and split labels are kept separately and never enter classifiers.
+The 518 descriptors come from 11 audio feature families. For each frame-level feature the dataset stores seven statistics over time: mean, standard deviation, skewness, kurtosis, median, minimum and maximum. Only audio descriptors enter the classifiers; title, artist, album, genre and split are kept separate.
 
 | Family             |   Columns | Meaning                                                           |
 |:-------------------|----------:|:------------------------------------------------------------------|
@@ -57,243 +54,259 @@ The 518 descriptors belong to 11 audio feature families. For each feature dimens
 | tonnetz            |        42 | Tonal centroid coordinates; harmonic relationships                |
 | zcr                |         7 | Zero-crossing rate; noisiness and rapid signal changes            |
 
-For example, "mfcc__mean__01" means the temporal mean of the first MFCC coefficient. The table has no explicit tempo/BPM feature; this project does not claim to measure tempo directly.
-
-Data-quality checks found 0 non-finite feature values, 0 tracks requiring partial imputation, and 0 completely missing feature rows. Stored features use float32 to reduce memory. Prepared files also have SHA-256 integrity checks.
+For example, "mfcc__mean__01" is the temporal mean of the first MFCC coefficient. There is no explicit tempo feature. Data checks found 0 non-finite values and 0 unusable rows.
 
 ## 3. Experimental methodology
 
-### 3.1 Preprocessing and candidate representations
+### 3.1 Preprocessing and leakage prevention
 
-The official 6,400-track training partition is the only source of cross-validation data. Every fitted pipeline learns median imputation, constant-column removal, scaling, and any feature reduction from the current fitting fold. Fold-assessment features and labels are not used to fit those transformations.
+Every candidate is a single scikit-learn pipeline: **median imputation → constant-column removal → standard or quantile-to-normal scaling → optional ANOVA feature selection or PCA → classifier**. Because the whole pipeline is refitted inside every fitting fold, no statistic (median, scale, quantile, selected feature, principal direction) is ever computed from the tracks it is evaluated on. The quantile transform maps each descriptor to a normal distribution using training ranks, which tames the heavy tails present in many FMA statistics (kurtosis and max columns in particular).
 
-The improved experiment compares the full descriptor representation with training-fitted feature selection and PCA. ANOVA selection ranks individual descriptors by their association with the training labels; PCA learns directions of high transformed-feature variance without labels. The candidate search also compares standard scaling with a quantile-to-normal transformation to handle skewed feature distributions and extreme values. These transformations are fitted within each fold. This supervised candidate search is separate from the fixed standardized 50-component PCA representation used for the similarity map and clustering.
+### 3.2 Artist-grouped cross-validation
 
-Training-only diagnostics found 83 descriptors with an absolute standardized value above 20, with maximum absolute z-score 79.96. These observations motivated testing quantile normalization. A quantile transform changes distances and can discard useful scale information; it is not universally beneficial. Its settings are chosen using training CV, and this diagnostic does not use validation or test rows.
+All tuning uses 3-fold **StratifiedGroupKFold** inside the official 6,400-track training partition, with artist ID as the group. No artist appears on both sides of any fold (audited in "cv_splits.json"), which mirrors the artist-disjoint official split and prevents the model from scoring well by recognizing a singer or producer instead of a genre. Each configuration is scored by mean fold macro F1; the fold standard deviation is reported as a stability measure (it is not a confidence interval). Fits run in parallel worker processes.
 
-### 3.2 Artist-grouped cross-validation and selection
+| Model family        |   Configurations |   Best CV macro F1 |   Fit time (s) |
+|:--------------------|-----------------:|-------------------:|---------------:|
+| Decision Tree       |                6 |             0.3478 |        35.8760 |
+| KNN                 |               12 |             0.4233 |        19.9699 |
+| SVM (RBF)           |               12 |             0.5410 |       116.7107 |
+| ANN (MLP)           |                9 |             0.5045 |       145.9023 |
+| Logistic Regression |                8 |             0.5115 |        38.1600 |
+| Extra Trees         |                4 |             0.5009 |       295.8909 |
+| Gradient Boosting   |                4 |             0.5387 |       607.0723 |
+| Dummy baseline      |                1 |             0.0277 |         0.5396 |
 
-The search evaluates 94 recorded configurations with 3-fold artist-grouped cross-validation inside the official training partition. The fold builder preserves artist groups: no artist occurs in both fitting and assessment tracks in a fold. "cv_splits.json" records the assignments and audits. Each candidate's mean macro F1 across these folds is the tuning criterion; its standard deviation describes fold-to-fold variability, not a confidence interval.
+In total 56 configurations were evaluated (168 fold fits), plus the probability refits, ANN seed runs and final refits.
 
-For each model family, the configuration with the highest mean cross-validation macro F1 advances to the official 800-track validation partition. The final winning family is chosen using validation macro F1, with the recorded tie-breaking rules in "selection.json". Validation is outside the cross-validation folds. The official test set contributes no features or labels to this run's search or selection.
+### 3.3 Model families
 
-The improved search broadens SVM regularization/kernel settings, compares feature representations, tunes ANN size/learning rate/regularization, and adds Extra Trees as an ensemble benchmark. The four original required algorithms remain present. "cv_results.csv" contains all candidate settings and scores; the following summarizes the best cross-validation row per family:
+- **Decision Tree** – axis-aligned threshold rules; interpretable but high-variance.
+- **KNN** – inverse-distance vote among the nearest training tracks, optionally in an ANOVA or PCA subspace.
+- **SVM (RBF)** – maximum-margin classifier in an RBF kernel space; C controls regularization. Platt scaling supplies class probabilities for the ensemble.
+- **ANN (MLP)** – feed-forward ReLU network trained with Adam, L2 regularization and early stopping on a 10% internal holdout. The selected architecture is retrained with 5 predeclared seeds (42, 43, 44, 45, 46) and their probabilities are averaged; no seed is cherry-picked.
+- **Logistic Regression** – a regularized linear (multinomial) model; a strong, well-calibrated reference.
+- **Extra Trees** – an average of 500 extremely randomized trees.
+- **Gradient Boosting** – LightGBM: 500 small trees added sequentially, each fitted to the remaining errors of the previous ones, with a 0.03 learning rate, row/feature subsampling and L2 regularization.
+- **Dummy baseline** – always predicts the most frequent training genre (12.5% accuracy on balanced data).
 
-| model          |   cv_mean_f1 |   cv_std_f1 | parameters                                                                                                                                                                     |
-|:---------------|-------------:|------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| SVM (RBF)      |       0.5410 |      0.0166 | {"scaling": "quantile", "reduction": "select", "classifier": {"C": 1.0, "gamma": "scale"}, "n_components": 256}                                                                |
-| Extra Trees    |       0.5038 |      0.0091 | {"scaling": "standard", "reduction": "all", "classifier": {"n_estimators": 300, "max_features": 0.5, "min_samples_leaf": 2}}                                                   |
-| ANN (MLP)      |       0.5024 |      0.0078 | {"scaling": "quantile", "reduction": "all", "classifier": {"hidden_layer_sizes": [128], "learning_rate_init": 0.0003, "alpha": 0.01, "max_iter": 300, "n_iter_no_change": 20}} |
-| KNN            |       0.4233 |      0.0138 | {"scaling": "standard", "reduction": "select", "classifier": {"n_neighbors": 15, "weights": "distance"}, "n_components": 128}                                                  |
-| Decision Tree  |       0.3368 |      0.0119 | {"scaling": "standard", "reduction": "all", "classifier": {"max_depth": 10, "min_samples_leaf": 5}}                                                                            |
-| Dummy baseline |       0.0277 |      0.0000 | {"scaling": "standard", "reduction": "all", "classifier": {}}                                                                                                                  |
+Selected configuration for each family:
 
-![Selected models in artist-grouped cross-validation](figures/grouped_cv.png)
+| Model                |   CV macro F1 | Selected settings                                                                                                                                                  |
+|:---------------------|--------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Decision Tree        |        0.3478 | standard scaling, max_depth=8, min_samples_leaf=5                                                                                                                  |
+| KNN                  |        0.4233 | standard scaling, ANOVA top 128, n_neighbors=15, weights=distance                                                                                                  |
+| SVM (RBF)            |        0.5410 | quantile scaling, ANOVA top 256, C=1.0, gamma=scale                                                                                                                |
+| ANN (MLP)            |        0.5238 | quantile scaling, hidden_layer_sizes=[512], learning_rate_init=0.0003, alpha=1.0                                                                                   |
+| Logistic Regression  |        0.5115 | quantile scaling, C=0.003                                                                                                                                          |
+| Extra Trees          |        0.5009 | standard scaling, n_estimators=500, max_features=0.3, min_samples_leaf=1                                                                                           |
+| Gradient Boosting    |        0.5387 | standard scaling, n_estimators=500, learning_rate=0.03, num_leaves=15, colsample_bytree=0.4, subsample=0.8, subsample_freq=1, reg_lambda=1.0, min_child_samples=20 |
+| Soft-voting Ensemble |        0.5543 | ANN (MLP) 24%, Extra Trees 19%, Gradient Boosting 19%, KNN 5%, Logistic Regression 5%, SVM (RBF) 29%                                                               |
+| Stacked Ensemble     |        0.5244 | logistic meta-learner (C=0.01) over 7 families                                                                                                                     |
 
-The CV chart uses the selected family configurations and displays fold standard deviations. For ANN, it shows the fixed three-seed ensemble's CV score; the table above shows the base-seed architecture search.
+### 3.4 Ensembles: soft voting and stacking
 
-The ANN is a feed-forward network operating on descriptors. The architecture, learning rate, and regularization grid is tuned using base seed 42, with at most 300 epochs and early-stopping patience of 20 epochs. Its selected configuration is evaluated with seeds 42, 43, 44, and the final ANN uses a fixed average of all three models' class probabilities. No best-performing seed is cherry-picked. The individual and ensemble scores are retained in "ann_seed_results.csv"; the base-seed tuning scores and final ensemble CV score answer different questions. The numeric label encoder converts predictions back to readable genres. Each network uses an internal random 10% track holdout for early stopping, within its current fitting partition; that internal split is distinct from the artist-disjoint outer folds and official validation/test partitions.
+Different algorithms make different mistakes: a boosted tree ensemble, a kernel SVM and a neural network carve up the feature space in very different ways. Averaging their class probabilities can therefore cancel part of the error of each member.
 
-| seed     |   cv_mean_f1 |   cv_std_f1 |   validation_f1_macro |   validation_accuracy |
-|:---------|-------------:|------------:|----------------------:|----------------------:|
-| 42       |       0.5024 |      0.0078 |                0.5252 |                0.5288 |
-| 43       |       0.4954 |      0.0142 |                0.5395 |                0.5487 |
-| 44       |       0.4920 |      0.0112 |                0.5358 |                0.5375 |
-| ensemble |       0.5184 |      0.0101 |                0.5613 |                0.5663 |
+The ensemble is built with greedy forward selection (Caruana et al., 2004) using **only the out-of-fold probabilities from the training-partition cross-validation**. Starting from an empty ensemble, each round adds (with replacement) the family whose inclusion gives the highest mean fold macro F1; after 25 rounds the best prefix of this path is kept. The number of times each family was chosen becomes its voting weight. Validation and test tracks are never used to set the weights, so the ensemble is a predeclared model that competes with the individual families on validation like any other candidate.
 
-Selected settings for each family:
+Selected weights (rounds used: 21): ANN (MLP) 24%, Extra Trees 19%, Gradient Boosting 19%, KNN 5%, Logistic Regression 5%, SVM (RBF) 29%. The ensemble's OOF macro F1 is 0.5543. Because the weights were chosen on the same OOF predictions, this CV figure is slightly optimistic; the validation and test scores in Section 4 are the unbiased checks.
 
-| Model          | Settings                                                                                                                                                                       |
-|:---------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Decision Tree  | {"scaling": "standard", "reduction": "all", "classifier": {"max_depth": 10, "min_samples_leaf": 5}}                                                                            |
-| KNN            | {"scaling": "standard", "reduction": "select", "classifier": {"n_neighbors": 15, "weights": "distance"}, "n_components": 128}                                                  |
-| SVM (RBF)      | {"scaling": "quantile", "reduction": "select", "classifier": {"C": 1.0, "gamma": "scale"}, "n_components": 256}                                                                |
-| ANN (MLP)      | {"scaling": "quantile", "reduction": "all", "classifier": {"hidden_layer_sizes": [128], "learning_rate_init": 0.0003, "alpha": 0.01, "max_iter": 300, "n_iter_no_change": 20}} |
-| Extra Trees    | {"scaling": "standard", "reduction": "all", "classifier": {"n_estimators": 300, "max_features": 0.5, "min_samples_leaf": 2}}                                                   |
-| Dummy baseline | {"scaling": "standard", "reduction": "all", "classifier": {}}                                                                                                                  |
+A second, more flexible combiner is also evaluated: a **stacked ensemble** whose multinomial logistic-regression meta-learner takes the log-probabilities of all 7 families as input (56 features) and learns how much to trust each family for each genre. The meta-learner is trained on the same training OOF probabilities; its regularization strength C is chosen by an inner artist-grouped CV over those OOF predictions (selected C = 0.01, inner CV macro F1 = 0.5244). For the final test model the members are refitted on training + validation while the meta-learner is kept as trained on training OOF predictions.
 
-### 3.3 Refit and extended test comparison
+### 3.5 Selection, refit and test evaluation
 
-The complete selection is saved before this run requests test features or labels. Selected configurations are freshly fitted on the combined 7,200 training and validation tracks. Their predictions on the 800 official test tracks are recorded once for this run. The dummy model is a contextual baseline and cannot win the trained-model selection.
+Every family's selected configuration (and the ensemble) is fitted on the full training partition and scored on the separate official **validation** partition. The champion is the candidate with the highest validation macro F1. The complete selection is written to "selection.json" **before** the program requests any test features or labels; an automated test in the project enforces this ordering. The selected configurations are then refitted on training + validation (7,200 tracks) and evaluated once on the 800 test tracks.
 
-The same official test set was already viewed in the original experiment. The updated scores therefore provide an extended benchmark comparison, not a pristine new confirmatory holdout. Decisions in the implemented search use training folds and validation scores; a fresh artist-disjoint confirmation set would strengthen claims about generalization gains.
+The official test set was already viewed when the original project was run. The test scores below are therefore an *extended benchmark comparison* on the same benchmark, not a pristine confirmation of an improvement.
 
-### 3.4 Algorithms and evaluation
+### 3.6 Metrics and statistics
 
-- Decision Tree learns threshold rules that reduce class impurity.
-- KNN uses neighboring transformed feature representations and inverse-distance votes.
-- RBF SVM learns a nonlinear separating boundary; C and gamma control regularization and kernel locality.
-- ANN learns nonlinear combinations of descriptors using fully connected layers and regularization.
-- Extra Trees averages randomized decision trees to reduce sensitivity to a single fitted tree.
+Accuracy is the share of correctly labelled tracks. For one genre, precision = TP/(TP+FP), recall = TP/(TP+FN), and F1 is their harmonic mean; **macro F1** averages F1 over the eight genres with equal weight and is the selection metric. Top-3 accuracy counts a track as correct when the true genre is among the three most probable genres, which is informative because genre boundaries overlap. Log-loss measures probability quality (lower is better).
 
-Accuracy is correct labels divided by track count. Per-genre precision is TP / (TP + FP), recall is TP / (TP + FN), and F1 is their harmonic mean. Macro F1 gives all eight genres equal weight. Undefined scores are assigned zero. With balanced test genres, balanced accuracy equals accuracy.
-
-Cross-validation scores describe fold-fitted candidates. Validation scores describe training-partition fits, and test scores describe models refitted on training plus validation. They concern different fitted models and different samples.
+Uncertainty on the 800 test tracks is quantified with a 2,000-sample percentile **bootstrap** (95% interval). Paired comparisons with earlier runs use the exact **McNemar test**, which looks only at tracks that one model classifies correctly and the other does not.
 
 ## 4. Results
 
-The algorithm selected before test evaluation is **ANN (MLP)**. Its test accuracy is **47.25%** and macro F1 is **0.4695**. The dummy baseline reaches 12.50% accuracy and 0.0278 macro F1.
+The model selected on validation before the test set was requested is **Stacked Ensemble**. On the 800 test tracks it achieves **50.38% accuracy** and **0.4987 macro F1**. A bootstrap over the 800 test tracks gives a 95% interval of **47.1%–53.9%** for accuracy and 0.466–0.530 for macro F1. The majority-class baseline achieves 12.50% accuracy and 0.0278 macro F1. Rows are ordered by validation macro F1, the selection criterion.
 
-| Model          |   Validation F1 | Test accuracy   |   Test precision |   Test recall |   Test F1 |
-|:---------------|----------------:|:----------------|-----------------:|--------------:|----------:|
-| ANN (MLP)      |          0.5613 | 47.25%          |           0.4698 |        0.4725 |    0.4695 |
-| SVM (RBF)      |          0.5575 | 49.75%          |           0.4916 |        0.4975 |    0.4925 |
-| Extra Trees    |          0.5430 | 48.12%          |           0.4754 |        0.4813 |    0.4760 |
-| KNN            |          0.4944 | 38.25%          |           0.3887 |        0.3825 |    0.3674 |
-| Decision Tree  |          0.3656 | 34.25%          |           0.3488 |        0.3425 |    0.3437 |
-| Dummy baseline |          0.0278 | 12.50%          |           0.0156 |        0.1250 |    0.0278 |
+| Model                |   CV macro F1 |   Validation macro F1 | Test accuracy   |   Test macro F1 | Test top-3 accuracy   |
+|:---------------------|--------------:|----------------------:|:----------------|----------------:|:----------------------|
+| **Stacked Ensemble** |        0.5244 |                0.5912 | 50.38%          |          0.4987 | 80.38%                |
+| Gradient Boosting    |        0.5387 |                0.5871 | 47.00%          |          0.4708 | 77.25%                |
+| Soft-voting Ensemble |        0.5543 |                0.5824 | 50.75%          |          0.5030 | 79.75%                |
+| ANN (MLP)            |        0.5238 |                0.5688 | 48.62%          |          0.4825 | 78.12%                |
+| SVM (RBF)            |        0.5410 |                0.5575 | 49.75%          |          0.4925 | 78.88%                |
+| Extra Trees          |        0.5009 |                0.5467 | 48.25%          |          0.4784 | 77.38%                |
+| Logistic Regression  |        0.5115 |                0.5336 | 46.88%          |          0.4667 | 77.00%                |
+| KNN                  |        0.4233 |                0.4944 | 38.25%          |          0.3674 | 69.50%                |
+| Decision Tree        |        0.3478 |                0.3839 | 37.25%          |          0.3676 | 67.50%                |
+| Dummy baseline       |        0.0277 |                0.0278 | 12.50%          |          0.0278 | 37.50%                |
 
 ![Comparison of all models](figures/model_comparison.png)
 
-The model ordering follows validation macro F1. A higher test score from another model would be a descriptive observation, not a reason to change the preselected winner. These are actual measurements from the included run; scores from a different machine or dependency version may differ slightly.
+The highest observed test accuracy among all candidates is 50.75% (Soft-voting Ensemble). Test scores are descriptive: they never change the predeclared validation-based choice. Validation scores are higher than test scores for every trained model; the official test partition is simply harder for all algorithms, which is a property of the split rather than of one model.
 
+### 4.1 Comparison with earlier runs
 
-### 4.1 Comparison with the preserved original run
+The original and first-improvement reports and models are preserved under "baseline/" and "history/". All three runs use the same 800 official test tracks, so the comparison is paired.
 
-| Run                       | Selected model   |   Validation macro F1 |   Test accuracy |   Test macro F1 |
-|:--------------------------|:-----------------|----------------------:|----------------:|----------------:|
-| Original standard profile | SVM (RBF)        |                0.5464 |          0.4913 |          0.4885 |
-| Improved experiment       | ANN (MLP)        |                0.5613 |          0.4725 |          0.4695 |
+| Run                                        | Selected model   | Test accuracy   |   Test macro F1 | Change in accuracy (pp)   | McNemar p   |
+|:-------------------------------------------|:-----------------|:----------------|----------------:|:--------------------------|:------------|
+| Original project (validation-only tuning)  | SVM (RBF)        | 49.12%          |          0.4885 | +1.25                     | 0.378       |
+| First improvement (grouped CV, 5 families) | ANN (MLP)        | 47.25%          |          0.4695 | +3.13                     | 0.037       |
+| **This optimized run**                     | Stacked Ensemble | 50.38%          |          0.4987 | —                         | —           |
 
-The selected model's test accuracy changes by -1.88 percentage points, and macro F1 changes by -0.0190. The original reports, predictions, and models are preserved under baseline/. This is an extended benchmark comparison: the official test performance was already seen during the original project. It is not an independent, newly unseen confirmation of the improvement. A fresh artist-disjoint dataset would provide stronger confirmation.
+![Test accuracy of each model family across runs](figures/improvement_comparison.png)
 
-![Original and improved test accuracy by model](figures/improvement_comparison.png)
+Against the original project, the McNemar p-value is 0.378 (not significant: the gain is an observed improvement on this benchmark, not a proven one). Against the first improvement, the McNemar p-value is 0.037 (significant at the 5% level). Because the original test scores had already been seen, a fresh artist-disjoint dataset would be needed for a fully independent confirmation.
 
-Same-family comparisons:
+### 4.2 Cross-validation stability
 
-| Model          | Original test accuracy   | Updated test accuracy   | Change (percentage points)   |   Updated test macro F1 |
-|:---------------|:-------------------------|:------------------------|:-----------------------------|------------------------:|
-| ANN (MLP)      | 45.88%                   | 47.25%                  | +1.375                       |                  0.4695 |
-| SVM (RBF)      | 49.12%                   | 49.75%                  | +0.625                       |                  0.4925 |
-| Extra Trees    | New benchmark            | 48.12%                  | —                            |                  0.4760 |
-| KNN            | 33.38%                   | 38.25%                  | +4.875                       |                  0.3674 |
-| Decision Tree  | 34.25%                   | 34.25%                  | +0.000                       |                  0.3437 |
-| Dummy baseline | 12.50%                   | 12.50%                  | +0.000                       |                  0.0278 |
+![Artist-grouped cross-validation](figures/grouped_cv.png)
 
-The validation-selected model is ANN (MLP); the highest observed updated test accuracy is 49.75% from SVM (RBF). Test performance is descriptive and does not change the predeclared validation-based selection. Broader tuning improves some same-family scores in this run, but it does not establish a general improvement of the selection procedure. Small differences on 800 tracks do not by themselves demonstrate statistically significant gains.
+ANN seed variability (individual seeds and their probability average):
 
-### 4.2 Per-genre performance
+| seed     |   cv_mean_f1 |   cv_std_f1 |   validation_f1_macro |   validation_accuracy |
+|:---------|-------------:|------------:|----------------------:|----------------------:|
+| 42       |       0.5045 |      0.0106 |                0.5574 |                0.5625 |
+| 43       |       0.5134 |      0.0036 |                0.5507 |                0.5525 |
+| 44       |       0.5121 |      0.0049 |                0.5353 |                0.5387 |
+| 45       |       0.5111 |      0.0108 |                0.5422 |                0.5537 |
+| 46       |       0.5114 |      0.0118 |                0.5659 |                0.5725 |
+| ensemble |       0.5238 |      0.0101 |                0.5688 |                0.5763 |
+
+### 4.3 What the ensemble is made of
+
+| Member              | Weight   |   Member CV macro F1 |
+|:--------------------|:---------|---------------------:|
+| SVM (RBF)           | 29%      |               0.5410 |
+| ANN (MLP)           | 24%      |               0.5238 |
+| Extra Trees         | 19%      |               0.5009 |
+| Gradient Boosting   | 19%      |               0.5387 |
+| KNN                 | 5%       |               0.4233 |
+| Logistic Regression | 5%       |               0.5115 |
+
+![Ensemble weights](figures/ensemble_weights.png)
+
+### 4.4 Per-genre performance
 
 | Genre         |   Precision |   Recall |     F1 |   Test tracks |
 |:--------------|------------:|---------:|-------:|--------------:|
-| Electronic    |      0.5816 |   0.5700 | 0.5758 |           100 |
-| Experimental  |      0.3303 |   0.3600 | 0.3445 |           100 |
-| Folk          |      0.1705 |   0.1500 | 0.1596 |           100 |
-| Hip-Hop       |      0.6207 |   0.7200 | 0.6667 |           100 |
-| Instrumental  |      0.4875 |   0.3900 | 0.4333 |           100 |
-| International |      0.5851 |   0.5500 | 0.5670 |           100 |
-| Pop           |      0.3966 |   0.4600 | 0.4259 |           100 |
-| Rock          |      0.5859 |   0.5800 | 0.5829 |           100 |
+| Electronic    |      0.5596 |   0.6100 | 0.5837 |           100 |
+| Experimental  |      0.3333 |   0.2900 | 0.3102 |           100 |
+| Folk          |      0.2439 |   0.2000 | 0.2198 |           100 |
+| Hip-Hop       |      0.6981 |   0.7400 | 0.7184 |           100 |
+| Instrumental  |      0.4793 |   0.5800 | 0.5249 |           100 |
+| International |      0.5941 |   0.6000 | 0.5970 |           100 |
+| Pop           |      0.3962 |   0.4200 | 0.4078 |           100 |
+| Rock          |      0.6705 |   0.5900 | 0.6277 |           100 |
 
-![Selected model per-genre F1](figures/per_genre_f1.png)
+![Champion per-genre F1](figures/per_genre_f1.png)
 
-The largest off-diagonal confusion counts for the selected model are:
+The largest off-diagonal confusion counts for the champion are:
 
 | Actual genre   | Predicted genre   |   Tracks |
 |:---------------|:------------------|---------:|
-| Folk           | Experimental      |       30 |
-| International  | Folk              |       23 |
-| Instrumental   | Folk              |       22 |
-| Experimental   | Folk              |       19 |
-| Electronic     | Hip-Hop           |       18 |
+| Experimental   | Instrumental      |       27 |
+| Pop            | Electronic        |       22 |
+| Folk           | International     |       20 |
+| International  | Folk              |       19 |
+| Instrumental   | Folk              |       19 |
 
-![Confusion matrices for the trained models](figures/confusion_matrices.png)
+![Confusion matrices](figures/confusion_matrices.png)
 
-Each confusion-matrix row is normalized by its actual genre count. These errors show overlap in the supplied acoustic representation; they do not prove that a genre label is wrong.
+Each confusion-matrix row is normalized by the number of tracks of that actual genre. The champion recognizes Hip-Hop (F1 0.72), Rock (F1 0.63), International (F1 0.60) best and finds Experimental (F1 0.31) and Folk (F1 0.22) hardest. Experimental music is defined by breaking conventions; Experimental tracks are most often predicted as Instrumental or Pop. Folk tracks are most often predicted as International or Pop. Overlapping acoustic styles are a plausible explanation, not a proven cause.
 
-### 4.3 Computation and reproducibility
+### 4.5 How far can the predictions be trusted?
 
-| Model          |   Candidate fitting (s) |   Final refit (s) |   Test prediction (s) |
-|:---------------|------------------------:|------------------:|----------------------:|
-| ANN (MLP)      |                 81.2847 |           10.1862 |                0.1591 |
-| SVM (RBF)      |                303.7297 |            4.4451 |                0.7739 |
-| Extra Trees    |                269.1126 |           70.3862 |                0.0991 |
-| KNN            |                  7.1807 |            0.3498 |                0.0392 |
-| Decision Tree  |                 40.8646 |            3.9737 |                0.0070 |
-| Dummy baseline |                  0.2330 |            0.3395 |                0.0068 |
+The champion outputs a probability for each genre. When its top probability is at least 60% (true for 34% of test tracks) it is correct 72.6% of the time; below 60% it is correct only 38.8% of the time. The confidence score is therefore a useful signal for when to trust or double-check a prediction.
 
-The full tuning/refitting/evaluation stage took 1182.5 seconds in the execution environment, using a limit of 2 numerical-library threads and seed 42. Times exclude downloading, preparation, visualization, and report generation. Candidate fitting time sums primary candidate cross-validation fits only. It excludes the additional ANN seed diagnostics and full-training fits; those stages, predictions, and overhead are included in the total elapsed time. This timing is not a laptop performance guarantee.
+![Accuracy by confidence](figures/confidence.png)
 
-The run used Python 3.12.14 and scikit-learn 1.8.0. Exact direct dependency versions are recorded in "requirements-tested.txt"; runtime details are in "run_info.json". A fixed seed improves repeatability but does not establish robustness across random seeds.
+### 4.6 Computation and reproducibility
 
-Fitting diagnostics:
+| Model                |   CV fitting (s) |   Final refit (s) |   Test prediction (s) |
+|:---------------------|-----------------:|------------------:|----------------------:|
+| Stacked Ensemble     |              0.0 |             260.7 |                   2.0 |
+| Gradient Boosting    |            607.1 |              60.9 |                   0.3 |
+| Soft-voting Ensemble |              0.0 |             257.4 |                   2.0 |
+| ANN (MLP)            |            145.9 |              86.9 |                   0.3 |
+| SVM (RBF)            |            116.7 |              27.4 |                   1.0 |
+| Extra Trees          |            295.9 |              77.5 |                   0.2 |
+| Logistic Regression  |             38.2 |               4.3 |                   0.2 |
+| KNN                  |             20.0 |               0.3 |                   0.0 |
+| Decision Tree        |             35.9 |               3.3 |                   0.0 |
+| Dummy baseline       |              0.5 |               0.4 |                   0.0 |
 
-No fitting warnings were recorded.
+The tuning, refit and evaluation stage took 19.9 minutes using 2 parallel worker processes (seed 42), with Python 3.13.18 and scikit-learn 1.8.0. Times exclude data preparation, discovery and report generation and vary by machine. Exact dependency versions and checksums are recorded in "run_info.json".
 
 ## 5. Feature interpretation
 
-The selected training-only model is evaluated on validation tracks. One entire feature family is jointly shuffled across tracks while all other families remain unchanged. The drop in macro F1 estimates how much this fitted model relies on that family. Joint shuffling preserves correlations among columns within the family. Each family uses 5 repeated permutations with a fixed seed.
+The training-only champion is evaluated on validation tracks while one entire feature family is jointly shuffled across tracks; all other families stay intact. The resulting drop in macro F1 measures how much the model relies on that family. Each family is shuffled 5 times.
 
 | Family             |   Columns |   Mean F1 drop |   Repeat SD |
 |:-------------------|----------:|---------------:|------------:|
-| mfcc               |       140 |         0.2446 |      0.0053 |
-| spectral_contrast  |        49 |         0.1617 |      0.0089 |
-| chroma_cqt         |        84 |         0.0781 |      0.0090 |
-| chroma_cens        |        84 |         0.0537 |      0.0081 |
-| tonnetz            |        42 |         0.0489 |      0.0121 |
-| chroma_stft        |        84 |         0.0471 |      0.0129 |
-| rmse               |         7 |         0.0317 |      0.0115 |
-| spectral_bandwidth |         7 |         0.0305 |      0.0051 |
-| zcr                |         7 |         0.0198 |      0.0081 |
-| spectral_rolloff   |         7 |         0.0157 |      0.0036 |
-| spectral_centroid  |         7 |         0.0132 |      0.0029 |
+| mfcc               |       140 |         0.2591 |      0.0072 |
+| spectral_contrast  |        49 |         0.1397 |      0.0171 |
+| chroma_stft        |        84 |         0.0426 |      0.0087 |
+| tonnetz            |        42 |         0.0370 |      0.0086 |
+| chroma_cqt         |        84 |         0.0369 |      0.0082 |
+| rmse               |         7 |         0.0134 |      0.0021 |
+| chroma_cens        |        84 |         0.0112 |      0.0097 |
+| spectral_centroid  |         7 |         0.0029 |      0.0013 |
+| zcr                |         7 |         0.0026 |      0.0029 |
+| spectral_bandwidth |         7 |         0.0021 |      0.0072 |
+| spectral_rolloff   |         7 |        -0.0006 |      0.0069 |
 
 ![Feature-family permutation importance](figures/feature_importance.png)
 
-The leading families in this run are mfcc, spectral_contrast, chroma_cqt. The audio meanings of these families are listed in Section 2. Positive drops indicate reliance; near-zero or negative drops can reflect redundancy, sampling variation, or features that the model does not use effectively. The error bars show variability across permutations, not confidence intervals across new datasets. Family sizes differ, and correlated families can substitute for one another, so the ranking is neither causal nor an equal-size feature comparison.
+The leading families are mfcc, spectral_contrast, chroma_stft. MFCCs describe timbre (the "colour" of the sound: distorted guitars, synthesizers, voice), and spectral contrast captures the difference between spectral peaks and valleys, which separates clean acoustic recordings from dense electronic or rock production. Family sizes differ and correlated families can substitute for one another, so this ranking describes model reliance, not musical causation.
 
-Individual descriptors can also be ranked by a training-only one-way ANOVA F score:
+The ten individual descriptors most associated with genre on the training set (one-way ANOVA F):
 
 | Descriptor                    |   Training ANOVA F |
 |:------------------------------|-------------------:|
-| mfcc__mean__01                |           306.9543 |
-| mfcc__median__01              |           305.9203 |
-| spectral_contrast__median__02 |           269.0754 |
-| spectral_contrast__mean__02   |           265.7206 |
-| mfcc__mean__03                |           256.9555 |
-| spectral_contrast__mean__04   |           253.6100 |
-| spectral_contrast__median__04 |           251.7100 |
-| mfcc__median__03              |           250.8509 |
-| spectral_rolloff__mean__01    |           249.5471 |
-| spectral_contrast__median__03 |           248.5839 |
-
-This displayed full-training ranking is an exploratory association measure. It ignores multivariate interactions and correlated predictors and is not a multiple-testing-adjusted significance claim. Any ANOVA selector in a supervised candidate is separately fitted within its own training fold; the displayed ranking is not reused across CV folds.
+| mfcc__mean__01                |              307.0 |
+| mfcc__median__01              |              305.9 |
+| spectral_contrast__median__02 |              269.1 |
+| spectral_contrast__mean__02   |              265.7 |
+| mfcc__mean__03                |              257.0 |
+| spectral_contrast__mean__04   |              253.6 |
+| spectral_contrast__median__04 |              251.7 |
+| mfcc__median__03              |              250.9 |
+| spectral_rolloff__mean__01    |              249.5 |
+| spectral_contrast__median__03 |              248.6 |
 
 ![Training feature distributions](figures/feature_distributions.png)
-
-Boxes show medians and interquartile ranges. Outlier points are omitted only from the drawing; they remain in the training data. Overlapping distributions explain why no single simple descriptor is expected to identify every genre.
 
 ## 6. Pattern discovery and song similarity
 
 ### 6.1 PCA music map
 
-Preprocessing and PCA are fitted only on training audio features. Training and validation tracks are projected into that space; genre labels are added only as display colors. The first two principal components retain 18.91% of standardized feature variance, and the first 50 retain 71.59%.
+Scaling and PCA are fitted on training descriptors only; training and validation tracks are projected into that space, and genre labels are used only as colours. The first two components keep 18.9% of the standardized variance and the first 50 keep 71.6%.
 
 ![PCA song map](figures/pca_map.png)
 
 ![PCA cumulative variance](figures/pca_variance.png)
 
-Open "song_map.html" for the offline interactive map: hover for track details, filter genres through the legend, and zoom. Nearby points share aspects of their measured audio descriptors. Since two dimensions discard information, separation or overlap in this drawing is not a classifier accuracy result.
+Open "song_map.html" for the offline interactive version: hover for track details, filter genres through the legend and zoom. Overlap in two dimensions is expected because most information lives in the remaining components.
 
 ### 6.2 K-means clustering
 
-K-means uses the training-set 50-dimensional PCA representation and k = 8, fixed in advance to match the number of known genres. It does not use genre labels during fitting. Validation tracks receive the nearest learned cluster centroid.
+K-means (k = 8, fixed in advance) is fitted on the training PCA representation without labels; validation tracks are assigned to the nearest centroid.
 
-- Adjusted Rand index against validation genres: 0.1403.
-- Normalized mutual information against validation genres: 0.2244.
-- Validation silhouette score in PCA space: 0.04055146872997284.
-
-ARI measures agreement after accounting for chance, NMI measures shared label information, and silhouette measures geometric compactness/separation. Cluster numbers are arbitrary and cannot be interpreted as genre IDs. A cluster can contain multiple genres, and one genre can span multiple clusters.
+- Adjusted Rand index against genres: 0.1403
+- Normalized mutual information: 0.2244
+- Silhouette score: 0.0406
 
 ![Validation cluster composition](figures/cluster_composition.png)
 
-The validation metrics and composition chart are descriptive; they are not used to tune k or select a classifier. Test tracks are excluded from discovery analyses.
+The low but positive agreement shows that unsupervised audio clusters capture *some* genre structure but mostly group songs by overall sound (production, loudness, timbre) rather than by label. That is why supervised learning is needed for genre recognition.
 
 ### 6.3 Nearest songs
 
-Euclidean distance in the training-fitted 50-dimensional PCA space retrieves similar tracks from the training catalog. The query itself and tracks with the same artist ID are excluded by default. Genre labels are shown for interpretation and are not part of the distance.
-
-For validation query ID 148, "Blackout 2" by Contradiction (Experimental), the five nearest eligible training tracks are:
+Euclidean distance in the training-fitted 50-dimensional PCA space retrieves similar training tracks. The query itself and tracks by the same artist are excluded. For validation track 148, "Blackout 2" by Contradiction (Experimental), the five nearest tracks are:
 
 |   track_id | title                              | artist              | genre      |   distance |
 |-----------:|:-----------------------------------|:--------------------|:-----------|-----------:|
@@ -303,45 +316,42 @@ For validation query ID 148, "Blackout 2" by Contradiction (Experimental), the f
 |     113972 | Your Pulse                         | Little Glass Men    | Electronic |    15.2266 |
 |      98838 | intense                            | Moonove             | Electronic |    15.5473 |
 
-Distances are representation-specific values, not probabilities or listener-preference scores. This is an audio similarity demonstration rather than a personalized recommendation system.
+Distances are representation-specific and not listener-preference scores; this is an audio-similarity demonstration, not a personalized recommender.
 
 ## 7. Discussion and limitations
 
-1. The five trained algorithms receive the same external partitions and artist-grouped fold assignments. The finite candidate search still does not establish the best possible performance for each model family.
-2. Artist-disjoint splits reduce artist memorization. They do not remove every potential recording, production, album, or dataset-specific correlation.
-3. Genre boundaries are subjective and sometimes overlapping. This task uses one top-level label per track and only eight FMA-small genres.
-4. Summary descriptors discard musical sequence and detailed temporal structure. The model does not directly process waveforms or learn from spectrograms.
-5. Multiple ANN initialization seeds are examined, but this limited seed set does not fully characterize optimization variability. Consult the recorded ANN settings and seed results rather than treating one fit as universal.
-6. Standard scaling can remain sensitive to extreme values. PCA maximizes variance rather than genre discrimination, and the 2D map discards most dimensions.
-7. Grouped permutation importance describes reliance of one tuned model on one validation set. The validation partition has already influenced model selection, so it is not an independent confirmatory interpretation dataset.
-8. The official test set was already viewed before this improvement study. Updated scores are an extended benchmark comparison and require a fresh artist-disjoint confirmation set for stronger generalization claims.
-9. Predicting a genuinely new audio file requires compatible extraction of the same descriptors. The delivered predictor accepts prepared FMA feature rows or a matching flat feature CSV; raw MP3 feature extraction is outside this implementation.
+1. **Feature ceiling.** All models use the same 518 summary statistics, which discard the order of musical events. The close scores of very different algorithms suggest the representation, not the classifier, is now the main limit; learning from spectrograms or pretrained audio embeddings is the natural next step.
+2. **Overlapping labels.** Each track carries one top-level genre although many songs mix styles. Top-3 accuracy and the confidence analysis show that many "errors" are near-misses between neighbouring genres.
+3. **Reused test set.** The official test partition was viewed in the original project, so improvements are an extended benchmark comparison. The McNemar test and bootstrap intervals quantify, but cannot remove, this limitation.
+4. **Finite search.** Grids are deliberately affordable on a laptop. Larger searches could find slightly better settings for individual families.
+5. **Artist effects.** Artist-disjoint splits remove artist memorization but not every production or label-specific correlation.
+6. **Importance is not causation.** Permutation importance describes one fitted model on one validation set.
+7. **New audio.** Predicting a new MP3 requires extracting the same descriptors; "musicmap extract" follows the official FMA extraction recipe, but modern library versions can produce slightly different values.
 
 ## 8. Conclusion and future work
 
-MusicMap provides a reproducible comparison of Decision Tree, KNN, SVM, ANN, and Extra Trees for feature-based music genre classification. Under the recorded protocol, ANN (MLP) was selected on validation data and obtained 47.25% test accuracy with 0.4695 macro F1. The feature analysis highlights mfcc, spectral_contrast, chroma_cqt, while PCA, K-means, and nearest-neighbor retrieval reveal relationships that are only partly aligned with genre labels.
+Under a strict, leakage-free and artist-disjoint protocol, Stacked Ensemble was selected on validation and obtained 50.38% test accuracy and 0.4987 macro F1 on eight balanced genres — about 4.0 times the chance level. The strongest individual families on validation were Gradient Boosting, ANN (MLP), SVM (RBF). Combining complementary families paid off: the stacked ensemble differs from the best single validation family (Gradient Boosting) by +3.38 accuracy points on test and +0.0041 macro F1 on validation. The feature analysis highlights mfcc, spectral_contrast, chroma_stft, while unsupervised clusters reflect overall sound more than genre labels.
 
-Artist-grouped cross-validation, feature reduction, multiple ANN seeds, and an ensemble benchmark are now implemented. Further work can use more genres, pretrained audio embeddings, and a fresh artist-disjoint confirmation set. Future decisions should use development data rather than the reported test scores.
+Future work: learn directly from mel-spectrograms with a CNN or use pretrained audio embeddings (e.g. VGGish, PANNs, CLAP), extend to the 16-genre FMA-medium subset, and confirm results on a fresh artist-disjoint test set.
 
 ## 9. Reproduction and deliverables
 
-From the project directory, install the requirements and run:
-
 ~~~sh
-python -m pip install -r requirements-tested.txt
-musicmap improve --seed 42 --threads 2 --cv-folds 3
+python -m pip install -r requirements.txt
+musicmap improve --seed 42
+musicmap predict --track-id 2
+musicmap neighbors --track-id 2 --k 5
 jupyter lab notebooks/MusicMap.ipynb
 ~~~
 
-The notebook defaults to displaying the included results. Set its RUN_TRAINING and RUN_DISCOVERY switches to True to recompute. Prepared subset data are bundled in the complete package; if absent, preparation downloads the official metadata archive automatically. No audio download or GPU is required.
-
-Deliverables include the Python package, executed notebook, metric tables, all test predictions, selected model, interactive map, figures, this report in Markdown/HTML/Word, a presentation outline, and viva preparation notes. Fill in the student and institution fields and adapt the report to the instructor's required format.
+The notebook displays the included results by default; set RUN_TRAINING = True to recompute. "musicmap app" starts an interactive demo in the browser. No GPU or audio download is needed.
 
 ## References and attribution
 
-1. Defferrard, M., Benzi, K., Vandergheynst, P., and Bresson, X. (2017). FMA: A Dataset for Music Analysis. Proceedings of the 18th International Society for Music Information Retrieval Conference. https://arxiv.org/abs/1612.01840
-2. Official FMA repository and release documentation: https://github.com/mdeff/fma
-3. Official audio descriptor extraction implementation: https://github.com/mdeff/fma/blob/master/features.py
-4. Scikit-learn user guide and API documentation: https://scikit-learn.org/stable/
+1. Defferrard, M., Benzi, K., Vandergheynst, P., and Bresson, X. (2017). FMA: A Dataset for Music Analysis. ISMIR. https://arxiv.org/abs/1612.01840
+2. Official FMA repository: https://github.com/mdeff/fma
+3. Caruana, R., Niculescu-Mizil, A., Crew, G., and Ksikes, A. (2004). Ensemble selection from libraries of models. ICML.
+4. Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python. JMLR 12, 2825–2830. https://scikit-learn.org/
+5. McNemar, Q. (1947). Note on the sampling error of the difference between correlated proportions or percentages. Psychometrika 12, 153–157.
 
-FMA metadata and derived feature data are attributed to Defferrard et al. and distributed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/. This project uses the original 2017 metadata release and does not redistribute audio recordings.
+FMA metadata and derived features are attributed to Defferrard et al. and distributed under CC BY 4.0. No audio is redistributed.

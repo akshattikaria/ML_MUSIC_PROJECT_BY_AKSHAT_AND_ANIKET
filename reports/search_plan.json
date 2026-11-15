@@ -1,10 +1,13 @@
 {
+  "profile": "optimized",
   "seed": 42,
   "cv_folds": 3,
   "ann_seeds": [
     42,
     43,
-    44
+    44,
+    45,
+    46
   ],
   "spaces": {
     "Decision Tree": [
@@ -12,15 +15,7 @@
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "max_depth": 10,
-          "min_samples_leaf": 2
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "max_depth": 10,
+          "max_depth": 8,
           "min_samples_leaf": 5
         }
       },
@@ -28,15 +23,15 @@
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "max_depth": 20,
-          "min_samples_leaf": 2
+          "max_depth": 8,
+          "min_samples_leaf": 20
         }
       },
       {
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "max_depth": 20,
+          "max_depth": 12,
           "min_samples_leaf": 5
         }
       },
@@ -44,8 +39,8 @@
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "max_depth": null,
-          "min_samples_leaf": 2
+          "max_depth": 12,
+          "min_samples_leaf": 20
         }
       },
       {
@@ -54,6 +49,14 @@
         "classifier": {
           "max_depth": null,
           "min_samples_leaf": 5
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "max_depth": null,
+          "min_samples_leaf": 20
         }
       }
     ],
@@ -62,141 +65,9 @@
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "n_neighbors": 5,
-          "weights": "distance"
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
           "n_neighbors": 15,
           "weights": "distance"
         }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "select",
-        "classifier": {
-          "n_neighbors": 5,
-          "weights": "distance"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "standard",
-        "reduction": "select",
-        "classifier": {
-          "n_neighbors": 15,
-          "weights": "distance"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "standard",
-        "reduction": "pca",
-        "classifier": {
-          "n_neighbors": 5,
-          "weights": "distance"
-        },
-        "n_components": 64
-      },
-      {
-        "scaling": "standard",
-        "reduction": "pca",
-        "classifier": {
-          "n_neighbors": 15,
-          "weights": "distance"
-        },
-        "n_components": 64
-      },
-      {
-        "scaling": "standard",
-        "reduction": "pca",
-        "classifier": {
-          "n_neighbors": 5,
-          "weights": "distance"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "standard",
-        "reduction": "pca",
-        "classifier": {
-          "n_neighbors": 15,
-          "weights": "distance"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "n_neighbors": 5,
-          "weights": "distance"
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "n_neighbors": 15,
-          "weights": "distance"
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "select",
-        "classifier": {
-          "n_neighbors": 5,
-          "weights": "distance"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "select",
-        "classifier": {
-          "n_neighbors": 15,
-          "weights": "distance"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "pca",
-        "classifier": {
-          "n_neighbors": 5,
-          "weights": "distance"
-        },
-        "n_components": 64
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "pca",
-        "classifier": {
-          "n_neighbors": 15,
-          "weights": "distance"
-        },
-        "n_components": 64
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "pca",
-        "classifier": {
-          "n_neighbors": 5,
-          "weights": "distance"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "pca",
-        "classifier": {
-          "n_neighbors": 15,
-          "weights": "distance"
-        },
-        "n_components": 128
       },
       {
         "scaling": "standard",
@@ -205,6 +76,94 @@
           "n_neighbors": 31,
           "weights": "distance"
         }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "n_neighbors": 31,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 31,
+          "weights": "distance"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "n_neighbors": 31,
+          "weights": "distance"
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "n_neighbors": 31,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 31,
+          "weights": "distance"
+        },
+        "n_components": 64
       }
     ],
     "SVM (RBF)": [
@@ -212,38 +171,6 @@
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "C": 0.1,
-          "gamma": "scale"
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 0.1,
-          "gamma": 0.0003
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 0.1,
-          "gamma": 0.001
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 0.1,
-          "gamma": 0.003
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
           "C": 1.0,
           "gamma": "scale"
         }
@@ -252,24 +179,8 @@
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "C": 1.0,
-          "gamma": 0.0003
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 1.0,
-          "gamma": 0.001
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 1.0,
-          "gamma": 0.003
+          "C": 3.0,
+          "gamma": "scale"
         }
       },
       {
@@ -279,89 +190,6 @@
           "C": 10.0,
           "gamma": "scale"
         }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 10.0,
-          "gamma": 0.0003
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 10.0,
-          "gamma": 0.001
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 10.0,
-          "gamma": 0.003
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 100.0,
-          "gamma": "scale"
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 100.0,
-          "gamma": 0.0003
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 100.0,
-          "gamma": 0.001
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "C": 100.0,
-          "gamma": 0.003
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "select",
-        "classifier": {
-          "C": 1.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "standard",
-        "reduction": "select",
-        "classifier": {
-          "C": 10.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "standard",
-        "reduction": "select",
-        "classifier": {
-          "C": 100.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
       },
       {
         "scaling": "standard",
@@ -376,7 +204,7 @@
         "scaling": "standard",
         "reduction": "select",
         "classifier": {
-          "C": 10.0,
+          "C": 3.0,
           "gamma": "scale"
         },
         "n_components": 256
@@ -385,80 +213,12 @@
         "scaling": "standard",
         "reduction": "select",
         "classifier": {
-          "C": 100.0,
+          "C": 10.0,
           "gamma": "scale"
         },
         "n_components": 256
       },
       {
-        "scaling": "standard",
-        "reduction": "pca",
-        "classifier": {
-          "C": 1.0,
-          "gamma": "scale"
-        },
-        "n_components": 64
-      },
-      {
-        "scaling": "standard",
-        "reduction": "pca",
-        "classifier": {
-          "C": 10.0,
-          "gamma": "scale"
-        },
-        "n_components": 64
-      },
-      {
-        "scaling": "standard",
-        "reduction": "pca",
-        "classifier": {
-          "C": 1.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "standard",
-        "reduction": "pca",
-        "classifier": {
-          "C": 10.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 0.1,
-          "gamma": "scale"
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 0.1,
-          "gamma": 0.0003
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 0.1,
-          "gamma": 0.001
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 0.1,
-          "gamma": 0.003
-        }
-      },
-      {
         "scaling": "quantile",
         "reduction": "all",
         "classifier": {
@@ -470,24 +230,8 @@
         "scaling": "quantile",
         "reduction": "all",
         "classifier": {
-          "C": 1.0,
-          "gamma": 0.0003
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 1.0,
-          "gamma": 0.001
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 1.0,
-          "gamma": 0.003
+          "C": 3.0,
+          "gamma": "scale"
         }
       },
       {
@@ -497,89 +241,6 @@
           "C": 10.0,
           "gamma": "scale"
         }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 10.0,
-          "gamma": 0.0003
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 10.0,
-          "gamma": 0.001
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 10.0,
-          "gamma": 0.003
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 100.0,
-          "gamma": "scale"
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 100.0,
-          "gamma": 0.0003
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 100.0,
-          "gamma": 0.001
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "C": 100.0,
-          "gamma": 0.003
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "select",
-        "classifier": {
-          "C": 1.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "select",
-        "classifier": {
-          "C": 10.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "select",
-        "classifier": {
-          "C": 100.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
       },
       {
         "scaling": "quantile",
@@ -594,7 +255,7 @@
         "scaling": "quantile",
         "reduction": "select",
         "classifier": {
-          "C": 10.0,
+          "C": 3.0,
           "gamma": "scale"
         },
         "n_components": 256
@@ -603,46 +264,10 @@
         "scaling": "quantile",
         "reduction": "select",
         "classifier": {
-          "C": 100.0,
+          "C": 10.0,
           "gamma": "scale"
         },
         "n_components": 256
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "pca",
-        "classifier": {
-          "C": 1.0,
-          "gamma": "scale"
-        },
-        "n_components": 64
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "pca",
-        "classifier": {
-          "C": 10.0,
-          "gamma": "scale"
-        },
-        "n_components": 64
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "pca",
-        "classifier": {
-          "C": 1.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "pca",
-        "classifier": {
-          "C": 10.0,
-          "gamma": "scale"
-        },
-        "n_components": 128
       }
     ],
     "ANN (MLP)": [
@@ -651,20 +276,7 @@
         "reduction": "all",
         "classifier": {
           "hidden_layer_sizes": [
-            128
-          ],
-          "learning_rate_init": 0.0003,
-          "alpha": 0.0001,
-          "max_iter": 300,
-          "n_iter_no_change": 20
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "hidden_layer_sizes": [
-            128
+            256
           ],
           "learning_rate_init": 0.0003,
           "alpha": 0.01,
@@ -677,37 +289,10 @@
         "reduction": "all",
         "classifier": {
           "hidden_layer_sizes": [
-            128
-          ],
-          "learning_rate_init": 0.001,
-          "alpha": 0.0001,
-          "max_iter": 300,
-          "n_iter_no_change": 20
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "hidden_layer_sizes": [
-            128
-          ],
-          "learning_rate_init": 0.001,
-          "alpha": 0.01,
-          "max_iter": 300,
-          "n_iter_no_change": 20
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "hidden_layer_sizes": [
-            128,
-            64
+            256
           ],
           "learning_rate_init": 0.0003,
-          "alpha": 0.0001,
+          "alpha": 0.1,
           "max_iter": 300,
           "n_iter_no_change": 20
         }
@@ -717,8 +302,20 @@
         "reduction": "all",
         "classifier": {
           "hidden_layer_sizes": [
-            128,
-            64
+            256
+          ],
+          "learning_rate_init": 0.0003,
+          "alpha": 1.0,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            512
           ],
           "learning_rate_init": 0.0003,
           "alpha": 0.01,
@@ -731,39 +328,23 @@
         "reduction": "all",
         "classifier": {
           "hidden_layer_sizes": [
-            128,
-            64
-          ],
-          "learning_rate_init": 0.001,
-          "alpha": 0.0001,
-          "max_iter": 300,
-          "n_iter_no_change": 20
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "hidden_layer_sizes": [
-            128,
-            64
-          ],
-          "learning_rate_init": 0.001,
-          "alpha": 0.01,
-          "max_iter": 300,
-          "n_iter_no_change": 20
-        }
-      },
-      {
-        "scaling": "quantile",
-        "reduction": "all",
-        "classifier": {
-          "hidden_layer_sizes": [
-            256,
-            128
+            512
           ],
           "learning_rate_init": 0.0003,
-          "alpha": 0.0001,
+          "alpha": 0.1,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            512
+          ],
+          "learning_rate_init": 0.0003,
+          "alpha": 1.0,
           "max_iter": 300,
           "n_iter_no_change": 20
         }
@@ -790,8 +371,8 @@
             256,
             128
           ],
-          "learning_rate_init": 0.001,
-          "alpha": 0.0001,
+          "learning_rate_init": 0.0003,
+          "alpha": 0.1,
           "max_iter": 300,
           "n_iter_no_change": 20
         }
@@ -804,38 +385,76 @@
             256,
             128
           ],
-          "learning_rate_init": 0.001,
-          "alpha": 0.01,
+          "learning_rate_init": 0.0003,
+          "alpha": 1.0,
           "max_iter": 300,
           "n_iter_no_change": 20
+        }
+      }
+    ],
+    "Logistic Regression": [
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.001,
+          "max_iter": 3000
         }
       },
       {
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "hidden_layer_sizes": [
-            128,
-            64
-          ],
-          "alpha": 0.0001,
-          "learning_rate_init": 0.001,
-          "max_iter": 300,
-          "n_iter_no_change": 20
+          "C": 0.003,
+          "max_iter": 3000
         }
       },
       {
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "hidden_layer_sizes": [
-            128,
-            64
-          ],
-          "alpha": 0.01,
-          "learning_rate_init": 0.001,
-          "max_iter": 300,
-          "n_iter_no_change": 20
+          "C": 0.01,
+          "max_iter": 3000
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.03,
+          "max_iter": 3000
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.001,
+          "max_iter": 3000
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.003,
+          "max_iter": 3000
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.01,
+          "max_iter": 3000
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.03,
+          "max_iter": 3000
         }
       }
     ],
@@ -844,7 +463,7 @@
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "n_estimators": 300,
+          "n_estimators": 500,
           "max_features": "sqrt",
           "min_samples_leaf": 1
         }
@@ -853,16 +472,7 @@
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "n_estimators": 300,
-          "max_features": 0.5,
-          "min_samples_leaf": 1
-        }
-      },
-      {
-        "scaling": "standard",
-        "reduction": "all",
-        "classifier": {
-          "n_estimators": 300,
+          "n_estimators": 500,
           "max_features": "sqrt",
           "min_samples_leaf": 2
         }
@@ -871,9 +481,76 @@
         "scaling": "standard",
         "reduction": "all",
         "classifier": {
-          "n_estimators": 300,
-          "max_features": 0.5,
+          "n_estimators": 500,
+          "max_features": 0.3,
+          "min_samples_leaf": 1
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_estimators": 500,
+          "max_features": 0.3,
           "min_samples_leaf": 2
+        }
+      }
+    ],
+    "Gradient Boosting": [
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_estimators": 500,
+          "learning_rate": 0.03,
+          "num_leaves": 15,
+          "colsample_bytree": 0.2,
+          "subsample": 0.8,
+          "subsample_freq": 1,
+          "reg_lambda": 1.0,
+          "min_child_samples": 20
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_estimators": 500,
+          "learning_rate": 0.03,
+          "num_leaves": 15,
+          "colsample_bytree": 0.4,
+          "subsample": 0.8,
+          "subsample_freq": 1,
+          "reg_lambda": 1.0,
+          "min_child_samples": 20
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_estimators": 500,
+          "learning_rate": 0.03,
+          "num_leaves": 31,
+          "colsample_bytree": 0.2,
+          "subsample": 0.8,
+          "subsample_freq": 1,
+          "reg_lambda": 1.0,
+          "min_child_samples": 20
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_estimators": 500,
+          "learning_rate": 0.03,
+          "num_leaves": 31,
+          "colsample_bytree": 0.4,
+          "subsample": 0.8,
+          "subsample_freq": 1,
+          "reg_lambda": 1.0,
+          "min_child_samples": 20
         }
       }
     ],
@@ -885,7 +562,8 @@
       }
     ]
   },
-  "selection_rule": "Config: mean grouped-CV macro F1, lower SD breaks ties. Algorithm: external validation macro F1, accuracy breaks ties.",
+  "ensemble_rounds": 25,
+  "selection_rule": "Config: mean grouped-CV macro F1 (lower SD breaks ties). Ensemble: greedy forward selection on training OOF probabilities. Champion: validation macro F1 (accuracy breaks ties).",
   "dataset_processed_sha256": {
     "features.npz": "4436d7b93891a9c25e2ef03328b85d22a2eaa203bd2f92c20f4613fd64433cbf",
     "tracks.csv": "750c7f0ef7ec3004444087e18200828cf3b44906a6704d3979d8674a9001ed11"

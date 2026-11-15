@@ -1,64 +1,64 @@
 {
   "Decision Tree": {
     "Electronic": {
-      "precision": 0.3564356435643564,
-      "recall": 0.36,
-      "f1-score": 0.3582089552238806,
+      "precision": 0.35658914728682173,
+      "recall": 0.46,
+      "f1-score": 0.4017467248908297,
       "support": 100.0
     },
     "Experimental": {
-      "precision": 0.24444444444444444,
-      "recall": 0.22,
-      "f1-score": 0.23157894736842105,
+      "precision": 0.24050632911392406,
+      "recall": 0.19,
+      "f1-score": 0.2122905027932961,
       "support": 100.0
     },
     "Folk": {
-      "precision": 0.1836734693877551,
-      "recall": 0.18,
-      "f1-score": 0.18181818181818182,
+      "precision": 0.25,
+      "recall": 0.15,
+      "f1-score": 0.1875,
       "support": 100.0
     },
     "Hip-Hop": {
-      "precision": 0.44339622641509435,
-      "recall": 0.47,
-      "f1-score": 0.4563106796116505,
+      "precision": 0.5176470588235295,
+      "recall": 0.44,
+      "f1-score": 0.4756756756756757,
       "support": 100.0
     },
     "Instrumental": {
-      "precision": 0.4,
-      "recall": 0.34,
-      "f1-score": 0.3675675675675676,
+      "precision": 0.411214953271028,
+      "recall": 0.44,
+      "f1-score": 0.4251207729468599,
       "support": 100.0
     },
     "International": {
-      "precision": 0.40869565217391307,
-      "recall": 0.47,
-      "f1-score": 0.4372093023255814,
+      "precision": 0.4566929133858268,
+      "recall": 0.58,
+      "f1-score": 0.5110132158590308,
       "support": 100.0
     },
     "Pop": {
-      "precision": 0.2222222222222222,
-      "recall": 0.28,
-      "f1-score": 0.24778761061946902,
+      "precision": 0.23404255319148937,
+      "recall": 0.33,
+      "f1-score": 0.27385892116182575,
       "support": 100.0
     },
     "Rock": {
-      "precision": 0.5316455696202531,
-      "recall": 0.42,
-      "f1-score": 0.4692737430167598,
+      "precision": 0.5416666666666666,
+      "recall": 0.39,
+      "f1-score": 0.45348837209302323,
       "support": 100.0
     },
-    "accuracy": 0.3425,
+    "accuracy": 0.3725,
     "macro avg": {
-      "precision": 0.34881415347850486,
-      "recall": 0.3425,
-      "f1-score": 0.343719373443939,
+      "precision": 0.3760449527174108,
+      "recall": 0.3725,
+      "f1-score": 0.3675867731775676,
       "support": 800.0
     },
     "weighted avg": {
-      "precision": 0.34881415347850486,
-      "recall": 0.3425,
-      "f1-score": 0.343719373443939,
+      "precision": 0.3760449527174108,
+      "recall": 0.3725,
+      "f1-score": 0.36758677317756766,
       "support": 800.0
     }
   },
@@ -190,127 +190,253 @@
   },
   "ANN (MLP)": {
     "Electronic": {
-      "precision": 0.5816326530612245,
-      "recall": 0.57,
-      "f1-score": 0.5757575757575758,
+      "precision": 0.5742574257425742,
+      "recall": 0.58,
+      "f1-score": 0.5771144278606966,
       "support": 100.0
     },
     "Experimental": {
-      "precision": 0.3302752293577982,
-      "recall": 0.36,
-      "f1-score": 0.3444976076555024,
+      "precision": 0.40540540540540543,
+      "recall": 0.3,
+      "f1-score": 0.3448275862068966,
       "support": 100.0
     },
     "Folk": {
-      "precision": 0.17045454545454544,
-      "recall": 0.15,
-      "f1-score": 0.1595744680851064,
+      "precision": 0.16666666666666666,
+      "recall": 0.16,
+      "f1-score": 0.16326530612244897,
       "support": 100.0
     },
     "Hip-Hop": {
-      "precision": 0.6206896551724138,
-      "recall": 0.72,
-      "f1-score": 0.6666666666666666,
+      "precision": 0.7047619047619048,
+      "recall": 0.74,
+      "f1-score": 0.7219512195121951,
       "support": 100.0
     },
     "Instrumental": {
-      "precision": 0.4875,
-      "recall": 0.39,
-      "f1-score": 0.43333333333333335,
+      "precision": 0.4845360824742268,
+      "recall": 0.47,
+      "f1-score": 0.47715736040609136,
       "support": 100.0
     },
     "International": {
-      "precision": 0.5851063829787234,
-      "recall": 0.55,
-      "f1-score": 0.5670103092783505,
+      "precision": 0.5656565656565656,
+      "recall": 0.56,
+      "f1-score": 0.5628140703517588,
       "support": 100.0
     },
     "Pop": {
-      "precision": 0.39655172413793105,
-      "recall": 0.46,
-      "f1-score": 0.42592592592592593,
+      "precision": 0.3728813559322034,
+      "recall": 0.44,
+      "f1-score": 0.4036697247706422,
       "support": 100.0
     },
     "Rock": {
-      "precision": 0.5858585858585859,
-      "recall": 0.58,
-      "f1-score": 0.5829145728643216,
+      "precision": 0.5818181818181818,
+      "recall": 0.64,
+      "f1-score": 0.6095238095238096,
       "support": 100.0
     },
-    "accuracy": 0.4725,
+    "accuracy": 0.48625,
     "macro avg": {
-      "precision": 0.46975859700265277,
-      "recall": 0.4725,
-      "f1-score": 0.46946005744584784,
+      "precision": 0.48199794855721606,
+      "recall": 0.48625,
+      "f1-score": 0.48254043809431735,
       "support": 800.0
     },
     "weighted avg": {
-      "precision": 0.46975859700265277,
-      "recall": 0.4725,
-      "f1-score": 0.4694600574458478,
+      "precision": 0.48199794855721606,
+      "recall": 0.48625,
+      "f1-score": 0.48254043809431735,
+      "support": 800.0
+    }
+  },
+  "Logistic Regression": {
+    "Electronic": {
+      "precision": 0.5588235294117647,
+      "recall": 0.57,
+      "f1-score": 0.5643564356435643,
+      "support": 100.0
+    },
+    "Experimental": {
+      "precision": 0.36633663366336633,
+      "recall": 0.37,
+      "f1-score": 0.3681592039800995,
+      "support": 100.0
+    },
+    "Folk": {
+      "precision": 0.18085106382978725,
+      "recall": 0.17,
+      "f1-score": 0.17525773195876287,
+      "support": 100.0
+    },
+    "Hip-Hop": {
+      "precision": 0.6228070175438597,
+      "recall": 0.71,
+      "f1-score": 0.6635514018691588,
+      "support": 100.0
+    },
+    "Instrumental": {
+      "precision": 0.5116279069767442,
+      "recall": 0.44,
+      "f1-score": 0.4731182795698925,
+      "support": 100.0
+    },
+    "International": {
+      "precision": 0.5555555555555556,
+      "recall": 0.45,
+      "f1-score": 0.4972375690607735,
+      "support": 100.0
+    },
+    "Pop": {
+      "precision": 0.3448275862068966,
+      "recall": 0.4,
+      "f1-score": 0.37037037037037035,
+      "support": 100.0
+    },
+    "Rock": {
+      "precision": 0.6037735849056604,
+      "recall": 0.64,
+      "f1-score": 0.6213592233009708,
+      "support": 100.0
+    },
+    "accuracy": 0.46875,
+    "macro avg": {
+      "precision": 0.46807535976170433,
+      "recall": 0.46875,
+      "f1-score": 0.4666762769691991,
+      "support": 800.0
+    },
+    "weighted avg": {
+      "precision": 0.46807535976170433,
+      "recall": 0.46875,
+      "f1-score": 0.46667627696919906,
       "support": 800.0
     }
   },
   "Extra Trees": {
     "Electronic": {
-      "precision": 0.5377358490566038,
-      "recall": 0.57,
-      "f1-score": 0.5533980582524272,
+      "precision": 0.5213675213675214,
+      "recall": 0.61,
+      "f1-score": 0.5622119815668203,
       "support": 100.0
     },
     "Experimental": {
-      "precision": 0.35294117647058826,
-      "recall": 0.24,
-      "f1-score": 0.2857142857142857,
+      "precision": 0.3125,
+      "recall": 0.25,
+      "f1-score": 0.2777777777777778,
       "support": 100.0
     },
     "Folk": {
-      "precision": 0.25471698113207547,
-      "recall": 0.27,
-      "f1-score": 0.2621359223300971,
+      "precision": 0.2636363636363636,
+      "recall": 0.29,
+      "f1-score": 0.2761904761904762,
       "support": 100.0
     },
     "Hip-Hop": {
-      "precision": 0.6068376068376068,
-      "recall": 0.71,
-      "f1-score": 0.6543778801843319,
+      "precision": 0.5855855855855856,
+      "recall": 0.65,
+      "f1-score": 0.6161137440758294,
       "support": 100.0
     },
     "Instrumental": {
-      "precision": 0.4473684210526316,
-      "recall": 0.51,
-      "f1-score": 0.4766355140186916,
+      "precision": 0.4485981308411215,
+      "recall": 0.48,
+      "f1-score": 0.463768115942029,
       "support": 100.0
     },
     "International": {
-      "precision": 0.5268817204301075,
-      "recall": 0.49,
-      "f1-score": 0.5077720207253886,
+      "precision": 0.5494505494505495,
+      "recall": 0.5,
+      "f1-score": 0.5235602094240838,
       "support": 100.0
     },
     "Pop": {
-      "precision": 0.4166666666666667,
+      "precision": 0.5333333333333333,
       "recall": 0.4,
-      "f1-score": 0.40816326530612246,
+      "f1-score": 0.45714285714285713,
       "support": 100.0
     },
     "Rock": {
-      "precision": 0.66,
-      "recall": 0.66,
-      "f1-score": 0.66,
+      "precision": 0.6238532110091743,
+      "recall": 0.68,
+      "f1-score": 0.6507177033492823,
       "support": 100.0
     },
-    "accuracy": 0.48125,
+    "accuracy": 0.4825,
     "macro avg": {
-      "precision": 0.47539355270578504,
-      "recall": 0.48125,
-      "f1-score": 0.47602461831641807,
+      "precision": 0.47979058690295623,
+      "recall": 0.4825,
+      "f1-score": 0.47843535818364447,
       "support": 800.0
     },
     "weighted avg": {
-      "precision": 0.475393552705785,
-      "recall": 0.48125,
-      "f1-score": 0.47602461831641807,
+      "precision": 0.4797905869029562,
+      "recall": 0.4825,
+      "f1-score": 0.4784353581836445,
+      "support": 800.0
+    }
+  },
+  "Gradient Boosting": {
+    "Electronic": {
+      "precision": 0.5258620689655172,
+      "recall": 0.61,
+      "f1-score": 0.5648148148148148,
+      "support": 100.0
+    },
+    "Experimental": {
+      "precision": 0.37,
+      "recall": 0.37,
+      "f1-score": 0.37,
+      "support": 100.0
+    },
+    "Folk": {
+      "precision": 0.20430107526881722,
+      "recall": 0.19,
+      "f1-score": 0.19689119170984457,
+      "support": 100.0
+    },
+    "Hip-Hop": {
+      "precision": 0.7,
+      "recall": 0.7,
+      "f1-score": 0.7,
+      "support": 100.0
+    },
+    "Instrumental": {
+      "precision": 0.4528301886792453,
+      "recall": 0.48,
+      "f1-score": 0.46601941747572817,
+      "support": 100.0
+    },
+    "International": {
+      "precision": 0.5909090909090909,
+      "recall": 0.52,
+      "f1-score": 0.5531914893617021,
+      "support": 100.0
+    },
+    "Pop": {
+      "precision": 0.3275862068965517,
+      "recall": 0.38,
+      "f1-score": 0.35185185185185186,
+      "support": 100.0
+    },
+    "Rock": {
+      "precision": 0.6296296296296297,
+      "recall": 0.51,
+      "f1-score": 0.56353591160221,
+      "support": 100.0
+    },
+    "accuracy": 0.47,
+    "macro avg": {
+      "precision": 0.47513978254360645,
+      "recall": 0.47,
+      "f1-score": 0.47078808460201893,
+      "support": 800.0
+    },
+    "weighted avg": {
+      "precision": 0.4751397825436065,
+      "recall": 0.47,
+      "f1-score": 0.47078808460201893,
       "support": 800.0
     }
   },
@@ -374,6 +500,132 @@
       "precision": 0.015625,
       "recall": 0.125,
       "f1-score": 0.027777777777777776,
+      "support": 800.0
+    }
+  },
+  "Soft-voting Ensemble": {
+    "Electronic": {
+      "precision": 0.5904761904761905,
+      "recall": 0.62,
+      "f1-score": 0.6048780487804878,
+      "support": 100.0
+    },
+    "Experimental": {
+      "precision": 0.35106382978723405,
+      "recall": 0.33,
+      "f1-score": 0.3402061855670103,
+      "support": 100.0
+    },
+    "Folk": {
+      "precision": 0.24096385542168675,
+      "recall": 0.2,
+      "f1-score": 0.2185792349726776,
+      "support": 100.0
+    },
+    "Hip-Hop": {
+      "precision": 0.6697247706422018,
+      "recall": 0.73,
+      "f1-score": 0.6985645933014354,
+      "support": 100.0
+    },
+    "Instrumental": {
+      "precision": 0.5047619047619047,
+      "recall": 0.53,
+      "f1-score": 0.5170731707317073,
+      "support": 100.0
+    },
+    "International": {
+      "precision": 0.6153846153846154,
+      "recall": 0.56,
+      "f1-score": 0.5863874345549738,
+      "support": 100.0
+    },
+    "Pop": {
+      "precision": 0.42727272727272725,
+      "recall": 0.47,
+      "f1-score": 0.44761904761904764,
+      "support": 100.0
+    },
+    "Rock": {
+      "precision": 0.6019417475728155,
+      "recall": 0.62,
+      "f1-score": 0.6108374384236454,
+      "support": 100.0
+    },
+    "accuracy": 0.5075,
+    "macro avg": {
+      "precision": 0.5001987051649219,
+      "recall": 0.5075,
+      "f1-score": 0.5030181442438731,
+      "support": 800.0
+    },
+    "weighted avg": {
+      "precision": 0.500198705164922,
+      "recall": 0.5075,
+      "f1-score": 0.5030181442438731,
+      "support": 800.0
+    }
+  },
+  "Stacked Ensemble": {
+    "Electronic": {
+      "precision": 0.5596330275229358,
+      "recall": 0.61,
+      "f1-score": 0.583732057416268,
+      "support": 100.0
+    },
+    "Experimental": {
+      "precision": 0.3333333333333333,
+      "recall": 0.29,
+      "f1-score": 0.31016042780748665,
+      "support": 100.0
+    },
+    "Folk": {
+      "precision": 0.24390243902439024,
+      "recall": 0.2,
+      "f1-score": 0.21978021978021978,
+      "support": 100.0
+    },
+    "Hip-Hop": {
+      "precision": 0.6981132075471698,
+      "recall": 0.74,
+      "f1-score": 0.7184466019417476,
+      "support": 100.0
+    },
+    "Instrumental": {
+      "precision": 0.4793388429752066,
+      "recall": 0.58,
+      "f1-score": 0.5248868778280543,
+      "support": 100.0
+    },
+    "International": {
+      "precision": 0.594059405940594,
+      "recall": 0.6,
+      "f1-score": 0.5970149253731343,
+      "support": 100.0
+    },
+    "Pop": {
+      "precision": 0.39622641509433965,
+      "recall": 0.42,
+      "f1-score": 0.4077669902912621,
+      "support": 100.0
+    },
+    "Rock": {
+      "precision": 0.6704545454545454,
+      "recall": 0.59,
+      "f1-score": 0.6276595744680851,
+      "support": 100.0
+    },
+    "accuracy": 0.50375,
+    "macro avg": {
+      "precision": 0.49688265211156435,
+      "recall": 0.5037499999999999,
+      "f1-score": 0.49868095936328216,
+      "support": 800.0
+    },
+    "weighted avg": {
+      "precision": 0.49688265211156435,
+      "recall": 0.50375,
+      "f1-score": 0.4986809593632822,
       "support": 800.0
     }
   }

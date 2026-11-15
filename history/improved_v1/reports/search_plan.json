@@ -1,0 +1,894 @@
+{
+  "seed": 42,
+  "cv_folds": 3,
+  "ann_seeds": [
+    42,
+    43,
+    44
+  ],
+  "spaces": {
+    "Decision Tree": [
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "max_depth": 10,
+          "min_samples_leaf": 2
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "max_depth": 10,
+          "min_samples_leaf": 5
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "max_depth": 20,
+          "min_samples_leaf": 2
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "max_depth": 20,
+          "min_samples_leaf": 5
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "max_depth": null,
+          "min_samples_leaf": 2
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "max_depth": null,
+          "min_samples_leaf": 5
+        }
+      }
+    ],
+    "KNN": [
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_neighbors": 5,
+          "weights": "distance"
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "n_neighbors": 5,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 5,
+          "weights": "distance"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 5,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "n_neighbors": 5,
+          "weights": "distance"
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "n_neighbors": 5,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 5,
+          "weights": "distance"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 5,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "n_neighbors": 15,
+          "weights": "distance"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_neighbors": 31,
+          "weights": "distance"
+        }
+      }
+    ],
+    "SVM (RBF)": [
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.1,
+          "gamma": "scale"
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.1,
+          "gamma": 0.0003
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.1,
+          "gamma": 0.001
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.1,
+          "gamma": 0.003
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 1.0,
+          "gamma": 0.0003
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 1.0,
+          "gamma": 0.001
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 1.0,
+          "gamma": 0.003
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 10.0,
+          "gamma": 0.0003
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 10.0,
+          "gamma": 0.001
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 10.0,
+          "gamma": 0.003
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 100.0,
+          "gamma": "scale"
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 100.0,
+          "gamma": 0.0003
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 100.0,
+          "gamma": 0.001
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "C": 100.0,
+          "gamma": 0.003
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "C": 100.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        },
+        "n_components": 256
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        },
+        "n_components": 256
+      },
+      {
+        "scaling": "standard",
+        "reduction": "select",
+        "classifier": {
+          "C": 100.0,
+          "gamma": "scale"
+        },
+        "n_components": 256
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "standard",
+        "reduction": "pca",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.1,
+          "gamma": "scale"
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.1,
+          "gamma": 0.0003
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.1,
+          "gamma": 0.001
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 0.1,
+          "gamma": 0.003
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 1.0,
+          "gamma": 0.0003
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 1.0,
+          "gamma": 0.001
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 1.0,
+          "gamma": 0.003
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 10.0,
+          "gamma": 0.0003
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 10.0,
+          "gamma": 0.001
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 10.0,
+          "gamma": 0.003
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 100.0,
+          "gamma": "scale"
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 100.0,
+          "gamma": 0.0003
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 100.0,
+          "gamma": 0.001
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "C": 100.0,
+          "gamma": 0.003
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "C": 100.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        },
+        "n_components": 256
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        },
+        "n_components": 256
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "select",
+        "classifier": {
+          "C": 100.0,
+          "gamma": "scale"
+        },
+        "n_components": 256
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        },
+        "n_components": 64
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "C": 1.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "pca",
+        "classifier": {
+          "C": 10.0,
+          "gamma": "scale"
+        },
+        "n_components": 128
+      }
+    ],
+    "ANN (MLP)": [
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128
+          ],
+          "learning_rate_init": 0.0003,
+          "alpha": 0.0001,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128
+          ],
+          "learning_rate_init": 0.0003,
+          "alpha": 0.01,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128
+          ],
+          "learning_rate_init": 0.001,
+          "alpha": 0.0001,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128
+          ],
+          "learning_rate_init": 0.001,
+          "alpha": 0.01,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128,
+            64
+          ],
+          "learning_rate_init": 0.0003,
+          "alpha": 0.0001,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128,
+            64
+          ],
+          "learning_rate_init": 0.0003,
+          "alpha": 0.01,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128,
+            64
+          ],
+          "learning_rate_init": 0.001,
+          "alpha": 0.0001,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128,
+            64
+          ],
+          "learning_rate_init": 0.001,
+          "alpha": 0.01,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            256,
+            128
+          ],
+          "learning_rate_init": 0.0003,
+          "alpha": 0.0001,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            256,
+            128
+          ],
+          "learning_rate_init": 0.0003,
+          "alpha": 0.01,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            256,
+            128
+          ],
+          "learning_rate_init": 0.001,
+          "alpha": 0.0001,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "quantile",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            256,
+            128
+          ],
+          "learning_rate_init": 0.001,
+          "alpha": 0.01,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128,
+            64
+          ],
+          "alpha": 0.0001,
+          "learning_rate_init": 0.001,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "hidden_layer_sizes": [
+            128,
+            64
+          ],
+          "alpha": 0.01,
+          "learning_rate_init": 0.001,
+          "max_iter": 300,
+          "n_iter_no_change": 20
+        }
+      }
+    ],
+    "Extra Trees": [
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_estimators": 300,
+          "max_features": "sqrt",
+          "min_samples_leaf": 1
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_estimators": 300,
+          "max_features": 0.5,
+          "min_samples_leaf": 1
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_estimators": 300,
+          "max_features": "sqrt",
+          "min_samples_leaf": 2
+        }
+      },
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {
+          "n_estimators": 300,
+          "max_features": 0.5,
+          "min_samples_leaf": 2
+        }
+      }
+    ],
+    "Dummy baseline": [
+      {
+        "scaling": "standard",
+        "reduction": "all",
+        "classifier": {}
+      }
+    ]
+  },
+  "selection_rule": "Config: mean grouped-CV macro F1, lower SD breaks ties. Algorithm: external validation macro F1, accuracy breaks ties.",
+  "dataset_processed_sha256": {
+    "features.npz": "4436d7b93891a9c25e2ef03328b85d22a2eaa203bd2f92c20f4613fd64433cbf",
+    "tracks.csv": "750c7f0ef7ec3004444087e18200828cf3b44906a6704d3979d8674a9001ed11"
+  },
+  "evaluation_status": "extended benchmark; original test previously viewed"
+}
