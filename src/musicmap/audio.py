@@ -19,6 +19,9 @@ import numpy as np
 import pandas as pd
 
 STATISTICS = ("kurtosis", "max", "mean", "median", "min", "skew", "std")
+# The seven-octave CQT requires more bandwidth than 8 kHz recordings provide.
+# Keep native rates rather than silently changing the published feature recipe.
+MIN_SAMPLE_RATE = 11025
 FEATURE_SIZES = {
     "chroma_cens": 12, "chroma_cqt": 12, "chroma_stft": 12, "mfcc": 20, "rmse": 1,
     "spectral_bandwidth": 1, "spectral_centroid": 1, "spectral_contrast": 7,
@@ -48,9 +51,14 @@ def _require_librosa():
 
 
 def features_from_signal(x: np.ndarray, sr: int) -> pd.Series:
-    """Compute the 518 FMA descriptors for a mono signal."""
+    """Compute the 518 FMA descriptors for mono audio at 11025 Hz or higher."""
     from scipy import stats
     librosa = _require_librosa()
+    if sr < MIN_SAMPLE_RATE:
+        raise ValueError(
+            f"Audio sample rate must be at least {MIN_SAMPLE_RATE} Hz; got {sr} Hz. "
+            "Use a higher-rate source or resample the file to 22050 Hz before extraction."
+        )
     x = np.asarray(x, dtype=np.float32)
     if x.ndim != 1 or len(x) < sr:
         raise ValueError("Audio must be mono and at least one second long.")

@@ -27,7 +27,7 @@ We compare the four required algorithms (Decision Tree, KNN, SVM, ANN) with Logi
 
 **Questions:** Which model generalizes best under an artist-disjoint split? Does an ensemble of diverse models help? Which genres are confused? Which feature families matter? Do unsupervised clusters resemble genres?
 
-This notebook includes real outputs from the optimized experiment (version 2). The original project's reports and models are preserved in baseline/, and the first improvement run in history/improved_v1/. Read the report for a complete interpretation and references. Fill in your student details in the editable Word report."""),
+This notebook includes real outputs from the optimized experiment (version 2). The original project's reports and models are preserved in baseline/, and the first improvement run in history/improved_v1/. Read the report for a complete interpretation and references. Both teammates' details are included in the editable Word report."""),
         md("""### How to use this notebook
 
 Run cells from top to bottom after installing the project requirements. The default switches display included measurements without retraining. Set **RUN_TRAINING = True** for a fresh experiment; this also rebuilds the dependent discovery analyses and report. Set **RUN_DISCOVERY = True** to rebuild analysis from the saved fitted models.

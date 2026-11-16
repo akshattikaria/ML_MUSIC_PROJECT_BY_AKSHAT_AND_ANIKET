@@ -42,6 +42,38 @@ def test_too_short_audio_is_rejected():
         features_from_signal(np.zeros(100), 22050)
 
 
+def test_low_sample_rate_cli_reports_actionable_error_without_traceback(tmp_path, monkeypatch, capsys):
+    pytest.importorskip("librosa")
+    sf = pytest.importorskip("soundfile")
+    from musicmap.cli import main
+    sr = 8000
+    path = tmp_path / "low-rate.wav"
+    sf.write(path, np.sin(2 * np.pi * 330 * np.arange(sr * 2) / sr), sr)
+    output = tmp_path / "features.csv"
+    monkeypatch.setattr(sys, "argv", ["musicmap", "extract", str(path), "--output", str(output)])
+    with pytest.raises(SystemExit) as exit_info:
+        main()
+    assert exit_info.value.code == 2
+    error = capsys.readouterr().err
+    assert "at least 11025 Hz; got 8000 Hz" in error
+    assert "resample the file to 22050 Hz" in error
+    assert "Traceback" not in error
+    assert not output.exists()
+
+
+def test_lowest_supported_rate_extracts_all_descriptors():
+    pytest.importorskip("librosa")
+    from musicmap.audio import features_from_signal
+    sr = 11025
+    t = np.arange(sr * 2) / sr
+    rng = np.random.default_rng(13)
+    signal = 0.4 * np.sin(2 * np.pi * 660 * t) + 0.05 * rng.normal(size=t.size)
+    features = features_from_signal(signal, sr)
+    assert list(features.index) == feature_names()
+    assert np.isfinite(features).mean() > 0.9
+    assert features["rmse__mean__01"] > 0
+
+
 def test_m4a_fallback_preserves_native_rate_and_middle_excerpt(tmp_path, monkeypatch):
     librosa = pytest.importorskip("librosa")
     sf = pytest.importorskip("soundfile")

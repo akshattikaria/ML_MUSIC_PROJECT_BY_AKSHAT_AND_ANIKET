@@ -301,9 +301,9 @@ Open "song_map.html" for the offline interactive version: hover for track detail
 
 K-means (k = 8, fixed in advance) is fitted on the training PCA representation without labels; validation tracks are assigned to the nearest centroid.
 
-- Adjusted Rand index against genres: 0.1403
-- Normalized mutual information: 0.2244
-- Silhouette score: 0.0406
+- Adjusted Rand index against genres: 0.1421
+- Normalized mutual information: 0.2263
+- Silhouette score: 0.0320
 
 ![Validation cluster composition](figures/cluster_composition.png)
 
@@ -315,11 +315,11 @@ Euclidean distance in the training-fitted 50-dimensional PCA space retrieves sim
 
 |   track_id | title                              | artist              | genre      |   distance |
 |-----------:|:-----------------------------------|:--------------------|:-----------|-----------:|
-|      12537 | Maree Lunaire                      | Smoking After       | Pop        |    14.8261 |
-|     127297 | The Pursuit of Unintentional Humor | Oh Yeah, the Future | Pop        |    15.1386 |
-|     145730 | STOCKPILE! (Funky Dubb Mixx)       | LOWdown             | Hip-Hop    |    15.1609 |
-|     113972 | Your Pulse                         | Little Glass Men    | Electronic |    15.2266 |
-|      98838 | intense                            | Moonove             | Electronic |    15.5473 |
+|      12537 | Maree Lunaire                      | Smoking After       | Pop        |    14.8493 |
+|     127297 | The Pursuit of Unintentional Humor | Oh Yeah, the Future | Pop        |    15.1498 |
+|     145730 | STOCKPILE! (Funky Dubb Mixx)       | LOWdown             | Hip-Hop    |    15.1676 |
+|     113972 | Your Pulse                         | Little Glass Men    | Electronic |    15.2270 |
+|      98838 | intense                            | Moonove             | Electronic |    15.5530 |
 
 Distances are representation-specific and not listener-preference scores; this is an audio-similarity demonstration, not a personalized recommender.
 
@@ -342,14 +342,16 @@ Future work: learn directly from mel-spectrograms with a CNN or use pretrained a
 ## 9. Reproduction and deliverables
 
 ~~~sh
-python -m pip install -r requirements.txt
+python -m pip install -r requirements.txt "scikit-learn==1.8.0"
 musicmap improve --seed 42
-musicmap predict --track-id 2
-musicmap neighbors --track-id 2 --k 5
+musicmap predict --track-id 704
+musicmap neighbors --track-id 704 --k 5
+python -m pytest -q --junitxml=/tmp/musicmap-tests.xml
+python scripts/verify_artifacts.py --test-report /tmp/musicmap-tests.xml
 jupyter lab notebooks/MusicMap.ipynb
 ~~~
 
-The notebook displays the included results by default; set RUN_TRAINING = True to recompute. "musicmap app" starts an interactive demo in the browser. No GPU or audio download is needed.
+The notebook displays the included results by default; set RUN_TRAINING = True to recompute. "musicmap app" starts an interactive demo in the browser. The examples use held-out test track 704; demonstration examples are not a new evaluation. The included saved classifiers require scikit-learn 1.8.0. Own-audio extraction requires a sample rate of at least 11,025 Hz; lower-rate files receive conversion guidance rather than being silently resampled. FFmpeg and ffprobe enable decoding of M4A/AAC files unsupported by the default decoder. No GPU or benchmark audio download is needed.
 
 ## References and attribution
 

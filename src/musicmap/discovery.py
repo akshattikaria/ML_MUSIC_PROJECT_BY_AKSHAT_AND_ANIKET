@@ -198,6 +198,19 @@ def comparison_plots(dataset: Dataset, output: Path) -> None:
     _save(fig, figures / "per_genre_f1.png")
 
 
+def _fit_pca_space(scaled_train, scaled_validation, seed: int):
+    """Fit on training only, then use one projection rule for every track.
+
+    Randomized PCA's fit_transform can differ from transform in later
+    components. Catalog and query vectors must use the same operator before
+    Euclidean distances, maps and clustering are computed.
+    """
+    n_components = min(50, scaled_train.shape[1], len(scaled_train) - 1)
+    pca = PCA(n_components=n_components, svd_solver="randomized", random_state=seed)
+    pca.fit(scaled_train)
+    return pca, pca.transform(scaled_train), pca.transform(scaled_validation)
+
+
 def run_discovery(
     dataset: Dataset, output: Path, seed: int = 42, threads: int = 2,
     repeats: int = 5,
@@ -216,10 +229,8 @@ def run_discovery(
         clean = preprocessing()
         scaled_train = clean.fit_transform(X_train)
         scaled_val = clean.transform(X_val)
-        n_components = min(50, scaled_train.shape[1], len(train_ids) - 1)
-        pca = PCA(n_components=n_components, svd_solver="randomized", random_state=seed)
-        train_embedding = pca.fit_transform(scaled_train)
-        val_embedding = pca.transform(scaled_val)
+        pca, train_embedding, val_embedding = _fit_pca_space(scaled_train, scaled_val, seed)
+        n_components = pca.n_components_
         transform = Pipeline([("preprocess", clean), ("pca", pca)])
         joblib.dump(transform, model_dir / "discovery_transform.joblib", compress=3)
         np.savez_compressed(

@@ -67,7 +67,7 @@ Akshat Tikaria — 241070005; Aniket Shinde — 171070977.
     It finds orthogonal directions with high variance in standardized training features. Two components provide a visualization; 50 provide the clustering/similarity representation. The included 2D map retains about 18.9% of variance, so it omits substantial information.
 
 21. **Does PCA use genre labels?**  
-    The map PCA does not use genres, which only color the drawing after projection. In the improved experiment, PCA is also tested as a supervised pipeline transformation, fitted only on each training fold. ANOVA feature selection does use training labels and is separately fitted within each fold.
+    PCA is unsupervised: it does not use genre labels, including when it is a step within a supervised classification pipeline. For the map, labels only color the drawing after projection; classification-pipeline PCA is fitted on each training fold's features. ANOVA feature selection does use training labels and is separately fitted within each fold.
 
 22. **Why does K-means not produce eight clean genre groups?**  
     It minimizes within-cluster squared distances in PCA space, without learning from genre labels. Acoustic geometry need not coincide with human genre categories. Cluster IDs have arbitrary numbering.
@@ -79,7 +79,7 @@ Akshat Tikaria — 241070005; Aniket Shinde — 171070977.
     By Euclidean distance in the training-fitted 50-component PCA space, searching the training catalog. The query and same-artist tracks are excluded by default. Genre is displayed but not used in the distance.
 
 25. **Can the project classify a new MP3 directly?**  
-    Yes, as a demonstration. musicmap predict --audio song.mp3 (or the Upload tab of musicmap app) extracts the same 518 descriptors with librosa, following the official FMA features.py recipe: 74 component dimensions in 11 families summarized by seven statistics over a 30-second excerpt. M4A and other files unsupported by the default decoder use FFmpeg when installed. Library versions differ from the 2017 extraction, so predictions for new audio are not part of the benchmark.
+    Yes, as a demonstration. musicmap predict --audio song.mp3 (or the Upload tab of musicmap app) extracts the same 518 descriptors with librosa, following the official FMA features.py recipe: 74 component dimensions in 11 families summarized by seven statistics over a 30-second excerpt. Source sample rates must be at least 11,025 Hz; lower-rate files receive clear conversion guidance rather than silent resampling. M4A and other files unsupported by the default decoder use FFmpeg when installed. Library versions differ from the 2017 extraction, so predictions for new audio are not part of the benchmark.
 
 26. **What would you improve next?**  
     Version 2 adds stronger models, ensembles, probability outputs and exploratory statistical comparisons. Summary statistics discard temporal order, so spectrogram CNNs or pretrained audio embeddings are useful alternatives to test. This experiment does not prove a feature ceiling. Further work includes FMA-medium, artist-aware uncertainty estimates and a fresh artist-disjoint test set.

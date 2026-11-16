@@ -24,6 +24,7 @@ Veermata Jijabai Technological Institute (VJTI)
 - Required: Decision Tree, KNN, SVM (RBF), ANN (MLP, seed-averaged).
 - Stronger baselines: Logistic Regression, Extra Trees, Gradient Boosting.
 - Soft-voting ensemble: weights chosen by greedy selection on out-of-fold probabilities.
+- Stacking: a logistic meta-classifier learns how to combine the seven families' out-of-fold log-probabilities.
 - Majority-class baseline for context (12.5% top-1 accuracy).
 
 ## Slide 5 — Results
@@ -45,7 +46,7 @@ Veermata Jijabai Technological Institute (VJTI)
 
 ## Slide 8 — Pattern discovery
 - Train-only PCA: first two PCs keep 18.9% of variance.
-- K-means without labels: validation ARI 0.140 — clusters only partially agree with genre labels.
+- K-means without labels: validation ARI 0.142 — clusters only partially agree with genre labels.
 - Show figures/pca_map.png and figures/cluster_composition.png.
 
 ## Slide 9 — Live demonstration

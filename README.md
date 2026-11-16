@@ -88,6 +88,8 @@ jupyter lab notebooks/MusicMap.ipynb           # the explained, executed noteboo
 
 Audio classification extracts the same 518 descriptors as FMA from a 30-second excerpt in the middle of the file, following the official FMA extraction recipe. Modern librosa versions produce values close to, but not identical with, the 2017 features, so treat predictions for your own music as a demonstration rather than a benchmark.
 
+Input audio must be at least one second long and have a native sample rate of **11,025 Hz or higher**. Lower-rate files receive an actionable error; MusicMap does not silently resample them. Prefer a higher-rate source. If only a low-rate recording is available, explicitly convert it first, for example `ffmpeg -i recording.wav -ar 22050 converted.wav`; resampling cannot restore information missing from the original recording.
+
 ## Reproduce from scratch
 
 ~~~sh

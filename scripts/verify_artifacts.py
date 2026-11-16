@@ -110,6 +110,55 @@ def verify_ann_average(model, X, expected_seeds) -> int:
     )
 
 
+def verify_discovery_artifacts(models: Path, X_train: pd.DataFrame, X_query: pd.DataFrame) -> dict:
+    """Exercise the saved query transform and reconcile every catalog coordinate."""
+    try:
+        transform = joblib.load(models / "discovery_transform.joblib")
+    except Exception as error:
+        raise ValueError("Could not load the saved discovery transform.") from error
+    require(
+        list(getattr(transform, "feature_names_in_", [])) == list(X_train.columns),
+        "Discovery transform feature schema differs from prepared data.",
+    )
+    require(list(X_query.columns) == list(X_train.columns), "Discovery query feature schema differs.")
+    try:
+        with threadpool_limits(limits=2):
+            projected_train = np.asarray(transform.transform(X_train))
+            projected_query = np.asarray(transform.transform(X_query))
+    except Exception as error:
+        raise ValueError("The saved discovery transform could not project training/query features.") from error
+    require(
+        projected_train.ndim == 2 and projected_train.shape[0] == len(X_train)
+        and projected_train.shape[1] > 0 and np.isfinite(projected_train).all(),
+        "Invalid training projection from the saved discovery transform.",
+    )
+    require(
+        projected_query.shape == (len(X_query), projected_train.shape[1])
+        and np.isfinite(projected_query).all(),
+        "Invalid query projection from the saved discovery transform.",
+    )
+    try:
+        with np.load(models / "training_embeddings.npz", allow_pickle=False) as catalog:
+            ids, coordinates = catalog["track_ids"], catalog["values"]
+    except Exception as error:
+        raise ValueError("Could not load the saved similarity catalog.") from error
+    require(np.array_equal(ids, X_train.index), "Similarity catalog IDs differ from training IDs.")
+    require(
+        coordinates.shape == projected_train.shape and np.isfinite(coordinates).all(),
+        "Similarity catalog dimensions differ from the saved discovery transform.",
+    )
+    require(
+        np.allclose(coordinates, projected_train, atol=1e-6, rtol=1e-6),
+        "Similarity catalog coordinates differ from the saved discovery transform.",
+    )
+    return {
+        "discovery_transform_matches_catalog": True,
+        "discovery_catalog_rows_checked": len(X_train),
+        "discovery_query_rows_checked": len(X_query),
+        "discovery_components": projected_train.shape[1],
+    }
+
+
 def verify_artifacts(root: Path) -> dict:
     reports, models = root / "reports", root / "models"
     dataset = load_dataset(root)  # Includes processed-file checksums and schema validation.
@@ -163,9 +212,9 @@ def verify_artifacts(root: Path) -> dict:
         importance = pd.read_csv(reports / "feature_family_importance.csv")
         require(np.allclose(importance.baseline_validation_f1, validation_metrics["f1_macro"]), "Feature-importance baseline differs from the training-only model.")
         ann_members = verify_ann_average(final, dataset.X.loc[test_ids[:16]], selection.get("ann_seeds", []))
-    with np.load(models / "training_embeddings.npz", allow_pickle=False) as catalog:
-        require(np.array_equal(catalog["track_ids"], train_ids), "Similarity catalog IDs differ from training IDs.")
-        require(len(catalog["values"]) == len(train_ids) and np.isfinite(catalog["values"]).all(), "Invalid similarity catalog coordinates.")
+    discovery = verify_discovery_artifacts(
+        models, dataset.X.loc[train_ids], dataset.X.loc[validation_ids[:16]],
+    )
     candidates = len(pd.read_csv(reports / "cv_results.csv"))
     require(candidates == run["candidate_count"], "Candidate count differs from run metadata.")
     require(len(folds) == run["cv_folds"], "CV fold count differs from run metadata.")
@@ -186,6 +235,7 @@ def verify_artifacts(root: Path) -> dict:
         "ann_members_checked": ann_members,
         "ann_probability_check_rows": min(16, len(test_ids)),
         "ann_probabilities_equal_fixed_seed_average": True if ann_members else None,
+        **discovery,
         "model_sha256": {path.name: sha256(path) for path in sorted(models.glob("*")) if path.is_file()},
         "processed_sha256": dataset.manifest["processed_sha256"],
     }

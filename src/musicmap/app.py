@@ -124,7 +124,11 @@ def main():
         st.caption("Experimental: modern audio libraries compute slightly different values from the 2017 "
                    "FMA extraction, so treat the result as a demonstration rather than a benchmark. "
                    "M4A/AAC requires FFmpeg on the machine running MusicMap.")
-        upload = st.file_uploader("Audio file", type=["mp3", "wav", "ogg", "flac", "m4a"])
+        upload = st.file_uploader(
+            "Audio file", type=["mp3", "wav", "ogg", "flac", "m4a"],
+            help="Use at least one second of audio recorded at 11,025 Hz or higher. "
+                 "Lower-rate recordings must be converted explicitly before upload.",
+        )
         if upload is not None:
             try:
                 from musicmap.audio import extract_file

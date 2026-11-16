@@ -498,14 +498,16 @@ Future work: learn directly from mel-spectrograms with a CNN or use pretrained a
 ## 9. Reproduction and deliverables
 
 ~~~sh
-python -m pip install -r requirements.txt
+python -m pip install -r requirements.txt "scikit-learn==1.8.0"
 musicmap improve --seed 42
-musicmap predict --track-id 2
-musicmap neighbors --track-id 2 --k 5
+musicmap predict --track-id 704
+musicmap neighbors --track-id 704 --k 5
+python -m pytest -q --junitxml=/tmp/musicmap-tests.xml
+python scripts/verify_artifacts.py --test-report /tmp/musicmap-tests.xml
 jupyter lab notebooks/MusicMap.ipynb
 ~~~
 
-The notebook displays the included results by default; set RUN_TRAINING = True to recompute. "musicmap app" starts an interactive demo in the browser. No GPU or audio download is needed.
+The notebook displays the included results by default; set RUN_TRAINING = True to recompute. "musicmap app" starts an interactive demo in the browser. The examples use held-out test track 704; demonstration examples are not a new evaluation. The included saved classifiers require scikit-learn 1.8.0. Own-audio extraction requires a sample rate of at least 11,025 Hz; lower-rate files receive conversion guidance rather than being silently resampled. FFmpeg and ffprobe enable decoding of M4A/AAC files unsupported by the default decoder. No GPU or benchmark audio download is needed.
 
 ## References and attribution
 
@@ -760,6 +762,7 @@ Veermata Jijabai Technological Institute (VJTI)
 - Required: Decision Tree, KNN, SVM (RBF), ANN (MLP, seed-averaged).
 - Stronger baselines: Logistic Regression, Extra Trees, Gradient Boosting.
 - Soft-voting ensemble: weights chosen by greedy selection on out-of-fold probabilities.
+- Stacking: a logistic meta-classifier learns how to combine the seven families' out-of-fold log-probabilities.
 - Majority-class baseline for context (12.5% top-1 accuracy).
 
 ## Slide 5 — Results

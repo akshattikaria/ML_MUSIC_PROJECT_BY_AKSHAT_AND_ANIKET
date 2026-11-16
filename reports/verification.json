@@ -19,38 +19,42 @@
   "ann_members_checked": 1,
   "ann_probability_check_rows": 16,
   "ann_probabilities_equal_fixed_seed_average": true,
+  "discovery_transform_matches_catalog": true,
+  "discovery_catalog_rows_checked": 6400,
+  "discovery_query_rows_checked": 16,
+  "discovery_components": 50,
   "model_sha256": {
     "best_model.joblib": "6f490225164b791571f84f387e1f623328f95475a5f6e06b01692a31be79285e",
-    "discovery_transform.joblib": "98c2c2d4a7c65f07fd71010fb4c7dd819296843312add850f81c304726815b9a",
+    "discovery_transform.joblib": "e8e679bbc1635a45722fcc630c0de8fc59a54861d2113a66dc8bacb61992002e",
     "selected_training_model.joblib": "b4bc19b41b8adc907444853f5daa6e49fe97bc2886bcf35f4acbe24ce5462323",
-    "training_embeddings.npz": "0f493b330fb7f6a0d53df9e22239cb4a69f6220db8220e7873783f859cb5b616"
+    "training_embeddings.npz": "542c3095be1075c6013e15284d53ee76eec31fee4c823591cb46062779f99c70"
   },
   "processed_sha256": {
     "features.npz": "4436d7b93891a9c25e2ef03328b85d22a2eaa203bd2f92c20f4613fd64433cbf",
     "tracks.csv": "750c7f0ef7ec3004444087e18200828cf3b44906a6704d3979d8674a9001ed11"
   },
-  "automated_tests_passed": 28,
+  "automated_tests_passed": 36,
   "automated_test_outcomes": {
-    "passed": 28,
+    "passed": 36,
     "failed": 0,
     "errors": 0,
     "skipped": 0
   },
-  "pytest_report_sha256": "4fe7cb1e94ee755e6a0a7429f2a776bf9035a868a3737d8b40fc75a27cff4999",
-  "verified_at_utc": "2026-11-16T14:54:28.761314+00:00",
-  "source_git_commit": "ae4cea34fea9fe73c9ae67c5ae9f65dfba3203b9",
+  "pytest_report_sha256": "daa0862c0f05226d39c498cc8c0bd8809e00fc01a3331759ed62779463f30fde",
+  "verified_at_utc": "2026-11-16T15:16:04.636647+00:00",
+  "source_git_commit": "eb0787cc12e3ea62bb7ee6d3ec6f87d39d924ccf",
   "source_git_worktree_dirty": true,
   "source_sha256": {
-    "scripts/verify_artifacts.py": "dc21bcb18545a0b18d9283178b9119268a40e37e7c19c589a089796553c6a86b",
+    "scripts/verify_artifacts.py": "182d35b66afe4ac35d8409a8b05e505691cf98a14690d55eb496dd9baaa8d621",
     "src/musicmap/__init__.py": "5d3023b641cf31b3da2a56e7b3b98a947f5ed066cc01d9ff25370189c9281161",
     "src/musicmap/__main__.py": "6d8b7d7846a845059d7a3107143f11131f63c5511d669b44085b15ec5e3d2279",
-    "src/musicmap/app.py": "65abe042f04f58606bdda29d70e4541eadddd2d9756dc0407b2aea4dcde688a7",
-    "src/musicmap/audio.py": "0650260da9a2e425896b61aa101e1eef389bc0a0073ff1de61fada9191829513",
+    "src/musicmap/app.py": "0b982326e0c1f1d044517784cb6dfcff35c82b2caeb415a5e76d36833cf1114f",
+    "src/musicmap/audio.py": "8d76768538f15fff3b9a1aead9960b81f8d91a74155c6228accb569bfca757fc",
     "src/musicmap/cli.py": "2ca0c504c151a73dbdfdae834f9524f5288ebaaf252480ce87671805cd51ef00",
     "src/musicmap/data.py": "72e6a87518ff42831e56290cfc5143d3ab73781a3e101f957953fcf6df53c5de",
-    "src/musicmap/discovery.py": "649618d41281cc0df5c5c7df29098a5b7c8a2575ef5e2bbe8853842be049eba9",
+    "src/musicmap/discovery.py": "b73fcf65ca0ee63d230fd67f95518fc1bc7e034a6b0ead4840d1c2eb432f8712",
     "src/musicmap/experiment.py": "022a24bf5342851c0c26fad936dcba83dc3633253a6d057bfeb1cb26a5348344",
     "src/musicmap/improvement.py": "010fc07d43a4db8a4bc12ae78590b4536007c876c0ed5fa4f84ddb2be163410d",
-    "src/musicmap/reporting.py": "bf6ea511810c101103cf43ace6d4bc45614cb3ca552619c1bdac8f9f4297ff4f"
+    "src/musicmap/reporting.py": "0510c62f51f725df4277e9b6c5cb1eefce97b9e2cf029bee3ce2b1a728948e16"
   }
 }

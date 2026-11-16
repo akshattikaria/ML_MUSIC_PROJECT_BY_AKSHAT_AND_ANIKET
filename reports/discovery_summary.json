@@ -3,12 +3,12 @@
   "evaluation_split": "validation",
   "test_used_for_discovery": false,
   "pca_components": 50,
-  "pca_2d_explained_variance": 0.18910838663578033,
-  "pca_50d_explained_variance": 0.7159072160720825,
+  "pca_2d_explained_variance": 0.1891084611415863,
+  "pca_50d_explained_variance": 0.7159073352813721,
   "kmeans_k": 8,
-  "kmeans_adjusted_rand_index": 0.14027888373195113,
-  "kmeans_normalized_mutual_information": 0.22441749612484757,
-  "kmeans_silhouette": 0.04055146872997284,
+  "kmeans_adjusted_rand_index": 0.14206018001977547,
+  "kmeans_normalized_mutual_information": 0.22633525378017766,
+  "kmeans_silhouette": 0.031966064125299454,
   "permutation_repeats": 5,
   "seed": 42
 }

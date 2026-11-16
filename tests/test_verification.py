@@ -2,12 +2,16 @@
 
 import importlib.util
 from pathlib import Path
+import sys
 
+import joblib
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.decomposition import PCA
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 
 spec = importlib.util.spec_from_file_location(
@@ -92,3 +96,62 @@ def test_junit_counts_real_outcomes_and_rejects_failed_runs(tmp_path):
     junit.write_text('<testsuites><testsuite><testcase name="one"/><testcase name="broken"><failure/></testcase></testsuite></testsuites>')
     with pytest.raises(ValueError, match="failed tests"):
         verification.test_summary(junit)
+
+
+@pytest.fixture
+def discovery_files(tmp_path):
+    X = pd.DataFrame(
+        np.random.default_rng(42).normal(size=(12, 3)),
+        index=pd.Index(range(100, 112), name="track_id"),
+        columns=["mfcc__mean__01", "spectral_centroid__mean__01", "zcr__mean__01"],
+    )
+    query = X.iloc[:2] + 0.15
+    transform = Pipeline([("scale", StandardScaler()), ("pca", PCA(n_components=2))]).fit(X)
+    models = tmp_path / "models"
+    models.mkdir()
+    joblib.dump(transform, models / "discovery_transform.joblib")
+    np.savez_compressed(models / "training_embeddings.npz", values=transform.transform(X), track_ids=X.index)
+    return models, X, query
+
+
+def test_discovery_verification_projects_queries_and_reconciles_catalog(discovery_files):
+    models, X, query = discovery_files
+    evidence = verification.verify_discovery_artifacts(models, X, query)
+    assert evidence == {
+        "discovery_transform_matches_catalog": True,
+        "discovery_catalog_rows_checked": 12,
+        "discovery_query_rows_checked": 2,
+        "discovery_components": 2,
+    }
+
+
+@pytest.mark.parametrize("wrong_shape", [False, True])
+def test_discovery_verification_rejects_stale_or_incompatible_coordinates(discovery_files, wrong_shape):
+    models, X, query = discovery_files
+    projection = joblib.load(models / "discovery_transform.joblib").transform(X)
+    stale = projection[:, :1] if wrong_shape else projection + 0.1
+    np.savez_compressed(models / "training_embeddings.npz", values=stale, track_ids=X.index)
+    with pytest.raises(ValueError, match="Similarity catalog (dimensions|coordinates) differ"):
+        verification.verify_discovery_artifacts(models, X, query)
+
+
+def test_corrupt_discovery_transform_fails_cli_without_replacing_evidence(
+    discovery_files, tmp_path, monkeypatch, capsys,
+):
+    models, X, query = discovery_files
+    (models / "discovery_transform.joblib").write_bytes(b"invalid serialized transform")
+    junit = tmp_path / "tests.xml"
+    junit.write_text('<testsuites><testsuite><testcase name="passed"/></testsuite></testsuites>')
+    previous = tmp_path / "verification.json"
+    previous.write_text('{"previous_evidence": true}\n')
+    monkeypatch.setattr(
+        verification, "verify_artifacts", lambda root: verification.verify_discovery_artifacts(models, X, query),
+    )
+    monkeypatch.setattr(sys, "argv", [
+        "verify_artifacts", "--root", str(tmp_path), "--test-report", str(junit), "--output", str(previous),
+    ])
+    assert verification.main() == 1
+    assert previous.read_text() == '{"previous_evidence": true}\n'
+    error = capsys.readouterr().err
+    assert "Could not load the saved discovery transform" in error
+    assert "Traceback" not in error
