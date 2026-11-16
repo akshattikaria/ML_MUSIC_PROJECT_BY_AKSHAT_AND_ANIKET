@@ -619,7 +619,7 @@ def run_improvement(
             "cv_fold_f1": ensemble_info["cv_fold_f1"], "warnings": [],
         }
         stack_info = fit_stacker(oof_by_family, y_array, folds, labels)
-        print(f"Stacked ensemble: C={stack_info['C']} (nested OOF mean F1={stack_info['cv_mean_f1']:.4f})", flush=True)
+        print(f"Stacked ensemble: C={stack_info['C']} (meta-model OOF tuning mean F1={stack_info['cv_mean_f1']:.4f})", flush=True)
         selected[STACKED] = {
             "model": STACKED, "parameters": {"members": stack_info["members"], "meta_C": stack_info["C"],
                                              "method": "logistic regression on member OOF log-probabilities"},

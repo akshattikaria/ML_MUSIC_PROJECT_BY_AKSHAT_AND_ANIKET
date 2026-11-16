@@ -119,10 +119,11 @@ def main():
             st.dataframe(neighbors.reset_index().round({"distance": 2}), hide_index=True, width="stretch")
 
     with tab_audio:
-        st.write("Upload a music file (MP3, WAV, OGG or FLAC). MusicMap extracts the same 518 "
+        st.write("Upload a music file (MP3, WAV, OGG, FLAC or M4A). MusicMap extracts the same 518 "
                  "descriptors as FMA from a 30-second excerpt in the middle of the file.")
         st.caption("Experimental: modern audio libraries compute slightly different values from the 2017 "
-                   "FMA extraction, so treat the result as a demonstration rather than a benchmark.")
+                   "FMA extraction, so treat the result as a demonstration rather than a benchmark. "
+                   "M4A/AAC requires FFmpeg on the machine running MusicMap.")
         upload = st.file_uploader("Audio file", type=["mp3", "wav", "ogg", "flac", "m4a"])
         if upload is not None:
             try:
@@ -137,7 +138,9 @@ def main():
             try:
                 with st.spinner("Extracting audio descriptors…"):
                     features = extract_file(path).to_frame().T[list(model.feature_names_in_)]
-                st.audio(upload)
+                audio_formats = {".mp3": "audio/mpeg", ".wav": "audio/wav", ".ogg": "audio/ogg",
+                                 ".flac": "audio/flac", ".m4a": "audio/mp4"}
+                st.audio(upload.getvalue(), format=audio_formats.get(suffix.lower(), upload.type))
                 show_prediction(model, features)
                 st.markdown("**Most similar songs in the training catalog**")
                 st.dataframe(nearest_to_features(dataset, MODELS, features, k=8).reset_index().round({"distance": 2}),

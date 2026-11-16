@@ -1,6 +1,11 @@
 """Audio extraction produces the dataset's exact 518-column schema."""
 
+import shutil
+import subprocess
+import sys
+
 import numpy as np
+import pandas as pd
 import pytest
 
 from musicmap.audio import FEATURE_SIZES, STATISTICS, feature_names
@@ -35,3 +40,71 @@ def test_too_short_audio_is_rejected():
     from musicmap.audio import features_from_signal
     with pytest.raises(ValueError, match="at least one second"):
         features_from_signal(np.zeros(100), 22050)
+
+
+def test_m4a_fallback_preserves_native_rate_and_middle_excerpt(tmp_path, monkeypatch):
+    librosa = pytest.importorskip("librosa")
+    sf = pytest.importorskip("soundfile")
+    if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
+        pytest.skip("FFmpeg and ffprobe are required for the M4A integration check")
+    from musicmap import audio
+
+    sr = 32000
+    t = np.arange(sr * 8) / sr
+    frequency = np.where(t < 2, 110, np.where(t < 6, 660, 1760))
+    mono = np.sin(2 * np.pi * frequency * t)
+    wav, m4a = tmp_path / "source.wav", tmp_path / "music with spaces.m4a"
+    sf.write(wav, np.column_stack([0.4 * mono, 0.2 * mono]), sr)
+    subprocess.run(["ffmpeg", "-nostdin", "-v", "error", "-i", str(wav), "-c:a", "aac", str(m4a)],
+                   check=True, capture_output=True)
+
+    def unsupported(*args, **kwargs):
+        raise RuntimeError("The native decoder does not support AAC")
+
+    captured = {}
+
+    def capture(signal, rate):
+        captured.update(signal=signal, sr=rate)
+        return pd.Series({"rmse__mean__01": float(np.sqrt(np.mean(signal ** 2)))})
+
+    monkeypatch.setattr(librosa, "load", unsupported)
+    monkeypatch.setattr(audio, "features_from_signal", capture)
+    result = audio.extract_file(m4a, duration=2)
+    signal = captured["signal"]
+    assert captured["sr"] == sr
+    assert signal.ndim == 1 and abs(len(signal) - 2 * sr) <= 1
+    spectrum = np.fft.rfft(signal)
+    peak = np.fft.rfftfreq(len(signal), 1 / sr)[np.abs(spectrum).argmax()]
+    assert peak == pytest.approx(660, abs=1)
+    # The channel mean has amplitude .3, not an energy-increasing stereo downmix.
+    assert result["rmse__mean__01"] == pytest.approx(0.3 / np.sqrt(2), rel=0.08)
+    assert result.name == "music with spaces"
+
+
+def test_unsupported_audio_without_ffmpeg_gives_conversion_guidance(tmp_path, monkeypatch):
+    librosa = pytest.importorskip("librosa")
+    from musicmap import audio
+    path = tmp_path / "recording.m4a"
+    path.write_bytes(b"unsupported audio")
+
+    def unsupported(*args, **kwargs):
+        raise RuntimeError("Format not recognised")
+
+    monkeypatch.setattr(librosa, "load", unsupported)
+    monkeypatch.setattr(audio.shutil, "which", lambda name: None)
+    with pytest.raises(ValueError, match="Install FFmpeg.*convert the file to WAV"):
+        audio.extract_file(path, offset=0)
+
+
+def test_invalid_audio_cli_reports_error_without_traceback(tmp_path, monkeypatch, capsys):
+    pytest.importorskip("librosa")
+    from musicmap.cli import main
+    path = tmp_path / "broken.m4a"
+    path.write_bytes(b"not an audio file")
+    monkeypatch.setattr(sys, "argv", ["musicmap", "extract", str(path), "--output", str(tmp_path / "out.csv")])
+    with pytest.raises(SystemExit) as exit_info:
+        main()
+    assert exit_info.value.code == 2
+    error = capsys.readouterr().err
+    assert "Could not decode broken.m4a" in error
+    assert "Traceback" not in error

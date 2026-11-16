@@ -10,7 +10,10 @@ benchmark result.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+import shutil
+import subprocess
 
 import numpy as np
 import pandas as pd
@@ -94,14 +97,70 @@ def extract_file(path: Path, offset: float | None = None, duration: float = 30.0
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(path)
+    if not np.isfinite(duration) or duration <= 0:
+        raise ValueError("Audio excerpt duration must be positive and finite.")
+    if offset is not None and (not np.isfinite(offset) or offset < 0):
+        raise ValueError("Audio excerpt offset must be nonnegative and finite.")
+    requested_offset = offset
     if offset is None:
         try:
             total = float(librosa.get_duration(path=str(path)))
         except Exception:  # noqa: BLE001 - some decoders cannot report duration
             total = duration
         offset = max(0.0, (total - duration) / 2)
-    x, sr = librosa.load(str(path), sr=None, mono=True, offset=offset, duration=duration)
+    try:
+        x, sr = librosa.load(str(path), sr=None, mono=True, offset=offset, duration=duration)
+    except (OSError, RuntimeError, ValueError):
+        # Some libsndfile builds cannot decode AAC/M4A. Decode only the requested
+        # excerpt with FFmpeg, keeping the source sample rate used by FMA.
+        x, sr = _load_with_ffmpeg(path, requested_offset, duration)
     return features_from_signal(x, sr).rename(path.stem)
+
+
+def _load_with_ffmpeg(path: Path, offset: float | None, duration: float) -> tuple[np.ndarray, int]:
+    ffmpeg, ffprobe = shutil.which("ffmpeg"), shutil.which("ffprobe")
+    if not ffmpeg or not ffprobe:
+        raise ValueError(
+            f"Could not decode {path.name}. Install FFmpeg (including ffprobe) "
+            "for M4A/AAC support, or convert the file to WAV."
+        )
+    try:
+        probe = subprocess.run(
+            [ffprobe, "-v", "error", "-select_streams", "a:0", "-show_entries",
+             "stream=sample_rate,channels,duration:format=duration", "-of", "json", str(path.resolve())],
+            check=True, capture_output=True, timeout=30,
+        )
+        info = json.loads(probe.stdout)
+        stream = info["streams"][0]
+        sr = int(stream["sample_rate"])
+        channels = int(stream["channels"])
+        if sr <= 0 or channels <= 0:
+            raise ValueError("Invalid audio stream properties.")
+        if offset is None:
+            total = duration
+            for candidate in (stream.get("duration"), info.get("format", {}).get("duration")):
+                try:
+                    total = float(candidate)
+                    break
+                except (TypeError, ValueError):
+                    continue
+            offset = max(0.0, (total - duration) / 2) if np.isfinite(total) else 0.0
+        # Match librosa.to_mono's channel mean, rather than FFmpeg's default
+        # surround/stereo mixing matrix, which can change the signal's energy.
+        channel_mean = "+".join(f"{1 / channels}*c{i}" for i in range(channels))
+        decoded = subprocess.run(
+            [ffmpeg, "-nostdin", "-v", "error", "-ss", str(offset), "-i", str(path.resolve()),
+             "-t", str(duration), "-map", "0:a:0", "-vn", "-af", f"pan=mono|c0={channel_mean}",
+             "-ac", "1", "-ar", str(sr),
+             "-f", "f32le", "-acodec", "pcm_f32le", "pipe:1"],
+            check=True, capture_output=True, timeout=60,
+        )
+        return np.frombuffer(decoded.stdout, dtype="<f4").copy(), sr
+    except (OSError, subprocess.SubprocessError, ValueError, KeyError, IndexError) as error:
+        raise ValueError(
+            f"Could not decode {path.name}. Check that it is a valid audio file, "
+            "or convert it to WAV and try again."
+        ) from error
 
 
 def extract_files(paths: list[Path]) -> pd.DataFrame:

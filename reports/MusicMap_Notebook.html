@@ -7796,13 +7796,15 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=14fcdde0">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5cb266ac">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="MusicMap">MusicMap<a class="anchor-link" href="#MusicMap">¶</a></h1><h2 id="Music-Genre-Classification-and-Pattern-Discovery-Using-Machine-Learning">Music Genre Classification and Pattern Discovery Using Machine Learning<a class="anchor-link" href="#Music-Genre-Classification-and-Pattern-Discovery-Using-Machine-Learning">¶</a></h2><p><strong>ML laboratory project · Python / scikit-learn</strong></p>
+<h1 id="MusicMap">MusicMap<a class="anchor-link" href="#MusicMap">¶</a></h1><h2 id="Music-Genre-Classification-and-Pattern-Discovery-Using-Machine-Learning">Music Genre Classification and Pattern Discovery Using Machine Learning<a class="anchor-link" href="#Music-Genre-Classification-and-Pattern-Discovery-Using-Machine-Learning">¶</a></h2><p><strong>Machine Learning course project · Veermata Jijabai Technological Institute (VJTI)</strong></p>
+<p><strong>Akshat Tikaria — Roll number 241070005</strong></p>
+<p><strong>Aniket Shinde — Roll number 171070977</strong></p>
 <p>We compare the four required algorithms (Decision Tree, KNN, SVM, ANN) with Logistic Regression, Extra Trees and Gradient Boosting on FMA-small, combine the best of them in a soft-voting ensemble, and investigate audio similarity and feature relevance.</p>
 <p><strong>Questions:</strong> Which model generalizes best under an artist-disjoint split? Does an ensemble of diverse models help? Which genres are confused? Which feature families matter? Do unsupervised clusters resemble genres?</p>
 <p>This notebook includes real outputs from the optimized experiment (version 2). The original project's reports and models are preserved in baseline/, and the first improvement run in history/improved_v1/. Read the report for a complete interpretation and references. Fill in your student details in the editable Word report.</p>
@@ -7810,7 +7812,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f5bb6ded">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e0c4b086">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7818,11 +7820,11 @@ a.anchor-link {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="How-to-use-this-notebook">How to use this notebook<a class="anchor-link" href="#How-to-use-this-notebook">¶</a></h3><p>Run cells from top to bottom after installing the project requirements. The default switches display included measurements without retraining. Set <strong>RUN_TRAINING = True</strong> for a fresh experiment; this also rebuilds the dependent discovery analyses and report. Set <strong>RUN_DISCOVERY = True</strong> to rebuild analysis from the saved fitted models.</p>
 <p>The explanations describe the default <strong>optimized</strong> profile (<code>musicmap improve</code>). The legacy <strong>standard</strong> and <strong>quick</strong> profiles reproduce the original validation-only search for comparison.</p>
-<p>The complete package includes prepared feature data and fitted models. For a source-only checkout, run <strong>musicmap improve</strong> first or set <strong>RUN_TRAINING = True</strong> (about 20–30 minutes on a 4-core laptop). Missing data are prepared from the official 342 MiB metadata archive; the large audio archive is unnecessary. All computation uses the CPU.</p>
+<p>The complete package includes prepared feature data and fitted models. For a source-only checkout, run <strong>musicmap improve</strong> first or set <strong>RUN_TRAINING = True</strong> (about 20–30 minutes on a 4-core laptop). Missing data are prepared from the official 342 MiB metadata archive; the large audio archive is unnecessary. All computation uses the CPU. The included saved models require the training-compatible scikit-learn 1.8.0 environment.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b3f27b67">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=eff7af77">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7871,25 +7873,25 @@ a.anchor-link {
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Project root: /home/claude/musicmap
+<pre>Project root: /workspace/ML_MUSIC_PROJECT_BY_AKSHAT_AND_ANIKET
 </pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4cef94c2">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2151f0ba">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="1.-Load-and-validate-FMA-small">1. Load and validate FMA-small<a class="anchor-link" href="#1.-Load-and-validate-FMA-small">¶</a></h3><p>The original tracks CSV has two header levels and the features CSV has three. The data module reads them in chunks, filters the small subset, and aligns rows by track ID. Only numeric audio descriptors become predictors; genre, artist, title, and split metadata are separate.</p>
-<p>The original metadata archive is checked against FMA's published SHA-1. The compact prepared files have their own SHA-256 checksums. Completely missing feature rows would be removed and recorded; partially missing values are left for training-fitted imputation.</p>
+<p>The original metadata archive is checked against FMA's published SHA-1. The compact prepared files have their own SHA-256 checksums. Completely missing feature rows would be removed and recorded; partially missing values are left for training-fitted imputation. There are 74 frame-level feature dimensions summarized by seven statistics, giving 518 columns grouped into 11 families.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2430de44">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a82b580a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8098,7 +8100,7 @@ Missing feature values: 0
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0009a91e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=679f422c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8109,7 +8111,7 @@ Missing feature values: 0
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a88b2901">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=805c93e0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8270,7 +8272,7 @@ Missing feature values: 0
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=56bb7a22">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=faf85b4b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8283,7 +8285,7 @@ Missing feature values: 0
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c727d918">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6e7c27f7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8398,7 +8400,7 @@ Optimized search: artist-grouped CV, 7 families, all/select/PCA features, standa
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2f6d46dc">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9cd40f72">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8410,7 +8412,7 @@ Optimized search: artist-grouped CV, 7 families, all/select/PCA features, standa
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6ea8e2ab">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=add1fd82">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8613,18 +8615,18 @@ Profile: optimized | seed: 42
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3a8a1bb3">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b8b0677f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="Cross-validation,-ensemble-weights,-and-earlier-runs">Cross-validation, ensemble weights, and earlier runs<a class="anchor-link" href="#Cross-validation,-ensemble-weights,-and-earlier-runs">¶</a></h3><p>Inspect the best CV scores, the artist-overlap audit, the ANN seed results, and the ensemble weights. CV standard deviations summarize fold variability; they are not confidence intervals.</p>
-<p>The comparison table pairs this run with the preserved original and first-improvement runs on the same 800 test tracks, including an exact McNemar test. Test scores were already seen previously, so the new result is an extended comparison.</p>
+<p>The comparison table pairs this run with the preserved original and first-improvement runs on the same 800 test tracks, including an exact McNemar test. Test scores were already seen previously, so the new result is an extended comparison. Ensemble CV values are internal tuning diagnostics: the shared base-model OOF matrix is not a fully nested evaluation of the complete stack. Track-level bootstrap intervals and McNemar tests do not account for dependence among tracks from the same artist and are exploratory summaries.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=45c62366">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=90b7e2ae">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9089,18 +9091,19 @@ Full fold membership and artist-overlap audit: <a href="../reports/cv_splits.jso
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=58175355">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fc58f166">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="5.-Inspect-genre-specific-errors">5. Inspect genre-specific errors<a class="anchor-link" href="#5.-Inspect-genre-specific-errors">¶</a></h3><p>Accuracy summarizes correct labels. Macro F1 gives every genre equal weight. A confusion matrix reveals which genres are confused, while per-class precision and recall distinguish false positives from missed examples.</p>
+<p>Top-1 accuracy and top-3 accuracy answer different questions. For eight balanced genres, their random-chance baselines are 12.5% and 37.5%, respectively; the reported 80.375% top-3 score is not single-label accuracy.</p>
 <p>In the plots, each matrix row is the actual genre and each column is a predicted genre. Each row is normalized to 100%. Inspect the recorded values before proposing reasons for an error.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=eb5cb763">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=bb848457">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9403,7 +9406,7 @@ Full fold membership and artist-overlap audit: <a href="../reports/cv_splits.jso
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7470c7f2">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b7f48025">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9414,7 +9417,7 @@ Full fold membership and artist-overlap audit: <a href="../reports/cv_splits.jso
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a423c05a">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=221883a9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9653,7 +9656,7 @@ Full fold membership and artist-overlap audit: <a href="../reports/cv_splits.jso
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0a741c12">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4ca12320">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9664,7 +9667,7 @@ Full fold membership and artist-overlap audit: <a href="../reports/cv_splits.jso
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=33f5654c">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f64b0d84">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9748,7 +9751,7 @@ Interactive map: <a href="../reports/song_map.html" target="_blank">../reports/s
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=62f139f4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=566e8bcf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9759,7 +9762,7 @@ Interactive map: <a href="../reports/song_map.html" target="_blank">../reports/s
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=23984940">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=02d8afbe">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9833,7 +9836,7 @@ Interactive map: <a href="../reports/song_map.html" target="_blank">../reports/s
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b8d0f24c">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1fcae5f5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9844,7 +9847,7 @@ Interactive map: <a href="../reports/song_map.html" target="_blank">../reports/s
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=12721291">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a40d6b9b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -10000,7 +10003,7 @@ Interactive map: <a href="../reports/song_map.html" target="_blank">../reports/s
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=23c02a61">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=06c8e23a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -10011,7 +10014,7 @@ Interactive map: <a href="../reports/song_map.html" target="_blank">../reports/s
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=899fa7af">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3346b320">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -10121,18 +10124,18 @@ Interactive map: <a href="../reports/song_map.html" target="_blank">../reports/s
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=23237e26">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=49a5c8bf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h3 id="11.-Reproducibility-and-report">11. Reproducibility and report<a class="anchor-link" href="#11.-Reproducibility-and-report">¶</a></h3><p>The project saves every validation candidate, the pre-test selection, all test predictions, raw confusion counts, fitted pipelines, source checksums, dependency versions, and random seeds.</p>
-<p>The Markdown, HTML, and editable Word reports are generated from these saved measurements. Fill in your academic details and adapt the report to your instructor's format. The presentation outline and viva guide help you explain your work.</p>
+<p>The Markdown, HTML, and editable Word reports are generated from these saved measurements. The report includes both teammates' academic details; adapt the formatting to the instructor's requirements. The presentation outline and viva guide help you explain your work. Run <code>python scripts/verify_artifacts.py --test-report /tmp/musicmap-tests.xml</code> after running pytest with <code>--junitxml=/tmp/musicmap-tests.xml</code> to reconcile saved models and reports and refresh verification metadata.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ac73e055">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3c0f8d7e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -10237,7 +10240,7 @@ Viva preparation: <a href="../docs/VIVA.md" target="_blank">../docs/VIVA.md</a><
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=06d6fab9">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=856590cc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>

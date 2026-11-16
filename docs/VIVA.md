@@ -2,6 +2,10 @@
 
 Use these notes to understand the implementation and explain the measured results in your own words.
 
+Machine Learning course project, Veermata Jijabai Technological Institute (VJTI).
+
+Akshat Tikaria — 241070005; Aniket Shinde — 171070977.
+
 1. **What is the project trying to do?**  
    Predict one of eight music genres from precomputed audio descriptors, compare the four required classifiers plus an Extra Trees benchmark, and investigate audio-based similarities and feature relevance.
 
@@ -12,7 +16,7 @@ Use these notes to understand the implementation and explain the measured result
    The implemented experiment uses the official precomputed feature table. The metadata archive is 342 MiB; the 7.2 GiB audio archive is unnecessary. Describe this choice clearly.
 
 4. **What is an input sample?**  
-   One track represented by 518 numeric descriptors. Genre is the target. Track ID, title, artist ID, album ID, and split metadata are separate and do not enter the classifiers.
+   One track represented by 518 numeric descriptors: 74 frame-level feature dimensions summarized by seven statistics, grouped into 11 families. Genre is the target. Track ID, title, artist ID, album ID, and split metadata are separate and do not enter the classifiers.
 
 5. **What are MFCCs?**  
    Mel-frequency cepstral coefficients summarize the shape of a spectrum after mel-frequency analysis and a cepstral transformation. They are useful descriptors of timbre. FMA supplies temporal summary statistics for 20 MFCC coefficients.
@@ -45,10 +49,10 @@ Use these notes to understand the implementation and explain the measured result
     It is a feed-forward multilayer perceptron operating on summary descriptors, with either one or two hidden layers in the grid. It does not process waveforms or spectrograms.
 
 15. **How does ANN early stopping work here?**  
-    Each network reserves 10% of its current fitting partition internally and stops when its internal score stops improving, subject to the configured patience and iteration limit. The exact settings are recorded with the selected parameters. This internal track split is separate from the official external validation set. Genre labels are encoded numerically inside the ANN wrapper.
+    Each network reserves 10% of its current fitting partition internally and stops when its internal score stops improving, subject to the configured patience and iteration limit. The exact settings are recorded with the selected parameters. This internal track split is separate from the official external validation set and is not artist-grouped. SVM probability estimation also uses internal splits without artist groups. Our artist-disjoint guarantees apply to outer CV and the official partitions. Genre labels are encoded numerically inside the ANN wrapper.
 
 16. **Which model won?**  
-    In the preserved original standard run, SVM achieved approximately 49.1% test accuracy and 0.4885 macro F1. For the improved run, read the validation-selected winner and exact measurements in the active report and model_comparison.csv. A higher test score must not be used to change the preselected winner.
+    In version 2, Stacked Ensemble wins validation macro F1 (0.5912), with 50.375% test accuracy and 0.4987 test macro F1. Among the four required families, ANN wins validation while SVM has the highest observed test accuracy (49.75%). Soft voting has the highest observed test accuracy across all candidates (50.75%), but test scores do not change the validation-selected champion. The original standard SVM scored 49.125%; the v2 gain of 1.25 percentage points is not statistically significant under the reported test (p = 0.378).
 
 17. **Why are the scores modest?**  
     The setup uses summary features, overlapping genre labels, a finite tuning search, and an artist-disjoint evaluation. These are plausible constraints, not proven explanations for every error. Additional controlled experiments would be needed to attribute causes or establish performance limits.
@@ -57,7 +61,7 @@ Use these notes to understand the implementation and explain the measured result
     Shuffle a feature family across validation tracks while holding other families fixed and measure the macro F1 decrease. A larger positive drop suggests the selected training-only model relies more on that family. It is not causal evidence.
 
 19. **Which features were most important?**  
-    MFCC, spectral contrast, and STFT chroma led the original baseline ranking. Inspect the updated feature-family table for the improved selected model. Group sizes differ, and correlated features can substitute for one another, so avoid claiming that every MFCC coefficient is important.
+    MFCC, spectral contrast, and STFT chroma lead the v2 feature-family permutation ranking. Group sizes differ, and correlated features can substitute for one another, so avoid claiming that every MFCC coefficient is important.
 
 20. **What does PCA do?**  
     It finds orthogonal directions with high variance in standardized training features. Two components provide a visualization; 50 provide the clustering/similarity representation. The included 2D map retains about 18.9% of variance, so it omits substantial information.
@@ -75,13 +79,13 @@ Use these notes to understand the implementation and explain the measured result
     By Euclidean distance in the training-fitted 50-component PCA space, searching the training catalog. The query and same-artist tracks are excluded by default. Genre is displayed but not used in the distance.
 
 25. **Can the project classify a new MP3 directly?**  
-    Yes, as a demonstration. musicmap predict --audio song.mp3 (or the Upload tab of musicmap app) extracts the same 518 descriptors with librosa, following the official FMA features.py recipe: 11 frame-level features summarized by seven statistics over a 30-second excerpt. Library versions differ from the 2017 extraction, so the values are close but not identical; predictions for new audio are therefore not part of the benchmark.
+    Yes, as a demonstration. musicmap predict --audio song.mp3 (or the Upload tab of musicmap app) extracts the same 518 descriptors with librosa, following the official FMA features.py recipe: 74 component dimensions in 11 families summarized by seven statistics over a 30-second excerpt. M4A and other files unsupported by the default decoder use FFmpeg when installed. Library versions differ from the 2017 extraction, so predictions for new audio are not part of the benchmark.
 
 26. **What would you improve next?**  
-    Version 2 already adds stronger models, ensembles, probability outputs and statistical tests. The close scores of very different algorithms suggest the 518 summary statistics are now the main limit, so the next step is learning from mel-spectrograms (a CNN) or pretrained audio embeddings, extending to FMA-medium, and confirming on a fresh artist-disjoint test set.
+    Version 2 adds stronger models, ensembles, probability outputs and exploratory statistical comparisons. Summary statistics discard temporal order, so spectrogram CNNs or pretrained audio embeddings are useful alternatives to test. This experiment does not prove a feature ceiling. Further work includes FMA-medium, artist-aware uncertainty estimates and a fresh artist-disjoint test set.
 
 27. **How do you know the results are reproducible?**  
-    The code fixes seeds, records versions and all candidate scores, verifies source/processed checksums, preserves track IDs, saves final predictions, and provides a one-command run. Tests check preprocessing isolation, the selection lock, ANN serialization, data alignment, and feature-family shuffling.
+    The code fixes seeds, records versions and candidate scores, verifies checksums, preserves track IDs and saves final predictions. Tests check preprocessing isolation, the selection lock, serialization, alignment, audio handling and artifact verification. scripts/verify_artifacts.py reconciles actual saved models against the prediction CSV and reports, so an outdated model file cannot silently pass merely because the app opens.
 
 28. **What should you demonstrate during the lab?**  
     Run the notebook, explain the split audit and metrics, show a confusion matrix and feature importance, zoom the interactive music map, retrieve nearest tracks, and describe limitations without overstating the scores.
@@ -113,10 +117,10 @@ Use these notes to understand the implementation and explain the measured result
     It builds hundreds of small decision trees one after another; each new tree is fitted to the errors (gradients of the log-loss) of the current ensemble, and a small learning rate shrinks every step. Feature and row subsampling plus L2 regularization limit overfitting. Unlike a single tree it models subtle interactions, and unlike Extra Trees its trees cooperate rather than vote independently.
 
 37. **Why add Logistic Regression?**  
-    It is the standard linear baseline: if a nonlinear model barely beats it, the nonlinearity is not helping. It is also fast and gives well-calibrated probabilities, which makes it a useful ensemble member.
+    It provides a regularized linear baseline and is fast. Comparing it with nonlinear families shows their observed benefit in this finite search. It produces probabilities for ensembling, but calibration must be measured rather than assumed from the algorithm name.
 
 38. **What are out-of-fold (OOF) predictions?**  
-    In K-fold CV every training track is predicted exactly once by a model that did not see it. Collecting those predictions gives an honest probability estimate for every training track. They let us learn ensemble weights without touching the validation or test partitions.
+    In K-fold CV every training track is predicted once by a fold model that did not fit on that row. These probabilities let us learn ensemble weights without validation or test data. Because base configurations were selected using these folds, the collected OOF scores are tuning diagnostics rather than a fresh independent evaluation of the full selection procedure.
 
 39. **How does the soft-voting ensemble choose its weights?**  
     Greedy forward selection (Caruana et al., 2004): start empty; in each round add (with replacement) the family whose inclusion gives the best mean fold macro F1 on the OOF probabilities; keep the best prefix of 25 rounds. The count of each family becomes its weight. Because members can be added repeatedly, strong families get more weight and useless ones get none.
@@ -128,19 +132,19 @@ Use these notes to understand the implementation and explain the measured result
     Members with similar accuracy but different errors (a kernel method, a tree ensemble, a neural network) partly cancel each other's mistakes when their probabilities are averaged. The gain is largest when errors are weakly correlated.
 
 42. **Are ensemble CV scores trustworthy?**  
-    Slightly optimistic, because the weights were chosen on the same OOF predictions they are scored on. That is why the ensembles must also compete on the untouched validation partition, and why test is reported separately.
+    Treat them as internal tuning diagnostics. Soft-voting weights are chosen on the OOF predictions being scored. The stacker reuses one global base-model OOF matrix for meta-model CV, so this is not fully nested evaluation of the entire stack. Official validation and test rows remain outside base OOF fitting, but validation selects the champion and the historical test set was already viewed.
 
 43. **What is a bootstrap confidence interval?**  
-    Resample the 800 test tracks with replacement 2,000 times, recompute accuracy each time, and take the 2.5th and 97.5th percentiles. With 800 tracks the interval is roughly ±3.5 percentage points, which is why small differences between models should not be over-interpreted.
+    The implemented interval resamples the 800 test tracks with replacement 2,000 times and takes the 2.5th and 97.5th percentiles of the recomputed metric. Its accuracy interval is 47.1%–53.9%. This assumes track-level sampling and does not account for correlated songs by the same artist; artist-cluster resampling would better address that dependence. Do not interpret it as a definitive new-artist generalization interval.
 
 44. **What does the McNemar test check?**  
-    Whether two classifiers evaluated on the same tracks differ significantly. It ignores tracks both get right or both get wrong and tests whether the "only A correct" and "only B correct" counts are balanced (an exact binomial test). It is the appropriate paired test for comparing runs on one test set.
+    It tests whether paired correctness differs between two classifiers: the "only A correct" and "only B correct" counts should balance under the null hypothesis. The implementation uses an exact binomial test. Ordinary McNemar assumes independent pairs across tracks, which can be violated by songs sharing an artist, so these p-values are exploratory. The reported p = 0.378 does not establish an improvement over the original SVM.
 
 45. **What is top-3 accuracy and why report it?**  
-    The share of tracks whose true genre is among the model's three most probable genres. Genres overlap (Pop vs Electronic, Folk vs International), so a model that ranks the right genre second is still useful, e.g. for tagging or recommendation.
+    The share of tracks whose true genre is among the model's three most probable genres. Version 2 scores 80.375% top-3 versus 37.5% random top-3 chance. Its single-label accuracy is 50.375% versus 12.5% random top-1 chance. These are different metrics; do not call the system an 80%-accurate single-label classifier.
 
 46. **What does the confidence chart show?**  
-    Test tracks are grouped by the champion's top probability. Accuracy rises steeply with confidence, so the probability is a meaningful signal of when to trust a prediction and when to double-check it.
+    Test tracks are grouped by the champion's top probability. Higher-confidence tracks are more often correct in this recorded run, but that is not a complete calibration study or a guarantee for any individual track. Confident mistakes still occur.
 
 47. **Why parallel worker processes?**  
     Each (configuration, fold) fit is independent, so joblib runs several at once, one BLAS thread each. This shortens the run roughly in proportion to the CPU cores without changing any result.

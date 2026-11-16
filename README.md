@@ -2,6 +2,12 @@
 
 **Music Genre Classification and Pattern Discovery Using Machine Learning** · version 2 (optimized)
 
+**Machine Learning course project — Veermata Jijabai Technological Institute (VJTI)**
+
+Akshat Tikaria — Roll number 241070005
+
+Aniket Shinde — Roll number 171070977
+
 MusicMap predicts the genre of a song (Electronic, Experimental, Folk, Hip-Hop, Instrumental, International, Pop, Rock) from 518 audio descriptors of the FMA-small dataset, explains which audio properties matter, and maps songs by sound similarity. Everything runs on an ordinary laptop CPU; no GPU or audio download is required.
 
 Start with [the executed notebook](notebooks/MusicMap.ipynb), [the lab report](reports/MusicMap_Report.html) (also as an editable [Word file](reports/MusicMap_Report.docx)), or launch the interactive demo with `musicmap app`.
@@ -44,11 +50,15 @@ The protocol stays strict: every tuning and ensembling decision uses only the of
 - vs. original project (SVM (RBF), 49.12%): **+1.25 percentage points**, McNemar p = 0.378
 - vs. first improvement (ANN (MLP), 47.25%): **+3.13 percentage points**, McNemar p = 0.037
 
+Bootstrap intervals and McNemar p-values are exploratory track-level summaries; they do not account for correlated errors among tracks by the same artist.
+
 Full run: 19.9 min with 2 parallel workers (Python 3.13.18, scikit-learn 1.8.0).
 
 <!-- RESULTS END -->
 
 The official test set was already viewed in the original project, so these scores are an **extended benchmark comparison** on the same benchmark, not an independent confirmation. Earlier runs are preserved in `baseline/` (original) and `history/improved_v1/` (first improvement).
+
+Top-1 random chance is **12.5%** for eight balanced genres; top-3 random chance is **37.5%**. Ensemble CV scores are internal tuning diagnostics, not a fully nested evaluation of the complete ensemble. The saved bootstrap intervals and McNemar tests operate on tracks and do not account for dependence between tracks by the same artist; they should not be used to claim a proven improvement on new artists.
 
 ## Setup
 
@@ -57,18 +67,20 @@ Python 3.11–3.13. From the extracted `musicmap` folder:
 ~~~sh
 python -m venv .venv
 source .venv/bin/activate          # Windows PowerShell: .\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+python -m pip install -r requirements.txt "scikit-learn==1.8.0"
 ~~~
 
 `requirements.txt` installs the package plus the notebook, test, demo-app and audio extras. For the exact versions used to produce the included results, use `requirements-tested.txt` instead. A minimal install is `python -m pip install -e .`.
+
+The included serialized models were trained with **scikit-learn 1.8.0**; use that version when loading them. Install **FFmpeg** (including `ffprobe`) for M4A/AAC input or other files the default audio decoder cannot read, for example `sudo apt install ffmpeg` on Ubuntu or `brew install ffmpeg` on macOS; on Windows install FFmpeg and add its `bin` directory to `PATH`. WAV and MP3 are supported by the default decoder in the tested environment.
 
 ## Use it
 
 ~~~sh
 musicmap app                                   # interactive demo in your browser
-musicmap predict --track-id 2                  # genre + confidence + top-3 for a dataset track
+musicmap predict --track-id 704                # genre + confidence + top-3 for a held-out test track
 musicmap predict --audio my_song.mp3           # classify your own audio file(s)
-musicmap neighbors --track-id 2 --k 5          # most similar songs by other artists
+musicmap neighbors --track-id 704 --k 5        # most similar songs by other artists
 musicmap extract song1.mp3 song2.wav --output features.csv
 musicmap predict --features-csv features.csv --output predictions.csv
 jupyter lab notebooks/MusicMap.ipynb           # the explained, executed notebook
@@ -80,7 +92,8 @@ Audio classification extracts the same 518 descriptors as FMA from a 30-second e
 
 ~~~sh
 musicmap improve --seed 42        # tuning, ensembles, refit, test, discovery, reports
-python -m pytest -q               # 20+ tests: leakage isolation, selection lock, ensembles, audio schema
+python -m pytest -q --junitxml=/tmp/musicmap-tests.xml
+python scripts/verify_artifacts.py --test-report /tmp/musicmap-tests.xml
 python scripts/build_notebook.py --execute
 ~~~
 
@@ -149,7 +162,7 @@ musicmap/
 ## Submission checklist
 
 1. Run the notebook and the demo so you can explain the implementation.
-2. Add your name, roll number, institution and course details to the Word report.
+2. Confirm both teammates' names, roll numbers, institution and course details on the report cover.
 3. Adapt sections and formatting to your instructor's rubric.
 4. Quote the measured numbers as they are, including limitations.
 5. Prepare the ten-slide outline and practise the viva questions.

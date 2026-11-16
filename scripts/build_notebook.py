@@ -17,7 +17,11 @@ def build():
         md("""# MusicMap
 ## Music Genre Classification and Pattern Discovery Using Machine Learning
 
-**ML laboratory project · Python / scikit-learn**
+**Machine Learning course project · Veermata Jijabai Technological Institute (VJTI)**
+
+**Akshat Tikaria — Roll number 241070005**
+
+**Aniket Shinde — Roll number 171070977**
 
 We compare the four required algorithms (Decision Tree, KNN, SVM, ANN) with Logistic Regression, Extra Trees and Gradient Boosting on FMA-small, combine the best of them in a soft-voting ensemble, and investigate audio similarity and feature relevance.
 
@@ -30,7 +34,7 @@ Run cells from top to bottom after installing the project requirements. The defa
 
 The explanations describe the default **optimized** profile (`musicmap improve`). The legacy **standard** and **quick** profiles reproduce the original validation-only search for comparison.
 
-The complete package includes prepared feature data and fitted models. For a source-only checkout, run **musicmap improve** first or set **RUN_TRAINING = True** (about 20–30 minutes on a 4-core laptop). Missing data are prepared from the official 342 MiB metadata archive; the large audio archive is unnecessary. All computation uses the CPU."""),
+The complete package includes prepared feature data and fitted models. For a source-only checkout, run **musicmap improve** first or set **RUN_TRAINING = True** (about 20–30 minutes on a 4-core laptop). Missing data are prepared from the official 342 MiB metadata archive; the large audio archive is unnecessary. All computation uses the CPU. The included saved models require the training-compatible scikit-learn 1.8.0 environment."""),
         code("""from pathlib import Path
 import json
 import os
@@ -65,7 +69,7 @@ print("Project root:", ROOT)
 
 The original tracks CSV has two header levels and the features CSV has three. The data module reads them in chunks, filters the small subset, and aligns rows by track ID. Only numeric audio descriptors become predictors; genre, artist, title, and split metadata are separate.
 
-The original metadata archive is checked against FMA's published SHA-1. The compact prepared files have their own SHA-256 checksums. Completely missing feature rows would be removed and recorded; partially missing values are left for training-fitted imputation."""),
+The original metadata archive is checked against FMA's published SHA-1. The compact prepared files have their own SHA-256 checksums. Completely missing feature rows would be removed and recorded; partially missing values are left for training-fitted imputation. There are 74 frame-level feature dimensions summarized by seven statistics, giving 518 columns grouped into 11 families."""),
         code("""dataset = prepare_data(ROOT)
 print(f"Feature matrix: {dataset.X.shape[0]:,} tracks × {dataset.X.shape[1]} descriptors")
 print("Missing feature values:", int(dataset.X.isna().sum().sum()))
@@ -153,7 +157,7 @@ display(Image(filename=str(REPORTS / "figures/model_comparison.png"), width=1100
 
 Inspect the best CV scores, the artist-overlap audit, the ANN seed results, and the ensemble weights. CV standard deviations summarize fold variability; they are not confidence intervals.
 
-The comparison table pairs this run with the preserved original and first-improvement runs on the same 800 test tracks, including an exact McNemar test. Test scores were already seen previously, so the new result is an extended comparison."""),
+The comparison table pairs this run with the preserved original and first-improvement runs on the same 800 test tracks, including an exact McNemar test. Test scores were already seen previously, so the new result is an extended comparison. Ensemble CV values are internal tuning diagnostics: the shared base-model OOF matrix is not a fully nested evaluation of the complete stack. Track-level bootstrap intervals and McNemar tests do not account for dependence among tracks from the same artist and are exploratory summaries."""),
         code("""if run_info["profile"] in ("improved", "optimized"):
     cv_results = pd.read_csv(REPORTS / "cv_results.csv")
     display(cv_results.sort_values("cv_mean_f1", ascending=False).head(10))
@@ -180,6 +184,8 @@ The comparison table pairs this run with the preserved original and first-improv
         md("""### 5. Inspect genre-specific errors
 
 Accuracy summarizes correct labels. Macro F1 gives every genre equal weight. A confusion matrix reveals which genres are confused, while per-class precision and recall distinguish false positives from missed examples.
+
+Top-1 accuracy and top-3 accuracy answer different questions. For eight balanced genres, their random-chance baselines are 12.5% and 37.5%, respectively; the reported 80.375% top-3 score is not single-label accuracy.
 
 In the plots, each matrix row is the actual genre and each column is a predicted genre. Each row is normalized to 100%. Inspect the recorded values before proposing reasons for an error."""),
         code("""classification = json.loads((REPORTS / "classification_reports.json").read_text())
@@ -270,7 +276,7 @@ display(pd.DataFrame(rows))
 
 The project saves every validation candidate, the pre-test selection, all test predictions, raw confusion counts, fitted pipelines, source checksums, dependency versions, and random seeds.
 
-The Markdown, HTML, and editable Word reports are generated from these saved measurements. Fill in your academic details and adapt the report to your instructor's format. The presentation outline and viva guide help you explain your work."""),
+The Markdown, HTML, and editable Word reports are generated from these saved measurements. The report includes both teammates' academic details; adapt the formatting to the instructor's requirements. The presentation outline and viva guide help you explain your work. Run `python scripts/verify_artifacts.py --test-report /tmp/musicmap-tests.xml` after running pytest with `--junitxml=/tmp/musicmap-tests.xml` to reconcile saved models and reports and refresh verification metadata."""),
         code("""display(pd.Series({
     "Python": run_info["python"],
     "scikit-learn": run_info["versions"]["scikit-learn"],
